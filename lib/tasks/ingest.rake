@@ -1,7 +1,60 @@
 require 'csv'
 
 namespace :ingest do
-   desc "Ingest ALL"
+   desc "Ingest non-ivy interventions"
+   task :interventions  => :environment do
+      file = ENV["file"]
+      abort("file is required") if file.nil?
+      puts "Ingesting interventions file #{file}"
+      CSV.foreach(file, headers: true) do |row|
+         # FORMAT:
+         # 0=barcode, 1=timestamp, 2=user, 3=inscriptions
+         # 4=annotations, 5=marginalia, 6=JUNK, 7=insertions
+         # 8=artwork, 9=special_interest, 10=special_problems,
+         # 11=library_markings
+         # print "."
+         bc_str = row[0].strip.upcase
+         barcode = Barcode.where(barcode: bc_str, active: 1)
+         if barcode.count > 1
+            cnt = 0
+            # barcode.each do |bc|
+            #    cnt += 1 if bc.shelf_listing.book_status_id != 3 && bc.shelf_listing.location != "CHECKEDOUT"
+            # end
+            # if cnt > 1
+               puts bc_str
+            # end
+         end
+      end
+   end
+
+   desc "Ingest ivy interventions"
+   task :ivy_interventions  => :environment do
+      file = ENV["file"]
+      abort("file is required") if file.nil?
+      puts "Ingesting IVY interventions file #{file}"
+      CSV.foreach(file, headers: true) do |row|
+         # FORMAT:
+         # 0=timestamp, 1=user, 2=barcode, 3=bookplate,
+         # 4=actions, 5=inscriptions, 6=marginalia,
+         # 7=annotations, 7=insertions, 8=artwork,
+         # 9=library_markings, 10=special_interest, 11=special_problems,
+
+         print "."
+         bc_str = row[2].strip.upcase
+         barcode = Barcode.where(barcode: bc_str, active: 1)
+         if barcode.count > 1
+            cnt = 0
+            # barcode.each do |bc|
+            #    cnt += 1 if bc.shelf_listing.book_status_id != 3 && bc.shelf_listing.location != "CHECKEDOUT"
+            # end
+            # if cnt > 1
+               puts bc_str
+            # end
+         end
+      end
+   end
+
+   desc "Ingest ALL listings"
    task :all  => :environment do
       ivy = "listings/Ivy-Stacks-sample-shelf-list.csv"
       files = [
@@ -27,8 +80,6 @@ namespace :ingest do
       file = ENV["file"]
       abort("file is required") if file.nil?
       puts "Ingesting cataloging file #{file}"
-      cnt = 0
-      x=0
       CSV.foreach(file, headers: true) do |row|
          # FORMAT:
          # 0=internal_id, 1=original item id, 2=item id on book, 3=date sent out.
