@@ -26,7 +26,7 @@ namespace :ingest do
    task :cataloging  => :environment do
       file = ENV["file"]
       abort("file is required") if file.nil?
-      puts "Ingesting contents of #{file}"
+      puts "Ingesting cataloging file #{file}"
       cnt = 0
       x=0
       CSV.foreach(file, headers: true) do |row|
@@ -57,7 +57,12 @@ namespace :ingest do
          end
          cr = CatalogingRequest.create!(
             shelf_listing_id: sl.id, sent_out_on: sent_out,
-            returned_on: returned, updated_item_id: updated_id, destination: row[7])
+            returned_on: returned, destination: row[7])
+
+         # mark the original barcode for this listing as inactive
+         # and add the newly updated one
+         Barcode.where("shelf_listing_id = #{sl.id} and cataloging_request_id is null and active=1").update_all(active: false)
+         Barcode.create(barcode: updated_id, shelf_listing_id: sl.id, cataloging_request_id: cr.id)
 
          # Problems are a semicolon separated list. Parse and create problems records
          # for each and link to the request
@@ -112,13 +117,9 @@ namespace :ingest do
                statuses, status = find_status(statuses, "no barcode")
                stacks_item_id = nil
             else
-               sz0 = statuses.length
                status_string = stacks_item_id.downcase.gsub(/\s+/, " ")
                statuses, status = find_status(statuses, status_string)
                stacks_item_id = nil
-               if statuses.length > sz0
-                  puts "INDEX #{row[9]} mismatch #{status.name}"
-               end
             end
          end
 
@@ -129,10 +130,15 @@ namespace :ingest do
          end
 
          sl = ShelfListing.create!(title: row[1], call_number: row[2],
-            original_item_id: original_item_id, stacks_item_id: stacks_item_id, book_status: status,
+            original_item_id: original_item_id, book_status: status,
             bookplate_text: row[5], date_checked: row[7], who_checked: row[8],
             internal_id: row[9].strip, location: row[11].strip, library: row[12].strip,
             classification: row[13].strip, subclassification:  row[14].strip )
+
+         # If there is a valid barcode for this book, add it to the barcodes table
+         if !stacks_item_id.nil?
+            Barcode.create!(shelf_listing_id: sl.id, barcode: stacks_item_id)
+         end
 
          if file.include? "Law.csv"
             sl.update(classification_system: row[15].strip )
@@ -175,10 +181,11 @@ namespace :ingest do
 
          pub_year = row[4].split(".")[0]
          sl = ShelfListing.create!(title: row[6], call_number: row[1],
-            original_item_id: item_id, stacks_item_id: item_id, book_status: valid_status,
+            original_item_id: item_id, book_status: valid_status,
             author: row[5], publication_year: pub_year,
             internal_id: "IS-%05d" % seq, location: row[3].strip, library: row[9].strip,
             classification: row[10].strip, subclassification:  row[11].strip )
+         Barcode.create!(shelf_listing_id: sl.id, barcode: item_id)
          seq += 1
       end
       puts "DONE"

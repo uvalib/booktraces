@@ -10,12 +10,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170607141151) do
+ActiveRecord::Schema.define(version: 20170607201425) do
 
   create_table "actions", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string "name"
     t.bigint "shelf_listing_id"
     t.index ["shelf_listing_id"], name: "index_actions_on_shelf_listing_id"
+  end
+
+  create_table "barcodes", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string "barcode"
+    t.boolean "active", default: true
+    t.bigint "shelf_listing_id"
+    t.bigint "cataloging_request_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["cataloging_request_id"], name: "index_barcodes_on_cataloging_request_id"
+    t.index ["shelf_listing_id"], name: "index_barcodes_on_shelf_listing_id"
   end
 
   create_table "book_statuses", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -26,11 +37,15 @@ ActiveRecord::Schema.define(version: 20170607141151) do
     t.bigint "shelf_listing_id"
     t.date "sent_out_on"
     t.date "returned_on"
-    t.string "updated_item_id"
     t.string "destination"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["shelf_listing_id"], name: "index_cataloging_requests_on_shelf_listing_id"
+  end
+
+  create_table "intervention_types", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer "category"
+    t.string "name"
   end
 
   create_table "problems", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -42,7 +57,6 @@ ActiveRecord::Schema.define(version: 20170607141151) do
   create_table "shelf_listings", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string "internal_id", null: false
     t.string "original_item_id"
-    t.string "stacks_item_id"
     t.bigint "book_status_id"
     t.text "title"
     t.text "author"
@@ -61,7 +75,6 @@ ActiveRecord::Schema.define(version: 20170607141151) do
     t.index ["book_status_id"], name: "index_shelf_listings_on_book_status_id"
     t.index ["internal_id"], name: "index_shelf_listings_on_internal_id"
     t.index ["original_item_id"], name: "index_shelf_listings_on_original_item_id"
-    t.index ["stacks_item_id"], name: "index_shelf_listings_on_stacks_item_id"
   end
 
   create_table "users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -74,6 +87,8 @@ ActiveRecord::Schema.define(version: 20170607141151) do
   end
 
   add_foreign_key "actions", "shelf_listings"
+  add_foreign_key "barcodes", "cataloging_requests"
+  add_foreign_key "barcodes", "shelf_listings"
   add_foreign_key "cataloging_requests", "shelf_listings"
   add_foreign_key "problems", "cataloging_requests"
 end

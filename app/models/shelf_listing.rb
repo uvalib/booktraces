@@ -1,5 +1,6 @@
 class ShelfListing < ApplicationRecord
 
+   has_many :barcodes
    has_many :cataloging_requests
    has_many :actions
    belongs_to :book_status
@@ -12,20 +13,10 @@ class ShelfListing < ApplicationRecord
    validates :subclassification, presence: true
 
    before_save do
-      self.stacks_item_id = nil if self.stacks_item_id.blank?
       self.classification_system = "LC" if self.classification_system.blank?
    end
 
-   def item_id
-      if cataloging_requests.count == 0
-         return self.original_item_id if self.stacks_item_id.blank?
-         return self.stacks_item_id
-      else
-         id = []
-         self.cataloging_requests.each do |p|
-            id << p.updated_item_id
-         end
-         return id
-      end
+   def barcode
+      self.barcodes.where(active: 1).pluck(:barcode)
    end
 end
