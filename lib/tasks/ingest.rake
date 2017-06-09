@@ -74,20 +74,56 @@ namespace :ingest do
          # FORMAT:
          # 0=timestamp, 1=user, 2=barcode, 3=bookplate,
          # 4=actions, 5=inscriptions, 6=marginalia,
-         # 7=annotations, 7=insertions, 8=artwork,
-         # 9=library_markings, 10=special_interest, 11=special_problems,
+         # 7=annotations, 8=insertions, 9=artwork,
+         # 10=library_markings, 11=special_interest, 12=special_problems
 
          print "."
+         intervention = Intervention.create!(
+            special_interest: row[11], special_problems: row[12],
+            who_found: row[1], found_at: row[0].to_datetime)
+
+         if !row[5].blank?
+            add_intervention_detail( intervention, "inscription", row[5].strip.downcase, types )
+         end
+         if !row[7].blank?
+            add_intervention_detail( intervention, "annotation", row[7].strip.downcase, types )
+         end
+         if !row[6].blank?
+            add_intervention_detail( intervention, "marginalia", row[6].strip.downcase, types )
+         end
+         if !row[8].blank?
+            add_intervention_detail( intervention, "insertion", row[8].strip.downcase, types )
+         end
+         if !row[9].blank?
+            if row[9].downcase.include? "juvenile"
+               InterventionDetail.create(intervention: intervention, intervention_type_id: 17)
+            else
+               InterventionDetail.create(intervention: intervention, intervention_type_id: 16)
+            end
+         end
+         if !row[10].blank?
+            add_intervention_detail( intervention, "library", row[10].strip.downcase, types )
+         end
+
          bc_str = row[2].strip.upcase
-         barcode = Barcode.where(barcode: bc_str, active: 1)
-         if barcode.count > 1
-            cnt = 0
-            # barcode.each do |bc|
-            #    cnt += 1 if bc.shelf_listing.book_status_id != 3 && bc.shelf_listing.location != "CHECKEDOUT"
-            # end
-            # if cnt > 1
-               puts bc_str
-            # end
+         Barcode.where(barcode: bc_str, active: 1).each do |bc|
+            BarcodeIntervention.create(barcode: bc, intervention: intervention)
+
+            # backfill bookplate data in original shelf listing
+            if !bc.shelf_listing.bookplate_text.blank? && !row[3].blank?
+               bc.shelf_listing.update(bookplate_text: row[3])
+               if !row[4].blank?
+                  row[4].split(";").each do |a|
+                     act = a.strip.downcase
+                     next if act == "none of the above" || act.include? "describe below"
+                     if act.include? "too late"
+                        Action.create(name: "too late", shelf_listing: sl)
+                     else
+                        Action.create(name: act, shelf_listing: sl)
+                     end
+                  end
+               end
+            end
          end
       end
    end
