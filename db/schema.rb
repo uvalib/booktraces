@@ -10,12 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170609190942) do
+ActiveRecord::Schema.define(version: 20170609193411) do
 
   create_table "actions", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string "name"
     t.bigint "shelf_listing_id"
     t.index ["shelf_listing_id"], name: "index_actions_on_shelf_listing_id"
+  end
+
+  create_table "barcode_destinations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.bigint "destination_id"
+    t.bigint "barcode_id"
+    t.index ["barcode_id"], name: "index_barcode_destinations_on_barcode_id"
+    t.index ["destination_id"], name: "index_barcode_destinations_on_destination_id"
   end
 
   create_table "barcode_interventions", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -123,6 +130,8 @@ ActiveRecord::Schema.define(version: 20170609190942) do
   end
 
   add_foreign_key "actions", "shelf_listings"
+  add_foreign_key "barcode_destinations", "barcodes"
+  add_foreign_key "barcode_destinations", "destinations"
   add_foreign_key "barcode_interventions", "barcodes"
   add_foreign_key "barcode_interventions", "interventions"
   add_foreign_key "barcodes", "cataloging_requests"
