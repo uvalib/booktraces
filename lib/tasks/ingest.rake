@@ -70,6 +70,8 @@ namespace :ingest do
       file = ENV["file"]
       abort("file is required") if file.nil?
       puts "Ingesting IVY interventions file #{file}"
+      types = InterventionType.all
+
       CSV.foreach(file, headers: true) do |row|
          # FORMAT:
          # 0=timestamp, 1=user, 2=barcode, 3=bookplate,
@@ -110,16 +112,16 @@ namespace :ingest do
             BarcodeIntervention.create(barcode: bc, intervention: intervention)
 
             # backfill bookplate data in original shelf listing
-            if !bc.shelf_listing.bookplate_text.blank? && !row[3].blank?
+            if bc.shelf_listing.bookplate_text.blank? && !row[3].blank?
                bc.shelf_listing.update(bookplate_text: row[3])
                if !row[4].blank?
                   row[4].split(";").each do |a|
                      act = a.strip.downcase
-                     next if act == "none of the above" || act.include? "describe below"
+                     next if act == "none of the above" || act.include?("describe below")
                      if act.include? "too late"
-                        Action.create(name: "too late", shelf_listing: sl)
+                        Action.create(name: "too late", shelf_listing: bc.shelf_listing)
                      else
-                        Action.create(name: act, shelf_listing: sl)
+                        Action.create(name: act, shelf_listing: bc.shelf_listing)
                      end
                   end
                end
