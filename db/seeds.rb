@@ -5,6 +5,14 @@
 #
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
+
+Destination.create([
+   {name: "Return to stacks"}, {name: "Ivy medium rare"}, {name: "Special Collections"},
+   {name: "Return to CLIR project manager"},
+   {name: "Holmes census then return to stacks"},
+   {name: "Unknown"}
+])
+
 BookStatus.create([
    { name: 'valid' }, { name: 'barcode mismatch' }, { name: 'not on shelf' },
    { name: 'no barcode' }, { name: 'cataloging problem'}, { name: 'too late'},
