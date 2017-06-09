@@ -10,12 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170608133128) do
+ActiveRecord::Schema.define(version: 20170608181033) do
 
   create_table "actions", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string "name"
     t.bigint "shelf_listing_id"
     t.index ["shelf_listing_id"], name: "index_actions_on_shelf_listing_id"
+  end
+
+  create_table "barcode_interventions", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.bigint "intervention_id"
+    t.bigint "barcode_id"
+    t.index ["barcode_id"], name: "index_barcode_interventions_on_barcode_id"
+    t.index ["intervention_id"], name: "index_barcode_interventions_on_intervention_id"
   end
 
   create_table "barcodes", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -56,14 +63,12 @@ ActiveRecord::Schema.define(version: 20170608133128) do
   end
 
   create_table "interventions", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.bigint "barcode_id"
     t.text "special_interest"
     t.text "special_problems"
     t.string "who_found"
     t.datetime "found_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["barcode_id"], name: "index_interventions_on_barcode_id"
   end
 
   create_table "problems", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -105,11 +110,12 @@ ActiveRecord::Schema.define(version: 20170608133128) do
   end
 
   add_foreign_key "actions", "shelf_listings"
+  add_foreign_key "barcode_interventions", "barcodes"
+  add_foreign_key "barcode_interventions", "interventions"
   add_foreign_key "barcodes", "cataloging_requests"
   add_foreign_key "barcodes", "shelf_listings"
   add_foreign_key "cataloging_requests", "shelf_listings"
   add_foreign_key "intervention_details", "intervention_types"
   add_foreign_key "intervention_details", "interventions"
-  add_foreign_key "interventions", "barcodes"
   add_foreign_key "problems", "cataloging_requests"
 end

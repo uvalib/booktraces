@@ -1,12 +1,11 @@
 class Intervention < ApplicationRecord
-   belongs_to :barcode
-   has_and_belongs_to_many :intervention_types, :join_table=>:intervention_details
+   has_many :barcode_interventions
+   has_many :barcodes, through:  :barcode_interventions
 
-   validates :barcode, presence: true
+   has_many :intervention_details
+   has_many :details, through: :intervention_details, :class_name=>"InterventionType", :source=>:intervention_type
+
    validates :who_found, presence: true
    validates :found_at, presence: true
 
-   def details
-      return self.intervention_types
-   end
 end

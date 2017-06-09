@@ -6,23 +6,61 @@ namespace :ingest do
       file = ENV["file"]
       abort("file is required") if file.nil?
       puts "Ingesting interventions file #{file}"
+      types= InterventionType.all
+
       CSV.foreach(file, headers: true) do |row|
          # FORMAT:
          # 0=barcode, 1=timestamp, 2=user, 3=inscriptions
          # 4=annotations, 5=marginalia, 6=JUNK, 7=insertions
          # 8=artwork, 9=special_interest, 10=special_problems,
          # 11=library_markings
-         # print "."
+
+         print "."
+         intervention = Intervention.create!(
+            special_interest: row[9], special_problems: row[10],
+            who_found: row[2], found_at: row[1].to_datetime)
+
+         if !row[3].blank?
+            add_intervention_detail( intervention, "inscription", row[3].strip.downcase, types )
+         end
+         if !row[4].blank?
+            add_intervention_detail( intervention, "annotation", row[4].strip.downcase, types )
+         end
+         if !row[5].blank?
+            add_intervention_detail( intervention, "marginalia", row[5].strip.downcase, types )
+         end
+         if !row[7].blank?
+            add_intervention_detail( intervention, "insertion", row[7].strip.downcase, types )
+         end
+         if !row[8].blank?
+            if row[8].downcase.include? "juvenile"
+               InterventionDetail.create(intervention: intervention, intervention_type_id: 17)
+            else
+               InterventionDetail.create(intervention: intervention, intervention_type_id: 16)
+            end
+         end
+         if !row[11].blank?
+            add_intervention_detail( intervention, "library", row[11].strip.downcase, types )
+         end
+
          bc_str = row[0].strip.upcase
-         barcode = Barcode.where(barcode: bc_str, active: 1)
-         if barcode.count > 1
-            cnt = 0
-            # barcode.each do |bc|
-            #    cnt += 1 if bc.shelf_listing.book_status_id != 3 && bc.shelf_listing.location != "CHECKEDOUT"
-            # end
-            # if cnt > 1
-               puts bc_str
-            # end
+         Barcode.where(barcode: bc_str, active: 1).each do |bc|
+            BarcodeIntervention.create(barcode: bc, intervention: intervention)
+         end
+      end
+   end
+
+   def add_intervention_detail(intervention, category, vals, types)
+      vals.split(",").each do |val|
+         d=nil
+         types.where(category: category).each do |t|
+            if /\b#{t.name}\b/.match(val)
+               d = InterventionDetail.create(intervention: intervention, intervention_type: t)
+               break
+            end
+         end
+         if d.nil?
+            puts "ERROR Unknown intervention type #{val}"
          end
       end
    end
@@ -80,10 +118,19 @@ namespace :ingest do
       file = ENV["file"]
       abort("file is required") if file.nil?
       puts "Ingesting cataloging file #{file}"
+      date_return_idx = 5
+      new_id_idx = 6
+      dest_idx = 7
+      if file.include? "BSEL"
+         date_return_idx = 6
+         new_id_idx = 7
+         dest_idx = 5
+      end
       CSV.foreach(file, headers: true) do |row|
          # FORMAT:
          # 0=internal_id, 1=original item id, 2=item id on book, 3=date sent out.
          # 4=problem, 5=date returned, 6=updated id, 7=destination
+         # NOTE: In BSEL catalog data, 5 is destination and the rest are pushed up
 
          # First to match on internal ID
          sl = ShelfListing.find_by(internal_id: row[0])
@@ -92,9 +139,8 @@ namespace :ingest do
             next
          end
 
-         # pull and normalize the item id on book and updated id fields
-         book_item_id = row[2].strip.upcase
-         updated_id = row[6].strip.upcase
+         # pull and normalize the updated id field
+         updated_id = row[new_id_idx].strip.upcase if !row[new_id_idx].blank?
 
          sent_out = nil
          returned = nil
@@ -103,17 +149,19 @@ namespace :ingest do
          rescue Exception=>e
          end
          begin
-            returned = row[5].strip.to_date
+            returned = row[date_return_idx].strip.to_date
          rescue Exception=>e
          end
          cr = CatalogingRequest.create!(
             shelf_listing_id: sl.id, sent_out_on: sent_out,
-            returned_on: returned, destination: row[7])
+            returned_on: returned, destination: row[dest_idx])
 
-         # mark the original barcode for this listing as inactive
-         # and add the newly updated one
-         Barcode.where("shelf_listing_id = #{sl.id} and cataloging_request_id is null and active=1").update_all(active: false)
-         Barcode.create(barcode: updated_id, shelf_listing_id: sl.id, cataloging_request_id: cr.id)
+         # If there is no matching barcode for this book, create one
+         if sl.barcodes.where(barcode: updated_id).count == 0
+            # mark the original barcode for this listing as inactive and add the new one
+            Barcode.where("shelf_listing_id = #{sl.id} and cataloging_request_id is null and active=1").update_all(active: false)
+            Barcode.create(barcode: updated_id, shelf_listing_id: sl.id, cataloging_request_id: cr.id)
+         end
 
          # Problems are a semicolon separated list. Parse and create problems records
          # for each and link to the request

@@ -12,23 +12,23 @@ BookStatus.create([
 ])
 
 InterventionType.create([
-   { category: "inscription", name: 'owner or indeterminate' },
+   { category: "inscription", name: 'owner' },
    { category: "inscription", name: 'gift' },
    { category: "inscription", name: 'author' },
-   { category: "inscription", name: 'covered by bookplate' },
+   { category: "inscription", name: 'covered' },
    { category: "annotation", name: 'verbal' },
-   { category: "annotation", name: 'non-verbal' },
+   { category: "annotation", name: 'nonverbal' },
    { category: "annotation", name: 'juvenile' },
    { category: "marginalia", name: 'verbal' },
-   { category: "marginalia", name: 'non-verbal' },
+   { category: "marginalia", name: 'nonverbal' },
    { category: "marginalia", name: 'underscoring' },
-   { category: "insertion", name: 'loose non-botanical' },
+   { category: "insertion", name: 'non-botanical' },
    { category: "insertion", name: 'tipped' },
-   { category: "insertion", name: 'fully pasted' },
+   { category: "insertion", name: 'pasted' },
    { category: "insertion", name: 'botanical' },
-   { category: "insertion", name: 'extra-illustration' },
+   { category: "insertion", name: 'illustration' },
    { category: "artwork", name: 'artwork' },
    { category: "artwork", name: 'juvenile' },
-   { category: "library", name: 'label or bookplate' },
-   { category: "library", name: 'stamp or embossing' }
+   { category: "library", name: 'label' },
+   { category: "library", name: 'stamp' }
 ])
