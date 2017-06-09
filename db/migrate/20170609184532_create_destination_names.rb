@@ -1,0 +1,7 @@
+class CreateDestinationNames < ActiveRecord::Migration[5.1]
+  def change
+    create_table :destination_names do |t|
+      t.string :name
+    end
+  end
+end
