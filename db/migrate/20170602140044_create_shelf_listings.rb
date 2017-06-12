@@ -4,7 +4,7 @@ class CreateShelfListings < ActiveRecord::Migration[5.1]
       t.string :internal_id, index: true, null: false
       t.string :original_item_id, index: true
       t.string :stacks_item_id, index: true
-      t.references :book_status
+      t.references :book_status, index: true, foreign_key: true
       t.text :title
       t.text :author
       t.text :publication_year

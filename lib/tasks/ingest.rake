@@ -1,6 +1,51 @@
 require 'csv'
 
 namespace :ingest do
+
+   desc "Ingest ALL data; listings, cataloging, interventions and destinations"
+   task :all  => :environment do
+      ivy = "listings/Ivy-Stacks-sample-shelf-list.csv"
+      listings = [
+         "Alderman-subclass-B-shelf-list.csv", "Clemons.csv", "Law.csv",
+         "Alderman.csv", "Ivy-Annex.csv", "Music-books.csv", "BSEL.csv",
+         "Music-scores.csv"]
+      listings.sort!
+      base = ENV['base']
+      abort("base is required") if base.nil?
+
+      listings.each do |f|
+         puts "INGEST #{f}"
+         ENV['file'] = File.join(base, "listings", f)
+         Rake::Task['ingest:listing'].execute
+      end
+
+      ENV['file'] = File.join(base,ivy)
+      Rake::Task['ingest:ivy'].execute
+
+      # Cataloging ========================================
+      catalogs = ["cataloging.csv", "BSEL books sent to cataloging.csv"]
+      catalogs.each do |f|
+         puts "CATALOGING INGEST #{f}"
+         ENV['file'] = File.join(base, "cataloging", f)
+         Rake::Task['ingest:cataloging'].execute
+      end
+
+      # Interventions =====================================
+      ENV['file'] = File.join(base, "interventions", "intervention-data-except-Ivy-Stacks.csv")
+      Rake::Task['ingest:interventions'].execute
+      ENV['file'] = File.join(base, "interventions", "Ivy-Stacks-intervention-data-with-bookplates-and-actions.csv")
+      Rake::Task['ingest:ivy_interventions'].execute
+
+      # Destinations ======================================
+      dests = ["preservation.csv", "BSEL books sent to preservation.csv",
+         "Special-Collections.csv", "BSEL-books-sent-to-special-collections-for-bookplates.csv"]
+      dests.each do |f|
+         puts "DESTINATION INGEST #{f}"
+         ENV['file'] = File.join(base, "destinations", f)
+         Rake::Task['ingest:destinations'].execute
+      end
+   end
+
    desc "Ingest destinaton data (non-special-collection)"
    task :destinations  => :environment do
       file = ENV["file"]
@@ -163,27 +208,6 @@ namespace :ingest do
             end
          end
       end
-   end
-
-   desc "Ingest ALL listings"
-   task :all  => :environment do
-      ivy = "listings/Ivy-Stacks-sample-shelf-list.csv"
-      files = [
-         "Alderman-subclass-B-shelf-list.csv", "Clemons.csv", "Law.csv",
-         "Alderman.csv", "Ivy-Annex.csv", "Music-books.csv", "BSEL.csv",
-         "Music-scores.csv"]
-      files.sort!
-      base = ENV['base']
-      abort("base is required") if base.nil?
-
-      files.each do |f|
-         puts "INGEST #{f}"
-         ENV['file'] = File.join(base, "listings", f)
-         Rake::Task['ingest:listing'].execute
-      end
-
-      ENV['file'] = File.join(base,ivy)
-      Rake::Task['ingest:ivy'].execute
    end
 
    desc "Ingest a cataloging .csv file"

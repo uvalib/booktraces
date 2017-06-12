@@ -137,7 +137,9 @@ ActiveRecord::Schema.define(version: 20170609193411) do
   add_foreign_key "barcodes", "cataloging_requests"
   add_foreign_key "barcodes", "shelf_listings"
   add_foreign_key "cataloging_requests", "shelf_listings"
+  add_foreign_key "destinations", "destination_names"
   add_foreign_key "intervention_details", "intervention_types"
   add_foreign_key "intervention_details", "interventions"
   add_foreign_key "problems", "cataloging_requests"
+  add_foreign_key "shelf_listings", "book_statuses"
 end
