@@ -1,6 +1,41 @@
 require 'csv'
 
 namespace :ingest do
+   desc "Ingest destinaton data (non-special-collection)"
+   task :destinations  => :environment do
+      file = ENV["file"]
+      abort("file is required") if file.nil?
+      puts "Ingesting destinations file #{file}"
+      names = DestinationName.all
+
+      sc = file.downcase.include? "special"
+
+      CSV.foreach(file, headers: true) do |row|
+         # FORMAT:
+         # 0=barcode, 1=destination, 2=date sent
+         # Notes: date is like 2017-03-23T00:00:00Z or text description
+         #        strip the T00:00:00Z part
+         # -- OR for special collections --
+         # 0=bookplate, 1=barcode, 2=date sent
+
+         print "."
+         date = row[2].gsub /T00:00:00Z/,''
+         if sc
+            destination = Destination.create!(destination_name_id: 3, date_sent_out: date, bookplate: row[0])
+            bc_str = row[1].strip.upcase
+         else
+            dn = names.select { |n| n.name.downcase == row[1].strip.downcase }
+            dn = dn.first
+            destination = Destination.create!(destination_name: dn, date_sent_out: date)
+            bc_str = row[0].strip.upcase
+         end
+
+         Barcode.where(barcode: bc_str, active: 1).each do |bc|
+            BarcodeDestination.create(barcode: bc, destination: destination)
+         end
+      end
+   end
+
    desc "Ingest non-ivy interventions"
    task :interventions  => :environment do
       file = ENV["file"]
