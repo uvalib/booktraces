@@ -1,4 +1,9 @@
 Rails.application.routes.draw do
+   resources :listings, only: [:index]
+   namespace :admin do
+      resources :listings, only: [:index]
+   end
+
    root :to => 'home#index'
    get 'home/index'
 

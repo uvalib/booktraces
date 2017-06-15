@@ -15,10 +15,22 @@
   </head>
 
   <body>
-     <div class="content">
+     <div class="main">
+        <div class="header">
+           <div class="uva-header<% if !@banner %> small<% end %>">
+              <a href="http://www.library.virginia.edu/" target="_blank">
+                 <%= image_tag "uvalogo.png" %>
+              </a>
+              <span class="booktraces">Book Traces @ UVA</span>
+           </div>
+           <% if @banner %>
+              <%= image_tag "books.jpg", class:"pure-img" %>
+           <% end %>
+        </div>
+
          <%= yield %>
 
-         <footer id="content-info">
+         <footer>
            <div class="address">
               <a href="http://www.library.virginia.edu/">University of Virginia Library</a><br>
               PO Box 400113, Charlottesville, VA 22904-4113<br>

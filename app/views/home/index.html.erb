@@ -1,13 +1,4 @@
-<div class="main-header">
-   <div class="uva-header">
-      <a href="http://www.library.virginia.edu/" target="_blank">
-         <%= image_tag "uvalogo.png" %>
-      </a>
-      <span class="booktraces">Book Traces @ UVA</span>
-   </div>
-   <%= image_tag "books.jpg", class:"pure-img" %>
-</div>
-<div class="home-content">
+<div class="content home">
    <h4>What is Book Traces @ UVA?</h4>
    <p>
       Book Traces @ UVA is a large-scale project to find and record historical readers’
@@ -53,18 +44,18 @@
    <div class="access-type">
       <p>
          <label>
-            <input type="radio" name="is_uva" id="is_uva_yes" value="yes" checked="checked"/>
+            <input type="radio" name="is_uva" id="staff" value="yes" checked="checked"/>
             I am Book Traces staff member. (You will be asked to verify your identity using
             <a href="http://itc.virginia.edu/netbadge/" target="_blank">NetBadge</a>.)
          </label>
       </p>
       <p>
          <label>
-            <input type="radio" name="is_uva" id="is_uva_no" value="no" checked="checked"/>
+            <input type="radio" name="is_uva" id="guest" value="no" checked="checked"/>
             I am not affiliated with Book Traces.
          </label>
       </p>
-      <button class="pure-button pure-button-primary">Continue</button>
+      <button class="pure-button pure-button-primary" id="continue-btn">Continue</button>
       <div style="clear:both"></div>
    </div>
 
