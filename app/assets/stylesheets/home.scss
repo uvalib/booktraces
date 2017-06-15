@@ -7,18 +7,17 @@ div.content.home {
    .top-pad {
       margin-top:40px;
    }
-   button {
+   #continue-btn {
       float: right;
-   }
-   a {
-      color: cornflowerblue;
-      font-weight: 500;
    }
    h4 {
       color: #EB5F0C;
       margin: 10px 0;
       border-bottom: 1px dashed #EB5F0C;
       padding-bottom: 5px;
+      font-family: "chaparral-pro",serif;
+      font-size: 1.3em;
+      font-weight: 100;
    }
    p {
       font-weight: 300;

@@ -16,19 +16,32 @@ body {
    .content {
       color: #444;
       background: #fefefe;
-      border-right: 2px solid #002F6C;
-      border-left: 2px solid #002F6C;
+      border-right: 1px solid #002F6C;
+      border-left: 1px solid #002F6C;
+      a {
+         color: cornflowerblue;
+         font-weight: 500;
+      }
    }
 
    .header {
       font-family: serif;
       font-weight: 100;
       color: #d2e5f7;
-      background-color: #002F6C; //#5A7195; //#1e3e6d;
+      background-color: #002F6C;
       padding: 2px;
+      img.banner {
+       border-top: 1px solid #AAC1E5;
+      }
       span.booktraces {
          font-size: 1.5em;
          float:right;
+         a {
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 100;
+            color: #d2e5f7;
+         }
       }
       .uva-header {
          padding:15px;

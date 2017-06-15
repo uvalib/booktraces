@@ -4,11 +4,16 @@
 div.content.listing {
    padding: 0 0 20px 0;
    h4 {
+      border-top: 1px solid #AAC1E5;
       background: #6A81a5;
       color: white;
       margin: 0 0 20px 0;
       padding: 10px 15px;
       font-weight: 300;
+      .user {
+         float: right;
+         font-size: 0.75em;
+      }
    }
    div.under-construction {
       text-align: center;
