@@ -3,7 +3,7 @@
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
 div.content.home {
-   
+    padding: 30px 50px;
    .top-pad {
       margin-top:40px;
    }
@@ -15,9 +15,9 @@ div.content.home {
       font-weight: 500;
    }
    h4 {
-      font-family: "chaparral-pro";
+      color: #EB5F0C;
       margin: 10px 0;
-      border-bottom: 1px solid #e5e5e5;
+      border-bottom: 1px dashed #EB5F0C;
       padding-bottom: 5px;
    }
    p {
@@ -28,52 +28,5 @@ div.content.home {
       input {
          margin-right: 10px;
       }
-   }
-}
-
-footer {
-   background-color: #1a3a6b;
-   color: #d2e5f7;
-   padding:20px;
-   position:relative;
-   font-size: 0.9em;
-
-   .external_links {
-      float:right;
-      text-align: right;
-   }
-   p.copy {
-      margin-top:20px;
-   }
-   a {
-      color: #d2e5f7;
-      border-bottom: 1px dotted #839dbf;
-      &:hover {
-         color: white;
-         text-decoration: none;
-         border-bottom: 1px solid #839dbf;
-      }
-   }
-   a.fdlp {
-      border-bottom: none !important;
-   }
-   div.address {
-      float:left;
-   }
-   div.legal {
-      position: relative;
-      text-align: center;
-      clear: both;
-   }
-   #fdlp-badge {
-      background: image-url("fdlp-badge.png") no-repeat;
-      height: 34px;  width: 39px;
-      display: inline-block;
-      position: relative;
-      top: 8px;
-      left: -8px;
-   }
-   p.copy, p.gov {
-      vertical-align: middle;
    }
 }

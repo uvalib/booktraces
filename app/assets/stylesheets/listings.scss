@@ -1,3 +1,19 @@
 // Place all the styles related to the listings controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+div.content.listing {
+   padding: 0 0 20px 0;
+   h4 {
+      background: #6A81a5;
+      color: white;
+      margin: 0 0 20px 0;
+      padding: 10px 15px;
+      font-weight: 300;
+   }
+   div.under-construction {
+      text-align: center;
+      color: #666;
+      font-size: 1.1em;
+      padding: 25px;
+   }
+}
