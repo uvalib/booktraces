@@ -6,6 +6,10 @@ Rails.application.routes.draw do
       resources :listings, only: [:index]
    end
 
+   namespace :api do
+      post 'query' => 'listings#query'
+   end
+
    root :to => 'home#index'
    resources :home, only: [:index, :create]
 

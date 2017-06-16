@@ -14,6 +14,6 @@ namespace :users do
       lname = ENV['lname']
       fname = ENV['fname']
       abort("id, lname and fname are required") if id.nil? || lname.nil? || fname.nil?
-      User.create(computing_id: if, last_name: lname, first_name: fname, is_active: true)
+      User.create(computing_id: id, last_name: lname, first_name: fname, is_active: true)
    end
 end
