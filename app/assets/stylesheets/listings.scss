@@ -15,6 +15,13 @@ div.content.listing {
          font-size: 0.75em;
       }
    }
+   .no-top-margin {
+      margin-top: 0;
+   }
+   .chosen-container-single .chosen-single span {
+      color: black;
+      font-weight: 200;
+   }
    div.under-construction {
       text-align: center;
       color: #666;
@@ -22,10 +29,37 @@ div.content.listing {
       padding: 25px;
    }
    .listings-container {
-      padding: 20px;
+      padding: 0px 20px 20px 20px;
       font-size: 0.85em;
-      table {
+      #shelf-listings {
          padding-top:15px;
+      }
+      #query {
+         width: 300px;
+      }
+      .filter {
+         margin-bottom: 10px;
+         padding-bottom: 10px;
+         border-bottom: 1px solid #dedede;
+         text-align: center;
+         table {
+            text-align: left;
+            display: inline-block;
+         }
+         .filter-controls {
+            text-align: right;
+         }
+         td.gap {
+            width: 25px;
+         }
+         td.label {
+            text-align: right;
+            font-weight: bold;
+            padding: 7px 10px 7px 0;
+         }
+         td.choice {
+            min-width:150px;
+         }
       }
    }
 }

@@ -1,6 +1,43 @@
 <div class="content listing">
    <h4>Shelf Listings <span class="user"><%= current_user.full_name %></span></h4>
    <div class="listings-container">
+      <div class="filter">
+         <table>
+            <tr>
+               <td class="label">Library:</td>
+               <td class="choice">
+                  <%= select_tag "library", options_for_select(ShelfListing.libraries),
+                      class: "chosen-select", id: "library-filter" %>
+                </td>
+                <td class="gap"/>
+                <td class="label">Search:</td>
+               <td><input id="query"/></td>
+            </tr>
+            <tr>
+               <td class="label">Classification:</td>
+               <td class="choice">
+                  <%= select_tag "classification", options_for_select(ShelfListing.classifications),
+                      class: "chosen-select", id: "class-filter" %>
+               </td>
+               <td class="gap"/>
+               <td class="label">Has Interventions:</td>
+               <td><input id="intervention-filter" type="checkbox"/></td>
+            </tr>
+            <tr>
+               <td class="label">Subclassification: </td>
+               <td class="choice">
+                  <%= select_tag "subclassification", options_for_select(ShelfListing.subclassifications),
+                      class: "chosen-select", id: "subclass-filter" %>
+                </td>
+                <td class="gap"/>
+                <td colspan="2" class="filter-controls">
+                   <button id="clear" class="pure-button pure-button-primary">Reset</button>
+                   <button id="filter" class="pure-button pure-button-primary">Filter</button>
+                </td>
+            </tr>
+            <tr>
+         </table>
+      </div>
       <table id="shelf-listings" class="display stripe" cellspacing="0" width="100%">
          <thead>
            <tr>

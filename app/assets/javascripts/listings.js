@@ -8,6 +8,7 @@ $(function() {
       processing: true,
       pageLength: 50,
       ordering: false,
+      searching: false,
       columnDefs: [
          { "width": "50px", "targets": [0] },
          { "width": "30px", "targets": [5,6] },
@@ -18,5 +19,11 @@ $(function() {
         url:  '/api/query',
         type: 'POST'
     }
+   });
+   var table = $('#example').DataTable();
+
+   $(".chosen-select").chosen({
+       no_results_text: "Sorry, no matches found",
+       width: "100%"
    });
 });

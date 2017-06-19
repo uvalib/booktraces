@@ -19,6 +19,27 @@ class ShelfListing < ApplicationRecord
    end
 
    def active_barcodes
-      self.barcodes.where(active: 1).pluck(:barcode)
+      bcs = []
+      barcodes.each do |bc|
+         bcs << bc.barcode
+      end
+      if bcs.length == 0
+         bcs =  [self.original_item_id]
+      end
+      return bcs
    end
+
+   def self.libraries
+      return ShelfListing.pluck(:library).uniq.sort.unshift('Any')
+   end
+
+   def self.classifications
+      out = ShelfListing.pluck(:classification).uniq.sort
+      return out.unshift('Any')
+   end
+
+   def self.subclassifications
+      return ShelfListing.pluck(:subclassification).uniq.sort.unshift('Any')
+   end
+
 end
