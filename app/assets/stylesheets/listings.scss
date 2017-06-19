@@ -18,6 +18,12 @@ div.content.listing {
    .no-top-margin {
       margin-top: 0;
    }
+   a {
+      text-decoration: none;
+      &:hover {
+         text-decoration: underline;
+      }
+   }
    .chosen-container-single .chosen-single span {
       color: black;
       font-weight: 200;
@@ -37,11 +43,19 @@ div.content.listing {
       #query {
          width: 300px;
       }
+      div.dataTables_filter {
+         // remove the built-in search
+         display: none;
+      }
       .filter {
          margin-bottom: 10px;
          padding-bottom: 10px;
          border-bottom: 1px solid #dedede;
          text-align: center;
+         input[type=checkbox] {
+            width: 14px;
+            height: 14px;
+         }
          table {
             text-align: left;
             display: inline-block;
