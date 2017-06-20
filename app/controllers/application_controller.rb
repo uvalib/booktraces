@@ -4,13 +4,16 @@ class ApplicationController < ActionController::Base
 
    before_action :authorize
 
+   # Shibboleth auth requires all to be https
+   force_ssl unless Rails.env.development?
+
    def current_user
       return @curr_user
    end
 
    def authorize
       if session[:user_type] == "staff"
-         computing_id = request.env['HTTP_REMOTE_USER'].to_s
+         computing_id = request.env['REMOTE_USER'].to_s
          if computing_id.blank? && Rails.env != "production"
             computing_id = Figaro.env.dev_test_user
          end
