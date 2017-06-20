@@ -1,4 +1,4 @@
-class Api::ListingsController < ApplicationController
+class Api::ListingsController < Api::ApiController
    # POST query request from datatables
    # Key stuff to look for:
    #   params[:search][:value] = 'global' search
