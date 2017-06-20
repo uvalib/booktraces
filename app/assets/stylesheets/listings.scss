@@ -96,4 +96,28 @@ div.content.listing, div.content.detail {
          }
       }
    }
+   div.panel {
+      margin: 0 20px 20px 20px;
+      display: inline-block;
+      border: 1px solid #6A81a5;
+      max-width: 65%;
+      div.header {
+         padding: 5px 15px;
+         font-family:  "Helvetica Neue", Helvetica, Arial, sans-serif;
+         background-color: #6A81a5;
+         color: #f5f5f5;
+         font-weight: 300;
+      }
+      div.content {
+         border: none;
+         padding: 10px 20px;
+         font-size: 0.9em;
+         td.label {
+            vertical-align: text-top;
+            text-align: right;
+            font-weight: bold;
+            padding: 2px 10px 2px 0;
+         }
+      }
+   }
 }
