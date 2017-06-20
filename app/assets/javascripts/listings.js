@@ -24,6 +24,9 @@ $(function() {
             return "<a title='View in Virgo' target='_blank' href='"+url+"'>"+data+"</a>";
          }, targets: 2}
       ],
+      searchCols: [
+         null,null,null,null,null,null,null,null,{ "search": "true" }
+      ],
       ajax: {
         url:  '/api/query',
         type: 'POST'
@@ -34,10 +37,10 @@ $(function() {
    // http://search.lib.virginia.edu/catalog?call_number=BV4253+.R8+1853&catalog_select=catalog&search_field=advanced
 
    var doFilter = function() {
-      var interventions = $("#intervention-filter").is(":checked");
       table.columns(5).search(  $("#library-filter").val() );
       table.columns(6).search( $("#class-filter").val() );
       table.columns(7).search( $("#subclass-filter").val() );
+      table.columns(8).search( $("#intervention-filter").is(":checked") );
 
       var q = $("#query").val();
       $("#shelf-listings_filter input").val(q);
