@@ -19,7 +19,7 @@ class HomeController < ApplicationController
          redirect_to "/listings"
       else
          session[:user_type] = :staff
-         redirect_to "/admin/listings", protocol: 'https://'
+         redirect_to "/admin/listings"
       end
    end
 end
