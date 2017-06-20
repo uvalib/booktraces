@@ -22,7 +22,15 @@ $(function() {
             var safe = data.replace(/\s/g, "+");
             url += safe;
             return "<a title='View in Virgo' target='_blank' href='"+url+"'>"+data+"</a>";
-         }, targets: 2}
+         }, targets: 2},
+         { render: function ( data, type, row ) {
+            clazz = "no";
+            if ( data === true) clazz= "yes";
+            return "<div class='intervention'><span class='intervention "+clazz+"'></span></div>";
+         }, targets: 8},
+         { render: function ( data, type, row ) {
+            return "<a class='detail' title='View details' href='/listings/"+data+"'></a>";
+         }, targets: 9}
       ],
       searchCols: [
          null,null,null,null,null,null,null,null,{ "search": "true" }

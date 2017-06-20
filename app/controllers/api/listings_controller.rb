@@ -67,7 +67,7 @@ class Api::ListingsController < Api::ApiController
          flag = !sl.interventions.empty?
          data << [
             sl.internal_id, bc, sl.call_number, sl.title, sl.bookplate_text,
-            sl.library, sl.classification, sl.subclassification, flag
+            sl.library, sl.classification, sl.subclassification, flag, sl.id
          ]
       end
 

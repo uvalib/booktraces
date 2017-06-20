@@ -1,7 +1,7 @@
 // Place all the styles related to the listings controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
-div.content.listing {
+div.content.listing, div.content.detail {
    padding: 0 0 20px 0;
    h4 {
       border-top: 1px solid #AAC1E5;
@@ -44,8 +44,28 @@ div.content.listing {
          width: 300px;
       }
       div.dataTables_filter {
-         // remove the built-in search
+         // HIDE the built-in search
          display: none;
+      }
+      a.detail {
+         display: inline-block;
+         width: 20px;
+         height: 20px;
+         background-image: image-url('detail.png')
+      }
+      div.intervention {
+         text-align: center;
+      }
+      span.intervention {
+         display: inline-block;
+         width: 20px;
+         height: 20px;
+      }
+      span.intervention.no {
+         background-image: image-url('none.png')
+      }
+      span.intervention.yes {
+         background-image: image-url('check.png')
       }
       .filter {
          margin-bottom: 10px;

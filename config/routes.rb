@@ -1,9 +1,9 @@
 Rails.application.routes.draw do
    get 'unauthorized' => "unauthorized#index"
 
-   resources :listings, only: [:index]
+   resources :listings, only: [:index, :show]
    namespace :admin do
-      resources :listings, only: [:index]
+      resources :listings, only: [:index, :show]
    end
 
    namespace :api do
