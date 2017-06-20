@@ -15,6 +15,7 @@ class Api::ListingsController < Api::ApiController
          str << " or bookplate_text like '%#{q}%' or barcodes.barcode like '%#{q}%')"
          query_terms << str
       end
+
       lib_filter = params[:columns]["5"][:search][:value]
       if !lib_filter.blank? && lib_filter != "Any"
          query_terms << "library = '#{lib_filter}'"
@@ -55,14 +56,14 @@ class Api::ListingsController < Api::ApiController
                .joins(:interventions).where(q_str)
                .offset(params[:start]).limit(params[:length])
          else
-            filtered = ShelfListing.where(q_str).count
-            res = ShelfListing.includes(:barcodes).includes(:interventions)
+            filtered = ShelfListing.includes(:barcodes).joins(:barcodes).where(q_str).count
+            res = ShelfListing.includes(:barcodes).includes(:interventions).joins(:barcodes)
                .where(q_str).offset(params[:start]).limit(params[:length])
          end
       end
 
       res.each do |sl|
-         bc = sl.active_barcodes.join(",")
+         bc = sl.active_barcodes.join(", ")
          flag = !sl.interventions.empty?
          data << [
             sl.internal_id, bc, sl.call_number, sl.title, sl.bookplate_text,
