@@ -29,7 +29,7 @@ $(function() {
             return "<div class='intervention'><span class='intervention "+clazz+"'></span></div>";
          }, targets: 8},
          { render: function ( data, type, row ) {
-            return "<a class='detail' title='View details' href='/listings/"+data+"'></a>";
+            return "<a class='detail' title='View details' href='listings/"+data+"'></a>";
          }, targets: 9}
       ],
       searchCols: [
