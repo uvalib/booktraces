@@ -2,12 +2,12 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 div.content.listing, div.content.detail {
-   padding: 0 0 20px 0;
+   padding: 0;
    h4 {
       border-top: 1px solid #AAC1E5;
       background: #6A81a5;
       color: white;
-      margin: 0 0 20px 0;
+      margin: 0;
       padding: 10px 15px;
       font-weight: 300;
       .user {
@@ -15,25 +15,26 @@ div.content.listing, div.content.detail {
          font-size: 0.75em;
       }
    }
+   div.body {
+      padding: 20px;
+   }
+
    .no-top-margin {
       margin-top: 0;
    }
+
    a {
       text-decoration: none;
       &:hover {
          text-decoration: underline;
       }
    }
+
    .chosen-container-single .chosen-single span {
       color: black;
       font-weight: 200;
    }
-   div.under-construction {
-      text-align: center;
-      color: #666;
-      font-size: 1.1em;
-      padding: 25px;
-   }
+
    .listings-container {
       padding: 0px 20px 20px 20px;
       font-size: 0.85em;
@@ -96,11 +97,17 @@ div.content.listing, div.content.detail {
          }
       }
    }
+
+   div.panel.right-margin {
+      margin-right: 20px;
+   }
+   div.panel.top-margin {
+      margin-top: 20px;
+   }
    div.panel {
-      margin: 0 20px 20px 20px;
-      display: inline-block;
+      position: relative;
+      margin: 0;
       border: 1px solid #6A81a5;
-      max-width: 65%;
       div.header {
          padding: 5px 15px;
          font-family:  "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -108,10 +115,19 @@ div.content.listing, div.content.detail {
          color: #f5f5f5;
          font-weight: 300;
       }
+      div.intervention, div.catalog-request {
+         margin: 10px 0px 10px 0px;
+         border: 1px solid #ccc;
+         padding: 10px;
+      }
       div.content {
          border: none;
          padding: 10px 20px;
          font-size: 0.9em;
+         td.data {
+            color: #555;
+            font-weight: 200;
+         }
          td.label {
             vertical-align: text-top;
             text-align: right;

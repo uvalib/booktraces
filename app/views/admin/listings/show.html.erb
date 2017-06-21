@@ -1,4 +1,6 @@
 <div class="content detail">
-   <h4>Shelf Listing <%= @listing.internal_id %> <span class="user"><%= current_user.full_name %></span></h4>
-   <%= render "/common/detail" %>
+   <h4>&#8592; Shelf Listing <%= @listing.internal_id %> <span class="user"><%= current_user.full_name %></span></h4>
+   <div class="body">
+      <%= render "/common/detail" %>
+   </div>
 </div>

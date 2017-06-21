@@ -1,0 +1,33 @@
+<div class='panel right-margin top-margin'>
+   <div class='header'>Interventions</div>
+   <div class='content'>
+      <% @listing.interventions.each do |i| %>
+      <div class="intervention">
+         <table class="intervention">
+            <tr>
+               <td class="label">Found:</td>
+               <td class="data"><%= i.found_at %> by <%= i.who_found.upcase %></td>
+            </tr>
+            <tr>
+               <td class="label">Special Interest:</td>
+               <td class="data"><%= i.special_interest %></td>
+            </tr>
+            <tr>
+               <td class="label">Special Problems:</td>
+               <td class="data"><%= i.special_problems %></td>
+            </tr>
+            <tr>
+               <td class="label">Details:</td>
+               <td class="data">
+                  <% out = [] %>
+                  <% i.details.each do |d| %>
+                     <% out << "#{d.category} #{d.name}" %>
+                  <% end %>
+                  <%= out.join(", ") %>
+               </td>
+            </tr>
+         </table>
+      </div>
+      <% end %>
+   </div>
+</div>

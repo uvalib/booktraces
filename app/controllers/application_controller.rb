@@ -1,6 +1,6 @@
 class ApplicationController < ActionController::Base
    protect_from_forgery with: :exception
-   helper_method :current_user
+   helper_method :current_user, :logged_in?
 
    before_action :authorize
 
@@ -9,6 +9,10 @@ class ApplicationController < ActionController::Base
 
    def current_user
       return @curr_user
+   end
+
+   def logged_in?
+      return !current_user.nil?
    end
 
    def authorize

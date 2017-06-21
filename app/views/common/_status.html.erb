@@ -1,0 +1,67 @@
+<div class='panel'>
+   <div class='header'>Book Status</div>
+   <div class='content'>
+      <table>
+         <tr>
+            <td class="label">Date Checked:</td>
+            <td class="data"><%= @listing.date_checked %></td>
+         </tr>
+         <tr>
+            <td class="label">Checked By:</td>
+            <td class="data"><%= @listing.who_checked %></td>
+         </tr>
+         <tr>
+            <td class="label">Status:</td>
+            <td class="data"><%= @listing.book_status.name.split.map(&:capitalize).join(' ') %></td>
+         </tr>
+         <tr>
+            <td class="label">Actions:</td>
+            <td class="data"><%= @listing.actions.map { |a| a.name.split.map(&:capitalize).join(' ')}.join ',' %></td>
+         </tr>
+      </table>
+   </div>
+</div>
+
+<% if @listing.cataloging_requests.count > 0 %>
+   <div class='panel top-margin'>
+      <div class='header'>Cataloging Requests</div>
+      <div class='content'>
+         <table>
+            <tr>
+               <td class="label">Original Item ID:</td>
+               <td class="data"><%= @listing.original_item_id %></td>
+            </tr>
+         </table>
+         <% @listing.cataloging_requests.each do |cr| %>
+            <div class="catalog-request">
+               <table>
+                  <tr>
+                     <td class="label">Problems:</td>
+                     <td class="data"><%= cr.problems.map { |a| a.name.split.map(&:capitalize).join(' ')}.join(',')%></td>
+                  </tr>
+                  <tr>
+                     <td class="label">Sent Out:</td>
+                     <td class="data"><%= cr.sent_out_on %></td>
+                  </tr>
+                  <tr>
+                     <td class="label">Returned:</td>
+                     <td class="data"><%= cr.returned_on %></td>
+                  </tr>
+                  <tr>
+                     <td class="label">New Barcode:</td>
+                     <% if cr.barcode.blank? %>
+                        <td class="data">N/A</td>
+                     <% else %>
+                        <td class="data"><%= cr.barcode.barcode %></td>
+                     <% end %>
+                  </tr>
+                  <tr>
+                     <td class="label">Destination:</td>
+                     <td class="data"><%= cr.destination %></td>
+                  </tr>
+               </table>
+            </div>
+         <% end %>
+      </div>
+   </div>
+<% end %>

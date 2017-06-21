@@ -21,6 +21,7 @@ class ShelfListing < ApplicationRecord
    def active_barcodes
       bcs = []
       barcodes.each do |bc|
+         next if !bc.active
          bcs << bc.barcode
       end
       if bcs.length == 0

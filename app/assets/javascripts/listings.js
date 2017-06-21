@@ -11,7 +11,7 @@ $(function() {
    var table = $('#shelf-listings').DataTable( {
       serverSide: true,
       processing: true,
-      pageLength: 50,
+      pageLength: 25,
       ordering: false,
       columnDefs: [
          { width: "50px", targets: [0] },
@@ -40,9 +40,6 @@ $(function() {
         type: 'POST'
     }
    });
-
-   // virgo link fmt;
-   // http://search.lib.virginia.edu/catalog?call_number=BV4253+.R8+1853&catalog_select=catalog&search_field=advanced
 
    var doFilter = function() {
       table.columns(5).search(  $("#library-filter").val() );

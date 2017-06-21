@@ -1,0 +1,60 @@
+<div class='panel right-margin'>
+   <div class='header'>General Information</div>
+   <div class='content'>
+      <table>
+         <tr>
+            <td class="label">Title:</td>
+            <td class="data"><%= @listing.title %></td>
+         </tr>
+         <tr>
+            <td class="label">Call&nbsp;Number:</td>
+            <% href = "http://search.lib.virginia.edu/catalog?catalog_select=catalog&search_field=advanced&call_number=";
+               safe = @listing.call_number.gsub(/\s/, "+");
+               href << safe;
+               link = "<a title='View in Virgo' target='_blank' href='#{href}'>#{@listing.call_number }</a>"
+            %>
+            <td class="data"><%= raw(link) %></td>
+         </tr>
+         <tr>
+            <td class="label">Barcode(s):</td>
+            <td class="data"><%= @listing.active_barcodes.join(", ") %></td>
+         </tr>
+         <tr>
+            <td class="label">Bookplate:</td>
+            <td class="data"><%= @listing.bookplate_text %></td>
+         </tr>
+         <tr>
+            <td class="label">Author:</td>
+            <td class="data"><%= @listing.author %></td>
+         </tr>
+         <tr>
+            <td class="label">Year:</td>
+            <td class="data"><%= @listing.publication_year %></td>
+         </tr>
+         <tr>
+            <td class="label">Library:</td>
+            <td class="data"><%= @listing.library %></td>
+         </tr>
+         <tr>
+            <td class="label">Classification System:</td>
+            <td class="data"><%= @listing.classification_system %></td>
+         </tr>
+         <tr>
+            <td class="label">Classification:</td>
+            <td class="data"><%= @listing.classification %></td>
+         </tr>
+         <tr>
+            <td class="label">Subclassification:</td>
+            <td class="data"><%= @listing.subclassification %></td>
+         </tr>
+         <tr>
+            <td class="label">Location:</td>
+            <td class="data"><%= @listing.location %></td>
+         </tr>
+      </table>
+   </div>
+</div>
+
+<% if @listing.interventions.count > 0 %>
+   <%= render "/common/interventions" %>
+<% end %>
