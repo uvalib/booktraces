@@ -10,14 +10,6 @@ class Api::ListingsController < Api::ApiController
       session[:state] = nil
 
       query_terms = []
-      q = params[:search]["value"]
-      if !q.blank?
-         str =  "(internal_id like '%#{q}%' or title like '%#{q}%' or call_number like '%#{q}%'"
-         str << " or bookplate_text like '%#{q}%' or barcodes.barcode like '%#{q}%'"
-         str << " or interventions.special_problems like '%#{q}%'"
-         str << " or interventions.special_interest like '%#{q}%')"
-         query_terms << str
-      end
 
       lib_filter = params[:columns]["5"][:search][:value]
       if !lib_filter.blank? && lib_filter != "Any"
@@ -35,6 +27,18 @@ class Api::ListingsController < Api::ApiController
       end
 
       interventions = params[:columns]["8"][:search][:value] == "true"
+
+      q = params[:search]["value"]
+      if !q.blank?
+         str =  "(internal_id like '%#{q}%' or title like '%#{q}%' or call_number like '%#{q}%'"
+         str << " or bookplate_text like '%#{q}%' or barcodes.barcode like '%#{q}%'"
+         if interventions
+            str << " or interventions.special_problems like '%#{q}%'"
+            str << " or interventions.special_interest like '%#{q}%'"
+         end
+         str << ")"
+         query_terms << str
+      end
 
       # convert these settings into a structure that datatables can
       # unpack and restore upon page refresh
@@ -65,8 +69,8 @@ class Api::ListingsController < Api::ApiController
                .offset(params[:start]).limit(params[:length])
          else
             filtered = ShelfListing.joins(:barcodes).where(q_str).count
-            res = ShelfListing.joins(:barcodes).order(id: :asc)
-               .where(q_str).offset(params[:start]).limit(params[:length])
+            res = ShelfListing.joins(:barcodes).where(q_str).order(id: :asc)
+               .offset(params[:start]).limit(params[:length])
          end
       end
 
