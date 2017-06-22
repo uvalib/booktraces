@@ -7,6 +7,7 @@ class Api::ListingsController < Api::ApiController
       draw = params[:draw].to_i
       total = ShelfListing.count
       filtered = total
+      session[:state] = nil
 
       query_terms = []
       q = params[:search]["value"]
@@ -32,6 +33,16 @@ class Api::ListingsController < Api::ApiController
       end
 
       interventions = params[:columns]["8"][:search][:value] == "true"
+
+      # convert these settings into a structure that datatables can
+      # unpack and restore upon page refresh
+      session[:search_state] = {
+         time: Time.now.to_i, start: params[:start], length: params[:length],
+         search: {search: q}, columns: [ {}, {}, {}, {}, {},
+            {search: {search: lib_filter}}, {search: {search: class_filter}},
+            {search: {search: subclass_filter}}, {search: {search: params[:columns]["8"][:search][:value]}},
+            {} ]
+      }
 
       # Table: ID, BARCODE, CallNum, Title, Bookplate, Library, class, subclass, intervention
       data = []
@@ -74,5 +85,10 @@ class Api::ListingsController < Api::ApiController
       # note: only set filtered different from total if there is some query made
       resp = { draw: draw, recordsTotal: total, recordsFiltered: filtered, data: data}
       render json: resp
+   end
+
+   # Get the last saved search filter state
+   def search_state
+      render json: session[:search_state]
    end
 end

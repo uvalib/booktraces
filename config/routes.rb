@@ -8,6 +8,7 @@ Rails.application.routes.draw do
 
    namespace :api do
       post 'query' => 'listings#query'
+      get 'search_state' => 'listings#search_state'
    end
 
    root :to => 'home#index'

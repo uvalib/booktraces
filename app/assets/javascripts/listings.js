@@ -8,10 +8,11 @@ $(function() {
 
    // Columns in the table:
    //   ID, CallNum, Title, Bookplate, Library, class, subclass, intervention
+   var pageLen = parseInt($("div.filter").data("default-page-size"), 10);
    var table = $('#shelf-listings').DataTable( {
       serverSide: true,
       processing: true,
-      pageLength: 25,
+      pageLength: pageLen,
       ordering: false,
       columnDefs: [
          { width: "50px", targets: [0] },
@@ -35,21 +36,53 @@ $(function() {
       searchCols: [
          null,null,null,null,null,null,null,null,{ "search": "true" }
       ],
+      stateDuration: 0,
+      stateSave: true,
+      stateLoadCallback: function (settings, callback) {
+         $.ajax({
+            url: '/api/search_state',
+            dataType: 'json',
+            success: function (json) {
+               if (json) {
+                  $("#query").val( json.search.search );
+                  $("#library-filter").val(json.columns[5].search.search);
+                  $("#library-filter").trigger("chosen:updated");
+                  $("#class-filter").val(json.columns[6].search.search);
+                  $("#class-filter").trigger("chosen:updated");
+                  $("#subclass-filter").val(json.columns[7].search.search);
+                  $("#subclass-filter").trigger("chosen:updated");
+                  var val = json.columns[8].search.search;
+                  $("#intervention-filter").prop('checked', val==="true");
+               }
+               callback(json);
+            }
+         });
+      },
       ajax: {
         url:  '/api/query',
         type: 'POST'
-    }
+     }
    });
 
    var doFilter = function() {
-      table.columns(5).search(  $("#library-filter").val() );
-      table.columns(6).search( $("#class-filter").val() );
-      table.columns(7).search( $("#subclass-filter").val() );
+      var val = $("#library-filter").val();
+      if (!val) val = "Any";
+      table.columns(5).search( val );
+
+      val = $("#class-filter").val();
+      if (!val) val = "Any";
+      table.columns(6).search( val );
+
+      val = $("#subclass-filter").val();
+      if (!val) val = "Any";
+      table.columns(7).search( val );
+
       table.columns(8).search( $("#intervention-filter").is(":checked") );
 
-      var q = $("#query").val();
-      $("#shelf-listings_filter input").val(q);
-      table.search( q );
+      val = $("#query").val();
+      if (!val) val = "";
+      $("#shelf-listings_filter input").val( val );
+      table.search( val );
 
       table.draw();
    };
@@ -61,11 +94,15 @@ $(function() {
    });
 
    $("#clear").on("click", function() {
-      $("select.filter").val("Any");
-      $('select.filter').trigger("chosen:updated");
+      $("#library-filter").val("Any");
+      $("#library-filter").trigger("chosen:updated");
+      $("#class-filter").val("Any");
+      $("#class-filter").trigger("chosen:updated");
+      $("#subclass-filter").val("Any");
+      $("#subclass-filter").trigger("chosen:updated");
       $("#query").val("");
-      $("#intervention-filter").prop("checked", false);
-      table.search("").draw();
+      $("#intervention-filter").prop("checked", true);
+      doFilter();
    });
 
    $("#filter").on("click", function() {

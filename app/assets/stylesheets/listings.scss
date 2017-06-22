@@ -15,6 +15,12 @@ div.content.listing, div.content.detail {
          font-size: 0.75em;
       }
    }
+   a.back img {
+      position: relative;
+      top: 2px;
+      left: -5px;
+   }
+   
    div.body {
       padding: 20px;
    }

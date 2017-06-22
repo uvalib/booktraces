@@ -4,14 +4,14 @@ class HomeController < ApplicationController
 
    def show_banner
       @banner = true
-      session[:user] = nil
-      session[:user_type] = nil
    end
 
    def index
+      clear_session
    end
 
    def create
+      clear_session
       render "/" and return if params[:is_uva].nil?
       session[:user] = nil
       if params[:is_uva] == "no"

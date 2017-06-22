@@ -1,6 +1,6 @@
 class ApplicationController < ActionController::Base
    protect_from_forgery with: :exception
-   helper_method :current_user, :logged_in?
+   helper_method :current_user, :logged_in?, :clear_session
 
    before_action :authorize
 
@@ -13,6 +13,12 @@ class ApplicationController < ActionController::Base
 
    def logged_in?
       return !current_user.nil?
+   end
+
+   def clear_session
+      session[:user] = nil
+      session[:user_type] = nil
+      session[:search_state] = nil
    end
 
    def authorize
