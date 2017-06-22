@@ -58,3 +58,7 @@
 <% if @listing.interventions.count > 0 %>
    <%= render "/common/interventions" %>
 <% end %>
+
+<% if @listing.destinations.count > 0 %>
+   <%= render "/common/preservation" %>
+<% end %>
