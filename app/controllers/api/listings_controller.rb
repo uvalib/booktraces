@@ -13,7 +13,9 @@ class Api::ListingsController < Api::ApiController
       q = params[:search]["value"]
       if !q.blank?
          str =  "(internal_id like '%#{q}%' or title like '%#{q}%' or call_number like '%#{q}%'"
-         str << " or bookplate_text like '%#{q}%' or barcodes.barcode like '%#{q}%')"
+         str << " or bookplate_text like '%#{q}%' or barcodes.barcode like '%#{q}%'"
+         str << " or interventions.special_problems like '%#{q}%'"
+         str << " or interventions.special_interest like '%#{q}%')"
          query_terms << str
       end
 
@@ -48,27 +50,22 @@ class Api::ListingsController < Api::ApiController
       data = []
       if query_terms.empty?
          # if interventions, only return listings that join with intervention table
-         # use the includes option for both barcode and interventions to avoid massive
-         # n+1 queries
          if interventions
             filtered = ShelfListing.joins(:interventions).count
-            res = ShelfListing.includes(:barcodes).includes(:interventions)
-               .joins(:interventions)
+            res = ShelfListing.joins(:interventions).order(id: :asc)
                .offset(params[:start]).limit(params[:length])
          else
-            res = ShelfListing.includes(:barcodes).includes(:interventions)
-               .offset(params[:start]).limit(params[:length])
+            res = ShelfListing.offset(params[:start]).limit(params[:length]).order(id: :asc)
          end
       else
          q_str = query_terms.join(" and ")
          if interventions
             filtered = ShelfListing.where(q_str).joins(:interventions).count
-            res = ShelfListing.includes(:barcodes).includes(:interventions)
-               .joins(:interventions).where(q_str)
+            res = ShelfListing.joins(:interventions).where(q_str).order(id: :asc)
                .offset(params[:start]).limit(params[:length])
          else
-            filtered = ShelfListing.includes(:barcodes).joins(:barcodes).where(q_str).count
-            res = ShelfListing.includes(:barcodes).includes(:interventions).joins(:barcodes)
+            filtered = ShelfListing.joins(:barcodes).where(q_str).count
+            res = ShelfListing.joins(:barcodes).order(id: :asc)
                .where(q_str).offset(params[:start]).limit(params[:length])
          end
       end
