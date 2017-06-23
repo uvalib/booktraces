@@ -45,13 +45,22 @@ $(function() {
             success: function (json) {
                if (json) {
                   $("#query").val( json.search.search );
-                  $("#library-filter").val(json.columns[5].search.search);
+                  var val = json.columns[5].search.search;
+                  if (val.length === 0) val = "Any";
+                  $("#library-filter").val(val);
                   $("#library-filter").trigger("chosen:updated");
-                  $("#class-filter").val(json.columns[6].search.search);
+
+                  val = json.columns[6].search.search;
+                  if (val.length === 0) val = "Any";
+                  $("#class-filter").val(val);
                   $("#class-filter").trigger("chosen:updated");
-                  $("#subclass-filter").val(json.columns[7].search.search);
+
+                  val = json.columns[7].search.search;
+                  if (val.length === 0) val = "Any";
+                  $("#subclass-filter").val( val );
                   $("#subclass-filter").trigger("chosen:updated");
-                  var val = json.columns[8].search.search;
+                  
+                  val = json.columns[8].search.search;
                   $("#intervention-filter").prop('checked', val==="true");
                }
                callback(json);

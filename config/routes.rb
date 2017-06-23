@@ -7,6 +7,8 @@ Rails.application.routes.draw do
    end
 
    namespace :api do
+      get 'search' => 'listings#search'
+      get 'detail/:id' => 'listings#detail'
       post 'query' => 'listings#query'
       get 'search_state' => 'listings#search_state'
    end
