@@ -61,7 +61,9 @@ class Api::ListingsController < Api::ApiController
          json[:interventions] << inv
       end
       dest =  out.destinations.first
-      json[:preservation] = { date_sent_out: dest.date_sent_out, destination: dest.destination_name.name, bookplate: dest.bookplate}
+      if !dest.nil?
+         json[:preservation] = { date_sent_out: dest.date_sent_out, destination: dest.destination_name.name, bookplate: dest.bookplate}
+      end
       render json: json
    end
 
