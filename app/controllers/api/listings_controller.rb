@@ -41,7 +41,7 @@ class Api::ListingsController < Api::ApiController
          str << ")"
          query_terms << str
       end
-      total, filtered, res  = do_search(query_terms, interventions, params[:start], params[:length])
+      total, filtered, res  = do_search(query_terms, interventions, params[:start], params[:length], "id asc")
       render json: { total: total, filtered: filtered, data: res.as_json(except: ["created_at", "updated_at", "who_checked", "id"]) }
    end
 
@@ -97,17 +97,28 @@ class Api::ListingsController < Api::ApiController
          query_terms << "subclassification = '#{subclass_filter}'"
       end
 
-      interventions = params[:columns]["9"][:search][:value] == "true"
+      intervention_filter = params[:columns]["9"][:search][:value]
+      interventions = intervention_filter != "None"
+      intervention_type = intervention_filter.to_i
+      if intervention_type > 0
+         query_terms << "details.intervention_type_id = #{intervention_type}"
+      end
 
-      q = params[:search]["value"]
-      if !q.blank?
-         str =  "(internal_id like '%#{q}%' or title like '%#{q}%' or call_number like '%#{q}%'"
-         str << " or bookplate_text like '%#{q}%' or barcodes.barcode like '%#{q}%'"
-         if interventions
-            str << " or interventions.special_problems like '%#{q}%'"
-            str << " or interventions.special_interest like '%#{q}%'"
+      q_val = params[:search]["value"]
+      if !q_val.blank?
+         q = q_val.split("|")[0]
+         f = q_val.split("|")[1]
+         if f == "all"
+            str =  "(internal_id like '%#{q}%' or title like '%#{q}%' or call_number like '%#{q}%'"
+            str << " or bookplate_text like '%#{q}%' or barcodes.barcode like '%#{q}%'"
+            if interventions
+               str << " or interventions.special_problems like '%#{q}%'"
+               str << " or interventions.special_interest like '%#{q}%'"
+            end
+            str << ")"
+         else
+            str = "#{f} like '%#{q}%'"
          end
-         str << ")"
          query_terms << str
       end
 
@@ -122,7 +133,7 @@ class Api::ListingsController < Api::ApiController
       # unpack and restore upon page refresh
       session[:search_state] = {
          time: Time.now.to_i, start: params[:start], length: params[:length],
-         search: {search: q}, columns: [ {}, {}, {}, {}, {},
+         search: {search: q_val}, columns: [ {}, {}, {}, {}, {},
             {search: {search: lib_filter}}, {search: {search: sys_filter}}, {search: {search: class_filter}},
             {search: {search: subclass_filter}}, {search: {search: params[:columns]["9"][:search][:value]}},
             {} ]
@@ -155,20 +166,24 @@ class Api::ListingsController < Api::ApiController
    def do_search(query_terms, interventions, start, len, order_str)
       total = ShelfListing.count
       filtered = total
+      intervention_join = "inner join barcodes b on b.shelf_listing_id = shelf_listings.id"
+      intervention_join << " inner join barcode_interventions bi on bi.barcode_id = b.id"
+      intervention_join << " inner join interventions i on i.id = bi.intervention_id"
+      intervention_join << " inner join intervention_details details on i.id = details.intervention_id"
 
       if query_terms.empty?
          # if interventions, only return listings that join with intervention table
          if interventions
-            filtered = ShelfListing.joins(:interventions).count
-            res = ShelfListing.joins(:interventions).order(order_str).offset(start).limit(len)
+            filtered = ShelfListing.joins(intervention_join).distinct.count
+            res = ShelfListing.joins(intervention_join).distinct.order(order_str).offset(start).limit(len)
          else
             res = ShelfListing.offset(start).limit(len).order(order_str)
          end
       else
          q_str = query_terms.join(" and ")
          if interventions
-            filtered = ShelfListing.where(q_str).joins(:interventions).count
-            res = ShelfListing.joins(:interventions).where(q_str).order(order_str).offset(start).limit(len)
+            filtered = ShelfListing.where(q_str).joins(intervention_join).distinct.count
+            res = ShelfListing.joins(intervention_join).where(q_str).distinct.order(order_str).offset(start).limit(len)
          else
             filtered = ShelfListing.joins(:barcodes).where(q_str).count
             res = ShelfListing.joins(:barcodes).where(q_str).order(order_str).offset(start).limit(len)

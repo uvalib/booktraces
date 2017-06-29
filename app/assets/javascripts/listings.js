@@ -46,7 +46,11 @@ $(function() {
             dataType: 'json',
             success: function (json) {
                if (json) {
-                  $("#query").val( json.search.search );
+                  var q = json.search.search;
+                  $("#query").val( q.split("|")[0] );
+                  $("#query-fields").val( q.split("|")[1] );
+
+
                   var val = json.columns[5].search.search;
                   if (val.length === 0) val = "Any";
                   $("#library-filter").val(val);
@@ -68,7 +72,9 @@ $(function() {
                   $("#subclass-filter").trigger("chosen:updated");
 
                   val = json.columns[9].search.search;
-                  $("#intervention-filter").prop('checked', val==="true");
+                  if (val.length === 0) val = "Any";
+                  $("#intervention-filter").val( val );
+                  $("#intervention-filter").trigger("chosen:updated");
                }
                callback(json);
             }
@@ -97,10 +103,15 @@ $(function() {
       if (!val) val = "Any";
       table.columns(8).search( val );
 
-      table.columns(9).search( $("#intervention-filter").is(":checked") );
+      val = $("#intervention-filter").val();
+      if (!val) val = "Any";
+      table.columns(9).search( val );
 
       val = $("#query").val();
-      if (!val) val = "";
+      if (val.length > 0) {
+         var fields = $("#query-fields").val();
+         val = val + "|"+fields;
+      }
       $("#shelf-listings_filter input").val( val );
       table.search( val );
 

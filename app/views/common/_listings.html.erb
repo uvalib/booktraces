@@ -8,8 +8,20 @@
                    class: "chosen-select filter", id: "library-filter" %>
              </td>
              <td class="gap"/>
-             <td class="label">Search:</td>
-             <td><input id="query"/></td>
+             <td class="label">Search for:</td>
+             <td>
+                <input id="query"/><span style="font-weight:bold">&nbsp;in:&nbsp;</span>
+                <select id="query-fields">
+                  <option value="all">All Fields</option>
+                  <option value="internal_id">ID</option>
+                  <option value="barcodes.barcode">Barcode</option>
+                  <option value="call_number">Call Number</option>
+                  <option value="title">Title</option>
+                  <option value="bookplate_text">Bookplate</option>
+                  <option value="interventions.special_problems">Special Problems</option>
+                  <option value="interventions.special_interest">Special Interest</option>
+               </select>
+             </td>
          </tr>
          <tr>
             <td class="label">Classification System:</td>
@@ -21,8 +33,16 @@
                </select>
             </td>
             <td class="gap"/>
-            <td class="label">Interventions Only:</td>
-            <td><input id="intervention-filter" type="checkbox" checked="checked"/></td>
+            <td class="label">Interventions:</td>
+            <td>
+               <select id="intervention-filter" class="chosen-select filter">
+                  <option value="Any">Any Intervention</option>
+                  <option value="None">All Listings</option>
+                  <% InterventionType.all.each do |t| %>
+                     <option value="<%= t.id %>"><%= t.category.capitalize %>:&nbsp;<%= t.name.capitalize %></option>
+                  <% end %>
+               </select>
+            </td>
          </tr>
          <tr>
             <td class="label">Classification:</td>

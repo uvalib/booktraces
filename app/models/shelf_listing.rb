@@ -7,6 +7,7 @@ class ShelfListing < ApplicationRecord
 
    has_many :interventions, through: :barcodes
    has_many :destinations, through: :barcodes
+   has_many :details, through: :interventions
 
    validates :internal_id, presence: true, uniqueness: true
    validates :original_item_id, presence: true
