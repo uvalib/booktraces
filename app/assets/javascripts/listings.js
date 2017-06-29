@@ -13,10 +13,12 @@ $(function() {
       serverSide: true,
       processing: true,
       pageLength: pageLen,
-      ordering: false,
       columnDefs: [
+         { orderable: false, targets: [9,10] },
          { width: "50px", targets: [0] },
-         { width: "30px", targets: [5,6] },
+         { width: "90px", targets: [2] },
+         { width: "150px", targets: [4] },
+         { width: "30px", targets: [7,8] },
          { width: "70px", targets: [1] },
          { render: function ( data, type, row ) {
             var url = "http://search.lib.virginia.edu/catalog?catalog_select=catalog&search_field=advanced&call_number=";
@@ -28,13 +30,13 @@ $(function() {
             clazz = "no";
             if ( data === true) clazz= "yes";
             return "<div class='intervention'><span class='intervention "+clazz+"'></span></div>";
-         }, targets: 8},
+         }, targets: 9},
          { render: function ( data, type, row ) {
             return "<a class='detail' title='View details' href='listings/"+data+"'></a>";
-         }, targets: 9}
+         }, targets: 10}
       ],
       searchCols: [
-         null,null,null,null,null,null,null,null,{ "search": "true" }
+         null,null,null,null,null,null,null,null,null,{ "search": "true" }
       ],
       stateDuration: 0,
       stateSave: true,
@@ -52,15 +54,20 @@ $(function() {
 
                   val = json.columns[6].search.search;
                   if (val.length === 0) val = "Any";
-                  $("#class-filter").val(val);
-                  $("#class-filter").trigger("chosen:updated");
+                  $("#system-filter").val(val);
+                  $("#system-filter").trigger("chosen:updated");
 
                   val = json.columns[7].search.search;
                   if (val.length === 0) val = "Any";
+                  $("#class-filter").val(val);
+                  $("#class-filter").trigger("chosen:updated");
+
+                  val = json.columns[8].search.search;
+                  if (val.length === 0) val = "Any";
                   $("#subclass-filter").val( val );
                   $("#subclass-filter").trigger("chosen:updated");
-                  
-                  val = json.columns[8].search.search;
+
+                  val = json.columns[9].search.search;
                   $("#intervention-filter").prop('checked', val==="true");
                }
                callback(json);
@@ -78,15 +85,19 @@ $(function() {
       if (!val) val = "Any";
       table.columns(5).search( val );
 
-      val = $("#class-filter").val();
+      val = $("#system-filter").val();
       if (!val) val = "Any";
       table.columns(6).search( val );
 
-      val = $("#subclass-filter").val();
+      val = $("#class-filter").val();
       if (!val) val = "Any";
       table.columns(7).search( val );
 
-      table.columns(8).search( $("#intervention-filter").is(":checked") );
+      val = $("#subclass-filter").val();
+      if (!val) val = "Any";
+      table.columns(8).search( val );
+
+      table.columns(9).search( $("#intervention-filter").is(":checked") );
 
       val = $("#query").val();
       if (!val) val = "";
@@ -105,6 +116,8 @@ $(function() {
    $("#clear").on("click", function() {
       $("#library-filter").val("Any");
       $("#library-filter").trigger("chosen:updated");
+      $("#system-filter").val("Any");
+      $("#system-filter").trigger("chosen:updated");
       $("#class-filter").val("Any");
       $("#class-filter").trigger("chosen:updated");
       $("#subclass-filter").val("Any");

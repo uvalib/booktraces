@@ -9,7 +9,20 @@
              </td>
              <td class="gap"/>
              <td class="label">Search:</td>
-            <td><input id="query"/></td>
+             <td><input id="query"/></td>
+         </tr>
+         <tr>
+            <td class="label">Classification System:</td>
+            <td class="choice">
+               <select name="classification_system" id="system-filter" class="chosen-select filter">
+                  <option value="Any">Any</option>
+                  <option value="LC">Library of Congress</option>
+                  <option value="Hicks">Hicks</option>
+               </select>
+            </td>
+            <td class="gap"/>
+            <td class="label">Interventions Only:</td>
+            <td><input id="intervention-filter" type="checkbox" checked="checked"/></td>
          </tr>
          <tr>
             <td class="label">Classification:</td>
@@ -17,9 +30,6 @@
                <%= select_tag "classification", options_for_select(ShelfListing.classifications),
                    class: "chosen-select filter", id: "class-filter" %>
             </td>
-            <td class="gap"/>
-            <td class="label">Interventions Only:</td>
-            <td><input id="intervention-filter" type="checkbox" checked="checked"/></td>
          </tr>
          <tr>
             <td class="label">Subclassification: </td>
@@ -45,6 +55,7 @@
             <th>Title</th>
             <th>Bookplate</th>
             <th>Library</th>
+            <th>System</th>
             <th>Class</th>
             <th>Subclass</th>
             <th>Intervention?</th>

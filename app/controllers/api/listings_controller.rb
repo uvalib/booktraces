@@ -82,17 +82,22 @@ class Api::ListingsController < Api::ApiController
          query_terms << "library = '#{lib_filter}'"
       end
 
-      class_filter = params[:columns]["6"][:search][:value]
+      sys_filter = params[:columns]["6"][:search][:value]
+      if !sys_filter.blank? && sys_filter != "Any"
+         query_terms << "classification_system = '#{sys_filter}'"
+      end
+
+      class_filter = params[:columns]["7"][:search][:value]
       if !class_filter.blank? && class_filter != "Any"
          query_terms << "classification = '#{class_filter}'"
       end
 
-      subclass_filter = params[:columns]["7"][:search][:value]
+      subclass_filter = params[:columns]["8"][:search][:value]
       if !subclass_filter.blank? && subclass_filter != "Any"
          query_terms << "subclassification = '#{subclass_filter}'"
       end
 
-      interventions = params[:columns]["8"][:search][:value] == "true"
+      interventions = params[:columns]["9"][:search][:value] == "true"
 
       q = params[:search]["value"]
       if !q.blank?
@@ -106,17 +111,24 @@ class Api::ListingsController < Api::ApiController
          query_terms << str
       end
 
+      # ordering!
+      columns = ["internal_id","barcodes.barcode","call_number","title","bookplate_text",
+         "library","classification_system","classification","subclassification"]
+      order_info = params[:order]["0"]
+      idx = order_info['column'].to_i
+      order_str = "#{columns[idx]} #{order_info['dir']}"
+
       # convert these settings into a structure that datatables can
       # unpack and restore upon page refresh
       session[:search_state] = {
          time: Time.now.to_i, start: params[:start], length: params[:length],
          search: {search: q}, columns: [ {}, {}, {}, {}, {},
-            {search: {search: lib_filter}}, {search: {search: class_filter}},
-            {search: {search: subclass_filter}}, {search: {search: params[:columns]["8"][:search][:value]}},
+            {search: {search: lib_filter}}, {search: {search: sys_filter}}, {search: {search: class_filter}},
+            {search: {search: subclass_filter}}, {search: {search: params[:columns]["9"][:search][:value]}},
             {} ]
       }
 
-      total, filtered, res  = do_search(query_terms, interventions, params[:start], params[:length])
+      total, filtered, res  = do_search(query_terms, interventions, params[:start], params[:length], order_str)
 
       # Format the results in the structure required by datatables
       # Table: ID, BARCODE, CallNum, Title, Bookplate, Library, class, subclass, intervention
@@ -126,7 +138,7 @@ class Api::ListingsController < Api::ApiController
          flag = !sl.interventions.empty?
          data << [
             sl.internal_id, bc, sl.call_number, sl.title, sl.bookplate_text,
-            sl.library, sl.classification, sl.subclassification, flag, sl.id
+            sl.library, sl.classification_system, sl.classification, sl.subclassification, flag, sl.id
          ]
       end
 
@@ -140,7 +152,7 @@ class Api::ListingsController < Api::ApiController
       render json: session[:search_state]
    end
 
-   def do_search(query_terms, interventions, start, len)
+   def do_search(query_terms, interventions, start, len, order_str)
       total = ShelfListing.count
       filtered = total
 
@@ -148,18 +160,18 @@ class Api::ListingsController < Api::ApiController
          # if interventions, only return listings that join with intervention table
          if interventions
             filtered = ShelfListing.joins(:interventions).count
-            res = ShelfListing.joins(:interventions).order(id: :asc).offset(start).limit(len)
+            res = ShelfListing.joins(:interventions).order(order_str).offset(start).limit(len)
          else
-            res = ShelfListing.offset(start).limit(len).order(id: :asc)
+            res = ShelfListing.offset(start).limit(len).order(order_str)
          end
       else
          q_str = query_terms.join(" and ")
          if interventions
             filtered = ShelfListing.where(q_str).joins(:interventions).count
-            res = ShelfListing.joins(:interventions).where(q_str).order(id: :asc).offset(start).limit(len)
+            res = ShelfListing.joins(:interventions).where(q_str).order(order_str).offset(start).limit(len)
          else
             filtered = ShelfListing.joins(:barcodes).where(q_str).count
-            res = ShelfListing.joins(:barcodes).where(q_str).order(id: :asc).offset(start).limit(len)
+            res = ShelfListing.joins(:barcodes).where(q_str).order(order_str).offset(start).limit(len)
          end
       end
       return total, filtered, res
