@@ -138,7 +138,8 @@ $(function() {
       $("#subclass-filter").val("Any");
       $("#subclass-filter").trigger("chosen:updated");
       $("#query").val("");
-      $("#intervention-filter").prop("checked", true);
+      $("#intervention-filter").val("Any");
+      $("#intervention-filter").trigger("chosen:updated");
       doFilter();
    });
 

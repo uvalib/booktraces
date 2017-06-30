@@ -1,16 +1,21 @@
 class Api::ListingsController < Api::ApiController
    # Non-datatables search API. Simple params:
-   # q=[global query], l=library, c=class, s=subclass, i=0/1 interventions
+   # q=[global query], l=library, c=class, s=subclass,
+   #                   i=interventions[none,any,inscription,annotation,marginalia,insertion,artwork,library]
    # start=start offset, length=how many to return; limit 1000
    def search
       query_terms = []
       start = params[:start]
       start = 0 if start.nil?
       len = params[:length]
-      len = 100 if len.nil?
-      if len > 1000
-         render text: "Cannot request more than 1000 records", status: :bad_request
-         return
+      if len.nil?
+         len = 100
+      else
+         len = len.to_i
+         if len > 1000
+            render text: "Cannot request more than 1000 records", status: :bad_request
+            return
+         end
       end
 
       lib_filter = params[:l]
@@ -28,21 +33,22 @@ class Api::ListingsController < Api::ApiController
          query_terms << "subclassification = '#{subclass_filter}'"
       end
 
-      interventions = params[:i] == "true"
+      interventions, term = get_intervention_term( params[:i] )
+      query_terms << term if interventions && !term.blank?
 
       q = params[:q]
       if !q.blank?
          str =  "(internal_id like '%#{q}%' or title like '%#{q}%' or call_number like '%#{q}%'"
-         str << " or bookplate_text like '%#{q}%' or barcodes.barcode like '%#{q}%'"
+         str << " or bookplate_text like '%#{q}%' or b.barcode like '%#{q}%'"
          if interventions
-            str << " or interventions.special_problems like '%#{q}%'"
-            str << " or interventions.special_interest like '%#{q}%'"
+            str << " or i.special_problems like '%#{q}%'"
+            str << " or i.special_interest like '%#{q}%'"
          end
          str << ")"
          query_terms << str
       end
-      total, filtered, res  = do_search(query_terms, interventions, params[:start], params[:length], "id asc")
-      render json: { total: total, filtered: filtered, data: res.as_json(except: ["created_at", "updated_at", "who_checked", "id"]) }
+      total, filtered, res  = do_search(query_terms, interventions, start, len, "id asc")
+      render json: { total: total, filtered: filtered, start: start, length: len, data: res.as_json(except: ["created_at", "updated_at", "who_checked", "id"]) }
    end
 
    # public API to get listing details. Accepts 1 param; ID which
@@ -97,28 +103,9 @@ class Api::ListingsController < Api::ApiController
          query_terms << "subclassification = '#{subclass_filter}'"
       end
 
-      intervention_filter = params[:columns]["9"][:search][:value]
-      interventions = intervention_filter != "None"
-      intervention_type = intervention_filter.to_i
-      if interventions
-         if intervention_type > 0
-            query_terms << "details.intervention_type_id = #{intervention_type}"
-         else
-            if intervention_filter == "inscription"
-               query_terms << "details.intervention_type_id < 5"
-            elsif intervention_filter == "annotation"
-               query_terms << "details.intervention_type_id >= 5 and details.intervention_type_id <= 7"
-            elsif intervention_filter == "marginalia"
-               query_terms << "details.intervention_type_id >= 8 and details.intervention_type_id <= 10"
-            elsif intervention_filter == "insertion"
-               query_terms << "details.intervention_type_id >= 11 and details.intervention_type_id <= 15"
-            elsif intervention_filter == "artwork"
-               query_terms << "details.intervention_type_id >= 16 and details.intervention_type_id <= 17"
-            elsif intervention_filter == "library"
-               query_terms << "details.intervention_type_id > 17"
-            end
-         end
-      end
+      interventions, term = get_intervention_term(params[:columns]["9"][:search][:value])
+      query_terms << term if interventions && !term.blank?
+
 
       q_val = params[:search]["value"]
       if !q_val.blank?
@@ -126,10 +113,10 @@ class Api::ListingsController < Api::ApiController
          f = q_val.split("|")[1]
          if f == "all"
             str =  "(internal_id like '%#{q}%' or title like '%#{q}%' or call_number like '%#{q}%'"
-            str << " or bookplate_text like '%#{q}%' or barcodes.barcode like '%#{q}%'"
+            str << " or bookplate_text like '%#{q}%' or b.barcode like '%#{q}%'"
             if interventions
-               str << " or interventions.special_problems like '%#{q}%'"
-               str << " or interventions.special_interest like '%#{q}%'"
+               str << " or i.special_problems like '%#{q}%'"
+               str << " or i.special_interest like '%#{q}%'"
             end
             str << ")"
          else
@@ -139,7 +126,7 @@ class Api::ListingsController < Api::ApiController
       end
 
       # ordering!
-      columns = ["internal_id","barcodes.barcode","call_number","title","bookplate_text",
+      columns = ["internal_id","b.barcode","call_number","title","bookplate_text",
          "library","classification_system","classification","subclassification"]
       order_info = params[:order]["0"]
       idx = order_info['column'].to_i
@@ -179,13 +166,41 @@ class Api::ListingsController < Api::ApiController
       render json: session[:search_state]
    end
 
+   def get_intervention_term( intervention_filter )
+      interventions = intervention_filter.downcase != "none"
+      intervention_type = intervention_filter.to_i
+      term = ""
+      if interventions
+         if intervention_type > 0
+            term = "details.intervention_type_id = #{intervention_type}"
+         else
+            if intervention_filter.downcase == "inscription"
+               term = "details.intervention_type_id < 5"
+            elsif intervention_filter.downcase == "annotation"
+               term = "details.intervention_type_id >= 5 and details.intervention_type_id <= 7"
+            elsif intervention_filter.downcase == "marginalia"
+               term = "details.intervention_type_id >= 8 and details.intervention_type_id <= 10"
+            elsif intervention_filter.downcase == "insertion"
+               term = "details.intervention_type_id >= 11 and details.intervention_type_id <= 15"
+            elsif intervention_filter.downcase == "artwork"
+               term = "details.intervention_type_id >= 16 and details.intervention_type_id <= 17"
+            elsif intervention_filter.downcase == "library"
+               term = "details.intervention_type_id > 17"
+            end
+         end
+      end
+      return interventions, term
+   end
+
    def do_search(query_terms, interventions, start, len, order_str)
       total = ShelfListing.count
       filtered = total
+
       intervention_join = "inner join barcodes b on b.shelf_listing_id = shelf_listings.id"
       intervention_join << " inner join barcode_interventions bi on bi.barcode_id = b.id"
       intervention_join << " inner join interventions i on i.id = bi.intervention_id"
       intervention_join << " inner join intervention_details details on i.id = details.intervention_id"
+
       no_intervention = "inner join barcodes b on b.shelf_listing_id = shelf_listings.id"
       no_intervention << " left outer join barcode_interventions bi on bi.barcode_id = b.id"
 
