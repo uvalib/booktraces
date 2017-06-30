@@ -100,8 +100,24 @@ class Api::ListingsController < Api::ApiController
       intervention_filter = params[:columns]["9"][:search][:value]
       interventions = intervention_filter != "None"
       intervention_type = intervention_filter.to_i
-      if intervention_type > 0
-         query_terms << "details.intervention_type_id = #{intervention_type}"
+      if interventions
+         if intervention_type > 0
+            query_terms << "details.intervention_type_id = #{intervention_type}"
+         else
+            if intervention_filter == "inscription"
+               query_terms << "details.intervention_type_id < 5"
+            elsif intervention_filter == "annotation"
+               query_terms << "details.intervention_type_id >= 5 and details.intervention_type_id <= 7"
+            elsif intervention_filter == "marginalia"
+               query_terms << "details.intervention_type_id >= 8 and details.intervention_type_id <= 10"
+            elsif intervention_filter == "insertion"
+               query_terms << "details.intervention_type_id >= 11 and details.intervention_type_id <= 15"
+            elsif intervention_filter == "artwork"
+               query_terms << "details.intervention_type_id >= 16 and details.intervention_type_id <= 17"
+            elsif intervention_filter == "library"
+               query_terms << "details.intervention_type_id > 17"
+            end
+         end
       end
 
       q_val = params[:search]["value"]
@@ -170,6 +186,8 @@ class Api::ListingsController < Api::ApiController
       intervention_join << " inner join barcode_interventions bi on bi.barcode_id = b.id"
       intervention_join << " inner join interventions i on i.id = bi.intervention_id"
       intervention_join << " inner join intervention_details details on i.id = details.intervention_id"
+      no_intervention = "inner join barcodes b on b.shelf_listing_id = shelf_listings.id"
+      no_intervention << " left outer join barcode_interventions bi on bi.barcode_id = b.id"
 
       if query_terms.empty?
          # if interventions, only return listings that join with intervention table
@@ -177,7 +195,7 @@ class Api::ListingsController < Api::ApiController
             filtered = ShelfListing.joins(intervention_join).distinct.count
             res = ShelfListing.joins(intervention_join).distinct.order(order_str).offset(start).limit(len)
          else
-            res = ShelfListing.offset(start).limit(len).order(order_str)
+            res = ShelfListing.joins(no_intervention).offset(start).limit(len).order(order_str)
          end
       else
          q_str = query_terms.join(" and ")
@@ -185,8 +203,8 @@ class Api::ListingsController < Api::ApiController
             filtered = ShelfListing.where(q_str).joins(intervention_join).distinct.count
             res = ShelfListing.joins(intervention_join).where(q_str).distinct.order(order_str).offset(start).limit(len)
          else
-            filtered = ShelfListing.joins(:barcodes).where(q_str).count
-            res = ShelfListing.joins(:barcodes).where(q_str).order(order_str).offset(start).limit(len)
+            filtered = ShelfListing.joins(no_intervention).where(q_str).count
+            res = ShelfListing.joins(no_intervention).where(q_str).order(order_str).offset(start).limit(len)
          end
       end
       return total, filtered, res

@@ -47,9 +47,13 @@ $(function() {
             success: function (json) {
                if (json) {
                   var q = json.search.search;
-                  $("#query").val( q.split("|")[0] );
-                  $("#query-fields").val( q.split("|")[1] );
-
+                  if ( q.includes("|") ) {
+                     $("#query").val( q.split("|")[0] );
+                     $("#query-fields").val( q.split("|")[1] );
+                  } else {
+                     $("#query").val("");
+                     $("#query-fields").val("all");
+                  }
 
                   var val = json.columns[5].search.search;
                   if (val.length === 0) val = "Any";

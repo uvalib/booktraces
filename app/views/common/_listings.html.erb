@@ -36,8 +36,14 @@
             <td class="label">Interventions:</td>
             <td>
                <select id="intervention-filter" class="chosen-select filter">
-                  <option value="Any">Any Intervention</option>
-                  <option value="None">All Listings</option>
+                  <option value="None">No Interventions</option>
+                  <option value="Any" selected>Any Intervention</option>
+                  <option value="inscription">Any Inscription</option>
+                  <option value="annotation">Any Annotation</option>
+                  <option value="marginalia">Any Marginalia</option>
+                  <option value="insertion">Any Insertion</option>
+                  <option value="artwork">Any Artwork</option>
+                  <option value="library">Any Library Intervention</option>
                   <% InterventionType.all.each do |t| %>
                      <option value="<%= t.id %>"><%= t.category.capitalize %>:&nbsp;<%= t.name.capitalize %></option>
                   <% end %>
