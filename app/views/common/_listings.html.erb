@@ -21,6 +21,7 @@
                   <option value="i.special_problems">Special Problems</option>
                   <option value="i.special_interest">Special Interest</option>
                </select>
+               <label><input type="checkbox" id="full-word" checked/>&nbsp;Full Word</label>
              </td>
          </tr>
          <tr>
@@ -58,8 +59,8 @@
             </td>
          </tr>
          <tr>
-            <td class="label">Subclassification: </td>
-            <td class="choice">
+            <td class="label subclass">Subclassification: </td>
+            <td class="choice subclass">
                <%= select_tag "subclassification", options_for_select(ShelfListing.subclassifications),
                    class: "chosen-select filter", id: "subclass-filter" %>
              </td>

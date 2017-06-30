@@ -7,10 +7,12 @@ Rails.application.routes.draw do
    end
 
    namespace :api do
-      get 'search' => 'listings#search'
-      get 'detail/:id' => 'listings#detail'
-      post 'query' => 'listings#query'
-      get 'search_state' => 'listings#search_state'
+      get 'classifications/:id' => 'api#classifications'
+      get 'subclassifications/:id' => 'api#subclassifications'
+      get 'search' => 'api#search'
+      get 'detail/:id' => 'api#detail'
+      post 'query' => 'api#query'
+      get 'search_state' => 'api#search_state'
    end
 
    root :to => 'home#index'

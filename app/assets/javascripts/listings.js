@@ -50,6 +50,7 @@ $(function() {
                   if ( q.includes("|") ) {
                      $("#query").val( q.split("|")[0] );
                      $("#query-fields").val( q.split("|")[1] );
+                     $("#full-word").prop("checked", q.split("|")[2]==="true" );
                   } else {
                      $("#query").val("");
                      $("#query-fields").val("all");
@@ -90,6 +91,54 @@ $(function() {
      }
    });
 
+   $("#system-filter").chosen().change( function() {
+      var val = $("#system-filter").val();
+      $.ajax({
+         url: "/api/classifications/"+val,
+         method: "GET",
+         complete: function( jqXHR, textStatus ) {
+            var vals = jqXHR.responseJSON;
+            $("#class-filter option").remove();
+            $.each(vals, function(idx, v) {
+               $("#class-filter").append( $('<option>', {
+                    value: v,
+                    text : v
+                }));
+            });
+            $("#class-filter").trigger("chosen:updated");
+
+            if ( val == "Hicks") {
+               $("#subclass-filter").prop('disabled', true).trigger("chosen:updated");
+
+            } else {
+               $("#subclass-filter").prop('disabled', false).trigger("chosen:updated");
+            }
+            $("#subclass-filter").val( "Any" );
+            $("#subclass-filter").trigger("chosen:updated");
+         }
+      });
+   });
+
+   $("#class-filter").chosen().change( function() {
+      var val = $("#class-filter").val();
+      $.ajax({
+         url: "/api/subclassifications/"+val,
+         method: "GET",
+         complete: function( jqXHR, textStatus ) {
+            var vals = jqXHR.responseJSON;
+            $("#subclass-filter option").remove();
+            $.each(vals, function(idx, v) {
+               $("#subclass-filter").append( $('<option>', {
+                    value: v,
+                    text : v
+                }));
+            });
+            $("#subclass-filter").val( "Any" );
+            $("#subclass-filter").trigger("chosen:updated");
+         }
+      });
+   });
+
    var doFilter = function() {
       var val = $("#library-filter").val();
       if (!val) val = "Any";
@@ -114,7 +163,7 @@ $(function() {
       val = $("#query").val();
       if (val.length > 0) {
          var fields = $("#query-fields").val();
-         val = val + "|"+fields;
+         val = val + "|"+fields+"|"+ $("#full-word").is(":checked");
       }
       $("#shelf-listings_filter input").val( val );
       table.search( val );
@@ -138,6 +187,7 @@ $(function() {
       $("#subclass-filter").val("Any");
       $("#subclass-filter").trigger("chosen:updated");
       $("#query").val("");
+      $("#full-word").prop("checked", true);
       $("#intervention-filter").val("Any");
       $("#intervention-filter").trigger("chosen:updated");
       doFilter();
