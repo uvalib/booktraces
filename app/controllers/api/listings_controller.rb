@@ -38,8 +38,8 @@ class Api::ListingsController < Api::ApiController
 
       q = params[:q]
       if !q.blank?
-         str =  "(internal_id like '%#{q}%' or title like '%#{q}%' or call_number like '%#{q}%'"
-         str << " or bookplate_text like '%#{q}%' or b.barcode like '%#{q}%'"
+         str =  "(internal_id like '%#{q}%' or title regexp '[[:<:]]#{q}[[:>:]]' or call_number like '%#{q}%'"
+         str << " or bookplate_text regexp '[[:<:]]#{q}[[:>:]]' or b.barcode like '%#{q}%'"
          if interventions
             str << " or i.special_problems like '%#{q}%'"
             str << " or i.special_interest like '%#{q}%'"
@@ -112,15 +112,19 @@ class Api::ListingsController < Api::ApiController
          q = q_val.split("|")[0]
          f = q_val.split("|")[1]
          if f == "all"
-            str =  "(internal_id like '%#{q}%' or title like '%#{q}%' or call_number like '%#{q}%'"
-            str << " or bookplate_text like '%#{q}%' or b.barcode like '%#{q}%'"
+            str =  "(internal_id like '%#{q}%' or title regexp '[[:<:]]#{q}[[:>:]]' or call_number like '%#{q}%'"
+            str << " or bookplate_text regexp '[[:<:]]#{q}[[:>:]]' or b.barcode like '%#{q}%'"
             if interventions
                str << " or i.special_problems like '%#{q}%'"
                str << " or i.special_interest like '%#{q}%'"
             end
             str << ")"
          else
-            str = "#{f} like '%#{q}%'"
+            if f == 'title' || f == 'bookplate'
+               str = "#{f} regexp '[[:<:]]#{q}[[:>:]]'"
+            else
+               str = "#{f} like '%#{q}%'"
+            end
          end
          query_terms << str
       end
