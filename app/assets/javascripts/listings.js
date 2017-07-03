@@ -12,6 +12,8 @@ $(function() {
    var table = $('#shelf-listings').DataTable( {
       serverSide: true,
       processing: true,
+      dom: 'lBrtip',
+      buttons: ['csv','excel'],
       pageLength: pageLen,
       columnDefs: [
          { orderable: false, targets: [9,10] },

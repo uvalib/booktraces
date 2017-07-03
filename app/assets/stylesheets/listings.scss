@@ -2,6 +2,17 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 div.content.listing, div.content.detail {
+   div.dt-buttons {
+      position: relative;
+      float: right;
+      a {
+         color: #444;
+         padding: 2px 12px;
+         font-weight: 200;
+         border-color: #aaa;
+         border-radius: 4px;
+      }
+   }
    padding: 0;
    h4 {
       border-top: 1px solid #AAC1E5;
