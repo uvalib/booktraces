@@ -16,7 +16,7 @@ $(function() {
       buttons: ['csv','excel'],
       pageLength: pageLen,
       columnDefs: [
-         { orderable: false, targets: [9,10] },
+         { orderable: false, targets: [9,10,11] },
          { width: "50px", targets: [0] },
          { width: "90px", targets: [2] },
          { width: "150px", targets: [4] },
@@ -35,7 +35,7 @@ $(function() {
          }, targets: 9},
          { render: function ( data, type, row ) {
             return "<a class='detail' title='View details' href='listings/"+data+"'></a>";
-         }, targets: 10}
+         }, targets: 11}
       ],
       searchCols: [
          null,null,null,null,null,null,null,null,null,{ "search": "true" }
@@ -82,6 +82,13 @@ $(function() {
                   if (val.length === 0) val = "Any";
                   $("#intervention-filter").val( val );
                   $("#intervention-filter").trigger("chosen:updated");
+
+                  if (json.columns[10].search) {
+                     val = json.columns[10].search.search;
+                     if (val.length === 0) val = "Any";
+                     $("#status-filter").val( val );
+                     $("#status-filter").trigger("chosen:updated");
+                  }
                }
                callback(json);
             }
@@ -161,6 +168,10 @@ $(function() {
       val = $("#intervention-filter").val();
       if (!val) val = "Any";
       table.columns(9).search( val );
+
+      val = $("#status-filter").val();
+      if (!val) val = "Any";
+      table.columns(10).search( val );
 
       val = $("#query").val();
       if (val.length > 0) {

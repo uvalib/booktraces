@@ -13,10 +13,6 @@ class Api::ApiController < ApplicationController
          len = 100
       else
          len = len.to_i
-         if len > 1000
-            render text: "Cannot request more than 1000 records", status: :bad_request
-            return
-         end
       end
 
       lib_filter = params[:l]
@@ -107,6 +103,10 @@ class Api::ApiController < ApplicationController
       interventions, term = get_intervention_term(params[:columns]["9"][:search][:value])
       query_terms << term if interventions && !term.blank?
 
+      status_filter = params[:columns]["10"][:search][:value]
+      if !status_filter.blank? && status_filter != "Any"
+         query_terms << "book_status_id = #{status_filter}"
+      end
 
       q_val = params[:search]["value"]
       if !q_val.blank?
@@ -156,7 +156,7 @@ class Api::ApiController < ApplicationController
          search: {search: q_val}, columns: [ {}, {}, {}, {}, {},
             {search: {search: lib_filter}}, {search: {search: sys_filter}}, {search: {search: class_filter}},
             {search: {search: subclass_filter}}, {search: {search: params[:columns]["9"][:search][:value]}},
-            {} ]
+            {search: {search: status_filter}}, {} ]
       }
 
       total, filtered, res  = do_search(query_terms, interventions, params[:start], params[:length], order_str)
@@ -169,7 +169,8 @@ class Api::ApiController < ApplicationController
          flag = !sl.interventions.empty?
          data << [
             sl.internal_id, bc, sl.call_number, sl.title, sl.bookplate_text,
-            sl.library, sl.classification_system, sl.classification, sl.subclassification, flag, sl.id
+            sl.library, sl.classification_system, sl.classification, sl.subclassification,
+            flag, sl.book_status.name.capitalize, sl.id
          ]
       end
 

@@ -1,5 +1,5 @@
 class Barcode < ApplicationRecord
-   belongs_to :shelf_listing
+   belongs_to :shelf_listing, optional: true
    belongs_to :cataloging_request, optional: true
 
    has_one :barcode_intervention
@@ -7,6 +7,5 @@ class Barcode < ApplicationRecord
    has_one :barcode_destination
    has_one :destination, through: :barcode_destination
 
-   validates :shelf_listing, presence: true
    validates :barcode, presence: true
 end

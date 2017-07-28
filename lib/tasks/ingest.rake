@@ -2,6 +2,20 @@ require 'csv'
 
 namespace :ingest do
 
+   desc "Test interventions"
+   task :zzz  => :environment do
+      cnt = 0
+      no_bc = 0
+      Intervention.all.find_each do |i|
+         if i.barcodes.blank?
+            puts "NO BARCODE #{i.to_json}"
+            no_bc += 1
+         end
+         cnt +=1
+      end
+      puts "TOTAL #{cnt}, NO BARCODE #{no_bc}"
+   end
+
    desc "Ingest ALL data; listings, cataloging, interventions and destinations"
    task :all  => :environment do
       ivy = "listings/Ivy-Stacks-sample-shelf-list.csv"
@@ -88,6 +102,10 @@ namespace :ingest do
       puts "Ingesting interventions file #{file}"
       types= InterventionType.all
 
+      row_num = 0
+      err_cnt = 0
+      mul_cnt = 0
+      no_iv = 0
       CSV.foreach(file, headers: true) do |row|
          # FORMAT:
          # 0=barcode, 1=timestamp, 2=user, 3=inscriptions
@@ -95,7 +113,24 @@ namespace :ingest do
          # 8=artwork, 9=special_interest, 10=special_problems,
          # 11=library_markings
 
-         print "."
+         #print "."
+         # FIRST, see if the barcode exists:
+         row_num += 1
+         bc_str = row[0].strip.upcase
+
+         if row[3].blank? && row[4].blank? &&row[5].blank? &&
+            row[7].blank? && row[8].blank? && row[11].blank?
+            puts "SKIPPING: No interventions barcode #{bc_str}"
+            no_iv += 1
+            next
+         end
+
+         if Barcode.where(barcode: bc_str, active: 1).count == 0
+            puts "ERROR: Couldn't find barcode #{bc_str} for #{row_num}; creating placeholder"
+            err_cnt += 1
+            Barcode.create(barcode: bc_str)
+         end
+
          intervention = Intervention.create!(
             special_interest: row[9], special_problems: row[10],
             who_found: row[2], found_at: row[1].to_datetime)
@@ -128,6 +163,8 @@ namespace :ingest do
             BarcodeIntervention.create(barcode: bc, intervention: intervention)
          end
       end
+      puts "DONE, total rows processed #{row_num}"
+      puts "Error count #{err_cnt}, no intervention cnt #{no_iv}"
    end
 
    def add_intervention_detail(intervention, category, vals, types)
@@ -152,6 +189,9 @@ namespace :ingest do
       puts "Ingesting IVY interventions file #{file}"
       types = InterventionType.all
 
+      row_num = 0
+      err_cnt = 0
+      no_iv = 0
       CSV.foreach(file, headers: true) do |row|
          # FORMAT:
          # 0=timestamp, 1=user, 2=barcode, 3=bookplate,
@@ -159,7 +199,24 @@ namespace :ingest do
          # 7=annotations, 8=insertions, 9=artwork,
          # 10=library_markings, 11=special_interest, 12=special_problems
 
-         print "."
+         #print "."
+         # FIRST, see if the barcode exists:
+         row_num += 1
+         bc_str = row[2].strip.upcase
+
+         if row[5].blank? && row[6].blank? &&row[7].blank? &&
+            row[8].blank? && row[9].blank? && row[10].blank?
+            puts "SKIPPING: No interventions barcode #{bc_str}"
+            no_iv += 1
+            next
+         end
+
+         if Barcode.where(barcode: bc_str, active: 1).count == 0
+            puts "ERROR: Couldn't find barcode #{bc_str}; creating placeholder"
+            err_cnt += 1
+            Barcode.create(barcode: bc_str)
+         end
+
          intervention = Intervention.create!(
             special_interest: row[11], special_problems: row[12],
             who_found: row[1], found_at: row[0].to_datetime)
@@ -190,24 +247,10 @@ namespace :ingest do
          bc_str = row[2].strip.upcase
          Barcode.where(barcode: bc_str, active: 1).each do |bc|
             BarcodeIntervention.create(barcode: bc, intervention: intervention)
-
-            # backfill bookplate data in original shelf listing
-            if bc.shelf_listing.bookplate_text.blank? && !row[3].blank?
-               bc.shelf_listing.update(bookplate_text: row[3])
-               if !row[4].blank?
-                  row[4].split(";").each do |a|
-                     act = a.strip.downcase
-                     next if act == "none of the above" || act.include?("describe below")
-                     if act.include? "too late"
-                        Action.create(name: "too late", shelf_listing: bc.shelf_listing)
-                     else
-                        Action.create(name: act, shelf_listing: bc.shelf_listing)
-                     end
-                  end
-               end
-            end
          end
       end
+      puts "DONE, total rows processed #{row_num}"
+      puts "Error count #{err_cnt}, no intervention #{no_iv}"
    end
 
    desc "Ingest a cataloging .csv file"

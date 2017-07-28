@@ -46,7 +46,9 @@ div.content.listing, div.content.detail {
          text-decoration: underline;
       }
    }
-
+   #status_filter_chosen {
+         width: 250px !important;
+   }
    .chosen-container-single .chosen-single span {
       color: black;
       font-weight: 200;

@@ -13,7 +13,7 @@
                 <input id="query"/><span style="font-weight:bold">&nbsp;in:&nbsp;</span>
                 <select id="query-fields">
                   <option value="all">All Fields</option>
-                  <option value="internal_id">ID</option>
+                  <option value="internal_id">Index</option>
                   <option value="b.barcode">Barcode</option>
                   <option value="call_number">Call Number</option>
                   <option value="title">Title</option>
@@ -57,6 +57,16 @@
                <%= select_tag "classification", options_for_select(ShelfListing.classifications),
                    class: "chosen-select filter", id: "class-filter" %>
             </td>
+            <td class="gap"/>
+            <td class="label">Status:</td>
+            <td class="choice">
+               <select id="status-filter" class="chosen-select filter"  style="width:100px;">
+                  <% BookStatus.all.each do |t| %>
+                     <option value="Any" selected>Any</option>
+                     <option value="<%= t.id %>"><%= t.name.capitalize %></option>
+                  <% end %>
+               </select>
+            </td>
          </tr>
          <tr>
             <td class="label subclass">Subclassification: </td>
@@ -76,7 +86,7 @@
    <table id="shelf-listings" class="display stripe" cellspacing="0" width="100%">
       <thead>
         <tr>
-            <th>ID</th>
+            <th>Index</th>
             <th>Barcode(s)</th>
             <th>Call Number</th>
             <th>Title</th>
@@ -86,6 +96,7 @@
             <th>Class</th>
             <th>Subclass</th>
             <th>Intervention?</th>
+            <th>Status</th>
             <th></th>
         </tr>
     </thead>
