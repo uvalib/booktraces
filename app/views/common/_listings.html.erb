@@ -61,8 +61,8 @@
             <td class="label">Status:</td>
             <td class="choice">
                <select id="status-filter" class="chosen-select filter"  style="width:100px;">
+                  <option value="Any" selected>Any</option>
                   <% BookStatus.all.each do |t| %>
-                     <option value="Any" selected>Any</option>
                      <option value="<%= t.id %>"><%= t.name.capitalize %></option>
                   <% end %>
                </select>
