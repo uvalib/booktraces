@@ -16,6 +16,10 @@
             <td class="data"><%= raw(link) %></td>
          </tr>
          <tr>
+            <td class="label">Item ID:</td>
+            <td class="data"><%= @listing.item_id %></td>
+         </tr>
+         <tr>
             <td class="label">Barcode(s):</td>
             <td class="data"><%= @listing.active_barcodes.join(", ") %></td>
          </tr>
@@ -55,10 +59,5 @@
    </div>
 </div>
 
-<% if @listing.interventions.count > 0 %>
-   <%= render "/common/interventions" %>
-<% end %>
-
-<% if @listing.destinations.count > 0 %>
-   <%= render "/common/preservation" %>
-<% end %>
+<%= render "/common/interventions" %>
+<%= render "/common/preservation" %>

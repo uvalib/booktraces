@@ -332,7 +332,7 @@ namespace :ingest do
          # 9=Index, 10=Item ID, 11=location, 12=Library, 13=Class, 14=Subclass
          # ... and Law.csv includes a 15th column for classification system
          stacks_item_id = row[3].strip.upcase if !row[3].blank?
-         original_item_id = row[10].strip.upcase
+         item_id = row[10].strip.upcase
          statuses, status = find_status(statuses, "valid")
 
          # Is this a record with some sort of problem with the exported id vs actual shelved id?
@@ -341,13 +341,14 @@ namespace :ingest do
                puts "WARN Encountered blank shelf item ID for #{row[9]}. Skipping"
                next
             elsif stacks_item_id[0] == "X"  # barcodes start with an 'X'
-               if stacks_item_id == original_item_id
+               if stacks_item_id == item_id
                   statuses, status = find_status(statuses, "valid")
                else
                   statuses, status = find_status(statuses, "barcode mismatch")
                end
-            elsif stacks_item_id[0...2] == "35"   # Law ueses a long numeric item id that starts with 35
-               if stacks_item_id == original_item_id
+            elsif stacks_item_id[0...2] == "35"
+               # Law uses a long numeric item id that starts with 35
+               if stacks_item_id == item_id
                   statuses, status = find_status(statuses, "valid")
                else
                   statuses, status = find_status(statuses, "barcode mismatch")
@@ -362,21 +363,24 @@ namespace :ingest do
             end
          end
 
-         if ids.include? original_item_id
-            puts "WARN Found duplicate Item ID #{original_item_id} for #{row[9]}"
+         if ids.include? item_id
+            puts "WARN Found duplicate Item ID #{item_id} for #{row[9]}"
          else
-            ids << original_item_id
+            ids << item_id
          end
 
          sl = ShelfListing.create!(title: row[1], call_number: row[2],
-            original_item_id: original_item_id, book_status: status,
-            bookplate_text: row[5], date_checked: row[7], who_checked: row[8],
-            internal_id: row[9].strip, location: row[11].strip, library: row[12].strip,
-            classification: row[13].strip, subclassification:  row[14].strip )
+            book_status: status, bookplate_text: row[5], date_checked: row[7],
+            who_checked: row[8], internal_id: row[9].strip, location: row[11].strip,
+            library: row[12].strip, classification: row[13].strip, subclassification:  row[14].strip )
 
-         # If there is a valid barcode for this book, add it to the barcodes table
-         if !stacks_item_id.nil?
-            Barcode.create!(shelf_listing_id: sl.id, barcode: stacks_item_id)
+         # Create brarcode records for this listing; the original item ID
+         # and the id that was found on the shelf
+         Barcode.create!(shelf_listing_id: sl.id, barcode: item_id, origin: "sirsi")
+         if !stacks_item_id.blank?
+            # non-blank stacks item id trumps original
+            Barcode.where(shelf_listing_id: sl.id).update_all(active: 0)
+            Barcode.create!(shelf_listing_id: sl.id, barcode: stacks_item_id, origin: "stacks")
          end
 
          if file.include? "Law.csv"
@@ -420,11 +424,11 @@ namespace :ingest do
 
          pub_year = row[4].split(".")[0]
          sl = ShelfListing.create!(title: row[6], call_number: row[1],
-            original_item_id: item_id, book_status: valid_status,
+            book_status: valid_status,
             author: row[5], publication_year: pub_year,
             internal_id: "IS-%05d" % seq, location: row[3].strip, library: row[9].strip,
             classification: row[10].strip, subclassification:  row[11].strip )
-         Barcode.create!(shelf_listing_id: sl.id, barcode: item_id)
+         Barcode.create!(shelf_listing_id: sl.id, barcode: item_id, origin: "stacks")
          seq += 1
       end
       puts "DONE"

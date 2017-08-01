@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170609193411) do
+ActiveRecord::Schema.define(version: 20170801175914) do
 
   create_table "actions", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string "name"
@@ -39,6 +39,7 @@ ActiveRecord::Schema.define(version: 20170609193411) do
     t.bigint "cataloging_request_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "origin", default: 0
     t.index ["cataloging_request_id"], name: "index_barcodes_on_cataloging_request_id"
     t.index ["shelf_listing_id"], name: "index_barcodes_on_shelf_listing_id"
   end
@@ -99,7 +100,6 @@ ActiveRecord::Schema.define(version: 20170609193411) do
 
   create_table "shelf_listings", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string "internal_id", null: false
-    t.string "original_item_id"
     t.bigint "book_status_id"
     t.text "title"
     t.text "author"
@@ -117,7 +117,6 @@ ActiveRecord::Schema.define(version: 20170609193411) do
     t.datetime "updated_at", null: false
     t.index ["book_status_id"], name: "index_shelf_listings_on_book_status_id"
     t.index ["internal_id"], name: "index_shelf_listings_on_internal_id"
-    t.index ["original_item_id"], name: "index_shelf_listings_on_original_item_id"
   end
 
   create_table "users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|

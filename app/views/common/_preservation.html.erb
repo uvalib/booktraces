@@ -1,6 +1,9 @@
 <div class='panel right-margin top-margin'>
    <div class='header'>Preservation</div>
    <div class='content'>
+      <% if @listing.destinations.count == 0 %>
+         No preservation actions for this listing
+      <% end %>
       <table>
          <% @listing.destinations.each do |d| %>
          <tr>

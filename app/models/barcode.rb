@@ -1,4 +1,6 @@
 class Barcode < ApplicationRecord
+   enum origin: [:sirsi, :stacks, :catalog_request]
+
    belongs_to :shelf_listing, optional: true
    belongs_to :cataloging_request, optional: true
 
@@ -8,4 +10,5 @@ class Barcode < ApplicationRecord
    has_one :destination, through: :barcode_destination
 
    validates :barcode, presence: true
+   validates :origin, presence: true
 end

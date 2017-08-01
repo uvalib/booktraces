@@ -10,7 +10,6 @@ class ShelfListing < ApplicationRecord
    has_many :details, through: :interventions
 
    validates :internal_id, presence: true, uniqueness: true
-   validates :original_item_id, presence: true
    validates :book_status, presence: true
    validates :library, presence: true
    validates :classification, presence: true
@@ -20,14 +19,19 @@ class ShelfListing < ApplicationRecord
       self.classification_system = "LC" if self.classification_system.blank?
    end
 
+   def item_id
+      bc = barcodes.where(origin: "sirsi").first
+      if bc.nil?
+         bc = barcodes.where(active: 1).first
+      end
+      return bc.barcode
+   end
+
    def active_barcodes
       bcs = []
       barcodes.each do |bc|
          next if !bc.active
          bcs << bc.barcode
-      end
-      if bcs.length == 0
-         bcs =  [self.original_item_id]
       end
       return bcs
    end

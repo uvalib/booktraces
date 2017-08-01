@@ -30,21 +30,21 @@ class Api::ApiController < ApplicationController
          query_terms << "subclassification = '#{subclass_filter}'"
       end
 
-      interventions, term = get_intervention_term( params[:i] )
-      query_terms << term if interventions && !term.blank?
+      intervention_term = get_intervention_term( params[:i] )
+      query_terms << intervention_term if !intervention_term.blank?
 
       q = params[:q]
       if !q.blank?
          str =  "(internal_id like '%#{q}%' or title regexp '[[:<:]]#{q}[[:>:]]' or call_number like '%#{q}%'"
          str << " or bookplate_text regexp '[[:<:]]#{q}[[:>:]]' or b.barcode like '%#{q}%'"
-         if interventions
+         if !intervention_term.include? "ALL_LISTINGS"
             str << " or i.special_problems like '%#{q}%'"
             str << " or i.special_interest like '%#{q}%'"
          end
          str << ")"
          query_terms << str
       end
-      total, filtered, res  = do_search(query_terms, interventions, start, len, "id asc")
+      total, filtered, res  = do_search(query_terms, start, len, "id asc")
       render json: { total: total, filtered: filtered, start: start, length: len, data: res.as_json(except: ["created_at", "updated_at", "who_checked", "id"]) }
    end
 
@@ -100,8 +100,8 @@ class Api::ApiController < ApplicationController
          query_terms << "subclassification = '#{subclass_filter}'"
       end
 
-      interventions, term = get_intervention_term(params[:columns]["9"][:search][:value])
-      query_terms << term if interventions && !term.blank?
+      intervention_term = get_intervention_term(params[:columns]["9"][:search][:value])
+      query_terms << intervention_term if !intervention_term.blank?
 
       status_filter = params[:columns]["10"][:search][:value]
       if !status_filter.blank? && status_filter != "Any"
@@ -122,7 +122,7 @@ class Api::ApiController < ApplicationController
                str << " or bookplate_text regexp '%#{q}%' or b.barcode like '%#{q}%'"
             end
 
-            if interventions
+            if !intervention_term.include? "ALL_LISTINGS"
                if full == true
                   str << " or i.special_problems regexp '%[[:<:]]#{q}[[:>:]]'"
                   str << " or i.special_interest regexp '[[:<:]]#{q}[[:>:]]'"
@@ -159,7 +159,7 @@ class Api::ApiController < ApplicationController
             {search: {search: status_filter}}, {} ]
       }
 
-      total, filtered, res  = do_search(query_terms, interventions, params[:start], params[:length], order_str)
+      total, filtered, res  = do_search(query_terms, params[:start], params[:length], order_str)
 
       # Format the results in the structure required by datatables
       # Table: ID, BARCODE, CallNum, Title, Bookplate, Library, class, subclass, intervention
@@ -185,29 +185,33 @@ class Api::ApiController < ApplicationController
    end
 
    def get_intervention_term( intervention_filter )
-      interventions = intervention_filter.downcase != "none"
+      return "ALL_LISTINGS" if intervention_filter.downcase == "all"
+
       intervention_type = intervention_filter.to_i
       term = ""
-      if interventions
-         if intervention_type > 0
-            term = "details.intervention_type_id = #{intervention_type}"
-         else
-            if intervention_filter.downcase == "inscription"
-               term = "details.intervention_type_id < 5"
-            elsif intervention_filter.downcase == "annotation"
-               term = "details.intervention_type_id >= 5 and details.intervention_type_id <= 7"
-            elsif intervention_filter.downcase == "marginalia"
-               term = "details.intervention_type_id >= 8 and details.intervention_type_id <= 10"
-            elsif intervention_filter.downcase == "insertion"
-               term = "details.intervention_type_id >= 11 and details.intervention_type_id <= 15"
-            elsif intervention_filter.downcase == "artwork"
-               term = "details.intervention_type_id >= 16 and details.intervention_type_id <= 17"
-            elsif intervention_filter.downcase == "library"
-               term = "details.intervention_type_id > 17"
-            end
+      # if a specific type of intervention was selected, the filter will be a
+      # non-zero number. show only interventions of that type
+      if intervention_type > 0
+         term = "details.intervention_type_id = #{intervention_type}"
+      else
+         # for named types of intervention (except none), select by numeric range
+         if intervention_filter.downcase == "inscription"
+            term = "details.intervention_type_id < 5"
+         elsif intervention_filter.downcase == "annotation"
+            term = "details.intervention_type_id >= 5 and details.intervention_type_id <= 7"
+         elsif intervention_filter.downcase == "marginalia"
+            term = "details.intervention_type_id >= 8 and details.intervention_type_id <= 10"
+         elsif intervention_filter.downcase == "insertion"
+            term = "details.intervention_type_id >= 11 and details.intervention_type_id <= 15"
+         elsif intervention_filter.downcase == "artwork"
+            term = "details.intervention_type_id >= 16 and details.intervention_type_id <= 17"
+         elsif intervention_filter.downcase == "library"
+            term = "details.intervention_type_id > 17"
+         elsif intervention_filter.downcase == "none"
+            term = "NO_INTERVENTIONS"
          end
       end
-      return interventions, term
+      return term
    end
 
    def classifications
@@ -226,35 +230,42 @@ class Api::ApiController < ApplicationController
       end
    end
 
-   def do_search(query_terms, interventions, start, len, order_str)
-      total = ShelfListing.count
+   def do_search(query_terms, start, len, order_str)
+
+      # build the join query. Barcode is always required. Use initial
+      # join to get the total count of listings
+      intervention_join = "inner join barcodes b on b.shelf_listing_id = shelf_listings.id"
+      total = ShelfListing.joins(intervention_join).where("b.active = 1").distinct.count
       filtered = total
 
-      intervention_join = "inner join barcodes b on b.shelf_listing_id = shelf_listings.id"
-      intervention_join << " inner join barcode_interventions bi on bi.barcode_id = b.id"
-      intervention_join << " inner join interventions i on i.id = bi.intervention_id"
-      intervention_join << " inner join intervention_details details on i.id = details.intervention_id"
+      # in all cases, we only care about ACTIVE barcodes
+      query_terms << "b.active = 1"
 
-      no_intervention = "inner join barcodes b on b.shelf_listing_id = shelf_listings.id"
-      no_intervention << " left outer join barcode_interventions bi on bi.barcode_id = b.id"
+      if query_terms.include? "ALL_LISTINGS"
+         # nothing else required for all. Just remove the flag from the list
+         query_terms.delete "ALL_LISTINGS"
+      elsif query_terms.include? "NO_INTERVENTIONS"
+         # Only take listings with NO interventions (left join where right is null) and remove the flag
+         intervention_join = "inner join barcodes b on b.shelf_listing_id = shelf_listings.id"
+         intervention_join << " left join barcode_interventions bi on b.id = bi.barcode_id"
+         query_terms.delete "NO_INTERVENTIONS"
+         query_terms << "bi.barcode_id is null"
+      else
+         # intervention type requested. Need all data; barocde, barcode_intervention, intervention and details
+         intervention_join << " inner join barcode_interventions bi on bi.barcode_id = b.id"
+         intervention_join << " inner join interventions i on i.id = bi.intervention_id"
+         intervention_join << " inner join intervention_details details on i.id = details.intervention_id"
+      end
 
+      puts "TERMS: #{query_terms} - JOIN: #{intervention_join}"
       if query_terms.empty?
-         # if interventions, only return listings that join with intervention table
-         if interventions
-            filtered = ShelfListing.joins(intervention_join).distinct.count
-            res = ShelfListing.joins(intervention_join).distinct.order(order_str).offset(start).limit(len)
-         else
-            res = ShelfListing.joins(no_intervention).offset(start).limit(len).order(order_str)
-         end
+         filtered = ShelfListing.joins(intervention_join).distinct.count
+         res = ShelfListing.joins(intervention_join).distinct.order(order_str).offset(start).limit(len)
       else
          q_str = query_terms.join(" and ")
-         if interventions
-            filtered = ShelfListing.where(q_str).joins(intervention_join).distinct.count
-            res = ShelfListing.joins(intervention_join).where(q_str).distinct.order(order_str).offset(start).limit(len)
-         else
-            filtered = ShelfListing.joins(no_intervention).where(q_str).count
-            res = ShelfListing.joins(no_intervention).where(q_str).order(order_str).offset(start).limit(len)
-         end
+         filtered = ShelfListing.where(q_str).joins(intervention_join).distinct.count
+         res = ShelfListing.joins(intervention_join).where(q_str).distinct
+            .order(order_str).offset(start).limit(len)
       end
       return total, filtered, res
    end

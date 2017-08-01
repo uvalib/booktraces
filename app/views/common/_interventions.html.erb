@@ -1,6 +1,9 @@
 <div class='panel right-margin top-margin'>
    <div class='header'>Interventions</div>
    <div class='content'>
+      <% if @listing.interventions.count == 0 %>
+         No interventions for this listing
+      <% end %>
       <% @listing.interventions.each do |i| %>
       <div class="intervention">
          <table class="intervention">
