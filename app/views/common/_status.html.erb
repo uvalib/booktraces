@@ -21,7 +21,7 @@
          </tr>
          <tr>
             <td class="label">Actions:</td>
-            <td class="data"><%= @listing.actions.map { |a| a.name.split.map(&:capitalize).join(' ')}.join ',' %></td>
+            <td class="data"><%= @listing.actions.map { |a| a.name.split.map(&:capitalize).join(' ')}.join ', ' %></td>
          </tr>
       </table>
    </div>

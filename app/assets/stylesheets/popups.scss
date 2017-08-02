@@ -16,7 +16,9 @@
       margin: 15% auto;
       width: 500px;
       display: none;
-      
+      .pure-form.pure-form-aligned {
+         font-size: 75%;
+      }
       h4.modal-header {
          border-top: none;
          font-weight: normal;
@@ -30,9 +32,6 @@
       }
       div.modal-controls {
          text-align: right;
-         .pure-button {
-               font-size: 75%;
-         }
       }
    }
 }

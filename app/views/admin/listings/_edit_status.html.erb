@@ -1,9 +1,37 @@
 <div class="modal status-edit">
    <h4 class="modal-header">Edit Book Status</h4>
    <div class="modal-content">
-      <div class="modal-controls">
-          <button class="pure-button cancel">Cancel</button>
-          <button class="pure-button update-status">Update</button>
-      </div>
+      <%= form_tag("/admin/listings/#{@listing.id}", method: "put", class: "pure-form pure-form-aligned") do %>
+         <fieldset>
+            <input id="update_type" name ="update_type" type="hidden" value="status">
+            <div class="pure-control-group">
+               <label for="date_checked">Date Checked</label>
+               <input id="date_checked" name ="date_checked" type="text" placeholder="Date Checked" value="<%= @listing.date_checked %>"/>
+            </div>
+            <div class="pure-control-group">
+               <label for="who_checked">Checked By</label>
+               <input id="who_checked" name = "who_checked" type="text" placeholder="Checked By" value="<%= @listing.who_checked %>"/>
+            </div>
+            <div class="pure-control-group">
+               <label for="book_status">Status</label>
+               <select id="book_status" name = "book_status" type="text">
+                  <% BookStatus.all.each do |s| %>
+                     <% sel = ""
+                        sel="selected" if s.id == @listing.book_status.id %>
+                     <option <%= sel %> val="<%= s.id %>"><%= s.name %></option>
+                  <% end %>
+               </select>
+            </div>
+            <div class="pure-control-group">
+               <label for="actions">Actions</label>
+               <input id="actions" name = "actions" type="text"
+                  placeholder="Actions" value="<%= @listing.actions.map { |a| a.name.split.map(&:capitalize).join(' ')}.join ', ' %>"/>
+            </div>
+         </fieldset>
+         <div class="modal-controls">
+             <button class="pure-button cancel">Cancel</button>
+             <input class="pure-button update-status" type="submit">
+         </div>
+      <% end %>
    </div>
 </div>
