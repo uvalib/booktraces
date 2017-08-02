@@ -2,18 +2,9 @@ require 'csv'
 
 namespace :ingest do
 
-   desc "Test interventions"
-   task :zzz  => :environment do
-      cnt = 0
-      no_bc = 0
-      Intervention.all.find_each do |i|
-         if i.barcodes.blank?
-            puts "NO BARCODE #{i.to_json}"
-            no_bc += 1
-         end
-         cnt +=1
-      end
-      puts "TOTAL #{cnt}, NO BARCODE #{no_bc}"
+   desc "Fix origin for catalog request"
+   task :fix_origin  => :environment do
+      Barcode.where("cataloging_request_id is not null and active=1").update(origin: "cataloging_request")
    end
 
    desc "Ingest ALL data; listings, cataloging, interventions and destinations"
@@ -300,7 +291,7 @@ namespace :ingest do
          if sl.barcodes.where(barcode: updated_id).count == 0
             # mark the original barcode for this listing as inactive and add the new one
             Barcode.where("shelf_listing_id = #{sl.id} and cataloging_request_id is null and active=1").update_all(active: false)
-            Barcode.create(barcode: updated_id, shelf_listing_id: sl.id, cataloging_request_id: cr.id)
+            Barcode.create(barcode: updated_id, shelf_listing_id: sl.id, cataloging_request_id: cr.id, origin: "cataloging_request")
          end
 
          # Problems are a semicolon separated list. Parse and create problems records

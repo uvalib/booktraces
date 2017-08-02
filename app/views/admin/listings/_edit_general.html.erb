@@ -1,9 +1,72 @@
 <div class="modal general-edit">
    <h4 class="modal-header">Edit General Information</h4>
    <div class="modal-content">
-      <div class="modal-controls">
-          <button class="pure-button cancel">Cancel</button>
-          <button class="pure-button update-general">Update</button>
-      </div>
+      <%= form_tag("/admin/listings/#{@listing.id}", method: "put", class: "pure-form pure-form-aligned") do %>
+         <fieldset>
+            <input id="update_type" name ="update_type" type="hidden" value="general">
+            <div class="pure-control-group">
+               <label class="pure-input-1-3">Title</label>
+               <textarea class="pure-input-2-3" name="title" type="text" placeholder="Title" ><%= @listing.title %></textarea>
+            </div>
+            <div class="pure-control-group">
+               <label class="pure-input-1-3">Call Number</label>
+               <input class="pure-input-2-3" name="call_number" type="text" placeholder="Call Number" value="<%= @listing.call_number %>"/>
+            </div>
+            <div class="pure-control-group">
+               <label class="pure-input-1-3">Item ID</label>
+               <input class="pure-input-2-3" name="item_id" type="text" placeholder="Item ID" value="<%= @listing.item_id %>"/>
+            </div>
+            <div class="pure-control-group">
+               <label class="pure-input-1-3">Barcode(s)</label>
+               <% if @listing.interventions.count > 0 || @listing.destinations.count >0  %>
+                  <label class="pure-input-2-3 left"><%= @listing.active_barcodes.join(", ") %></label>
+               <% else %>
+                  <input class="pure-input-2-3" name="barcodes" type="text" placeholder="Barcodes" value="<%= @listing.active_barcodes.join(", ") %>"/>
+               <% end %>
+            </div>
+            <div class="pure-control-group">
+               <label class="pure-input-1-3">Bookplate</label>
+               <input class="pure-input-2-3" name="bookplate_text" type="text" placeholder="Bookplate" value="<%= @listing.bookplate_text %>"/>
+            </div>
+            <div class="pure-control-group">
+               <label class="pure-input-1-3">Author</label>
+               <input class="pure-input-2-3" name="author" type="text" placeholder="Author" value="<%= @listing.author %>"/>
+            </div>
+            <div class="pure-control-group">
+               <label class="pure-input-1-3">Year</label>
+               <input class="pure-input-2-3" name="publication_year" type="text" placeholder="Publication Year" value="<%= @listing.publication_year %>"/>
+            </div>
+            <div class="pure-control-group">
+               <label class="pure-input-1-3">Library</label>
+               <input class="pure-input-2-3" name="library" type="text" placeholder="Library" value="<%= @listing.library %>"/>
+            </div>
+            <div class="pure-control-group">
+               <label>Classification System</label>
+               <select name="classification_system">
+                  <option <% if @listing.classification_system == "LS" %>selected<% end %> value="LC">Library of Congress</option>
+                  <option <% if @listing.classification_system == "Hicks" %>selected<% end %> value="Hicks">Hicks</option>
+               </select>
+            </div>
+            <div class="pure-control-group">
+               <label>Classification</label>
+               <input class="pure-input-2-3" name="classification" type="text" placeholder="Classification" value="<%= @listing.classification %>"/>
+            </div>
+            <div class="pure-control-group">
+               <label>Subclassification</label>
+               <input class="pure-input-2-3" name="subclassification" type="text" placeholder="Subclassification" value="<%= @listing.subclassification %>"/>
+            </div>
+            <div class="pure-control-group">
+               <label>Location</label>
+               <input class="pure-input-2-3" name="location" type="text" placeholder="Location" value="<%= @listing.location %>"/>
+            </div>
+         </fieldset>
+         <% if @listing.interventions.count > 0 || @listing.destinations.count >0 %>
+            <span class="note">NOTE: The barcode(s) for this listing have associated interventions and/or preservations and cannot be edited.</span>
+         <% end %>
+         <div class="modal-controls">
+             <button class="pure-button cancel">Cancel</button>
+             <input class="pure-button" type="submit">
+         </div>
+      <% end %>
    </div>
 </div>

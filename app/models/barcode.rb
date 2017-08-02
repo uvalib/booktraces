@@ -1,5 +1,5 @@
 class Barcode < ApplicationRecord
-   enum origin: [:sirsi, :stacks, :catalog_request]
+   enum origin: [:sirsi, :stacks, :cataloging_request, :user_edit]
 
    belongs_to :shelf_listing, optional: true
    belongs_to :cataloging_request, optional: true

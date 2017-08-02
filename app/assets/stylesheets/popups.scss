@@ -13,9 +13,22 @@
       padding: 0;
       border: 1px solid #666;
       box-shadow: 1px 1px 10px #777;
-      margin: 15% auto;
-      width: 500px;
+      margin: 8% auto;
+      width: 350px;
       display: none;
+      label.pure-input-2-3.left {
+         text-align: left;
+      }
+      span.note {
+         text-align: center;
+         display: block;
+         margin-bottom: 10px;
+         font-style: italic;
+         font-weight: bold;
+         font-size: 95%;
+         color: #444;
+         padding: 0 75px;
+      }
       .pure-form.pure-form-aligned {
          font-size: 75%;
       }
@@ -33,5 +46,8 @@
       div.modal-controls {
          text-align: right;
       }
+   }
+   .modal.general-edit {
+      width:550px
    }
 }
