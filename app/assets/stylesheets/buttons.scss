@@ -1,0 +1,26 @@
+span.icon-button {
+   display: inline-block;
+   width: 16px;
+   height: 16px;
+   cursor: pointer;
+   margin: 0 2px;
+   &:hover {
+      background-size:cover;
+      box-shadow:inset 0 0 0 20px rgba(0,100,255,0.15);
+   }
+}
+
+span.icon-button.edit {
+   background-image: image_url("edit.png");
+}
+span.icon-button.add {
+   background-image: image_url("add.png");
+}
+span.icon-button.trash {
+   background-image: image_url("trash.png");
+}
+
+span.header-buttons {
+   position: absolute;
+   right: 5px;
+}

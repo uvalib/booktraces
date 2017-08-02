@@ -2,5 +2,6 @@
    <h4><a class="back" href="/admin/listings"><%= image_tag "back.png" %></a>&nbsp;Shelf Listing <%= @listing.internal_id %> <span class="user"><%= current_user.full_name %></span></h4>
    <div class="body">
       <%= render "/common/detail" %>
+      <%= render 'dialogs' %>
    </div>
 </div>

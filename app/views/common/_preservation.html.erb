@@ -1,5 +1,12 @@
 <div class='panel right-margin top-margin'>
-   <div class='header'>Preservation</div>
+   <div class='header'>
+      <span>Preservation</span>
+      <span class="header-buttons">
+         <span class="icon-button add"></span>
+         <span class="icon-button edit"></span>
+         <span class="icon-button trash"></span>
+      </span>
+   </div>
    <div class='content'>
       <% if @listing.destinations.count == 0 %>
          No preservation actions for this listing

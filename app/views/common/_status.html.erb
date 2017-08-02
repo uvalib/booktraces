@@ -1,5 +1,10 @@
 <div class='panel'>
-   <div class='header'>Book Status</div>
+   <div class='header'>
+      <span>Book Status</span>
+      <span class="header-buttons">
+         <span class="icon-button edit" data-target="status-edit"></span>
+      </span>
+   </div>
    <div class='content'>
       <table>
          <tr>
@@ -19,51 +24,5 @@
             <td class="data"><%= @listing.actions.map { |a| a.name.split.map(&:capitalize).join(' ')}.join ',' %></td>
          </tr>
       </table>
-   </div>
-</div>
-
-<div class='panel top-margin'>
-   <div class='header'>Cataloging Requests</div>
-   <div class='content'>
-      <% if  @listing.cataloging_requests.count == 0 %>
-         No catalog requests for this listing
-      <% else %>
-         <table>
-            <tr>
-               <td class="label">Original Item ID:</td>
-               <td class="data"><%= @listing.item_id %></td>
-            </tr>
-         </table>
-      <% end %>
-      <% @listing.cataloging_requests.each do |cr| %>
-         <div class="catalog-request">
-            <table>
-               <tr>
-                  <td class="label">Problems:</td>
-                  <td class="data"><%= cr.problems.map { |a| a.name.split.map(&:capitalize).join(' ')}.join(',')%></td>
-               </tr>
-               <tr>
-                  <td class="label">Sent Out:</td>
-                  <td class="data"><%= cr.sent_out_on %></td>
-               </tr>
-               <tr>
-                  <td class="label">Returned:</td>
-                  <td class="data"><%= cr.returned_on %></td>
-               </tr>
-               <tr>
-                  <td class="label">New Barcode:</td>
-                  <% if cr.barcode.blank? %>
-                     <td class="data">N/A</td>
-                  <% else %>
-                     <td class="data"><%= cr.barcode.barcode %></td>
-                  <% end %>
-               </tr>
-               <tr>
-                  <td class="label">Destination:</td>
-                  <td class="data"><%= cr.destination %></td>
-               </tr>
-            </table>
-         </div>
-      <% end %>
    </div>
 </div>

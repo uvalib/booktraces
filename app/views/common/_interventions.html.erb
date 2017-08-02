@@ -1,5 +1,14 @@
 <div class='panel right-margin top-margin'>
-   <div class='header'>Interventions</div>
+   <div class='header'>
+      <span>Interventions</span>
+      <% if logged_in? %>
+         <span class="header-buttons">
+            <span class="icon-button add"></span>
+            <span class="icon-button edit"></span>
+            <span class="icon-button trash"></span>
+         </span>
+         <% end %>
+   </div>
    <div class='content'>
       <% if @listing.interventions.count == 0 %>
          No interventions for this listing
