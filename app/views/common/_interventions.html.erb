@@ -16,7 +16,7 @@
          <% if logged_in? %>
          <div class="card-buttons">
             <span class="icon-button edit"></span>
-            <span class="icon-button trash"></span>
+            <span class="icon-button trash" data-target-type="intervention" data-target-id="<%= i.id %>"></span>
          </div>
          <% end %>
          <div class="details">
