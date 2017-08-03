@@ -42,12 +42,36 @@
       }
       div.modal-content {
          padding: 15px;
+         label {
+            vertical-align: top;
+            position: relative;
+            top: 10px;
+         }
       }
       div.modal-controls {
          text-align: right;
       }
+      div.interventions-scroller {
+         display: inline-block;
+         height: 150px;
+         overflow: scroll;
+         background: white;
+         border: 1px solid #ccc;
+         ul {
+            list-style: none;
+            padding-left: 10px;
+            label.pure-checkbox {
+               width:auto;
+               top: 0;
+               margin-left: 10px;
+            }
+            input[type=checkbox] {
+               margin-right: 10px;
+            }
+         }
+      }
    }
-   .modal.general-edit {
+   .modal.general-edit,.modal.intervention-edit {
       width:550px
    }
 }

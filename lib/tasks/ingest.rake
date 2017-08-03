@@ -3,6 +3,18 @@ require 'csv'
 namespace :ingest do
 
    desc "Fix origin for catalog request"
+   task :test  => :environment do
+      ShelfListing.all.find_each do |sl|
+         if sl.interventions.count > 1
+            puts "SL #{sl.id} has #{sl.interventions.count} interventions"
+         end
+         if sl.destinations.count > 1
+            puts "SL #{sl.id} has #{sl.destinations.count} destinations"
+         end
+      end
+   end
+
+   desc "Fix origin for catalog request"
    task :fix_origin  => :environment do
       Barcode.where("cataloging_request_id is not null and active=1").update(origin: "cataloging_request")
    end
