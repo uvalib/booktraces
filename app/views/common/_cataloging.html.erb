@@ -3,8 +3,6 @@
       <span>Cataloging Requests</span>
       <span class="header-buttons">
          <span class="icon-button add"></span>
-         <span class="icon-button edit"></span>
-         <span class="icon-button trash"></span>
       </span>
    </div>
    <div class='content'>
@@ -20,32 +18,38 @@
       <% end %>
       <% @listing.cataloging_requests.each do |cr| %>
          <div class="catalog-request">
-            <table>
-               <tr>
-                  <td class="label">Problems:</td>
-                  <td class="data"><%= cr.problems.map { |a| a.name.split.map(&:capitalize).join(' ')}.join(',')%></td>
-               </tr>
-               <tr>
-                  <td class="label">Sent Out:</td>
-                  <td class="data"><%= cr.sent_out_on %></td>
-               </tr>
-               <tr>
-                  <td class="label">Returned:</td>
-                  <td class="data"><%= cr.returned_on %></td>
-               </tr>
-               <tr>
-                  <td class="label">New Barcode:</td>
-                  <% if cr.barcode.blank? %>
-                     <td class="data">N/A</td>
-                  <% else %>
-                     <td class="data"><%= cr.barcode.barcode %></td>
-                  <% end %>
-               </tr>
-               <tr>
-                  <td class="label">Destination:</td>
-                  <td class="data"><%= cr.destination %></td>
-               </tr>
-            </table>
+            <div class="card-buttons">
+               <span class="icon-button edit"></span>
+               <span class="icon-button trash"></span>
+            </div>
+            <div class="details">
+               <table>
+                  <tr>
+                     <td class="label">Problems:</td>
+                     <td class="data"><%= cr.problems.map { |a| a.name.split.map(&:capitalize).join(' ')}.join(',')%></td>
+                  </tr>
+                  <tr>
+                     <td class="label">Sent Out:</td>
+                     <td class="data"><%= cr.sent_out_on %></td>
+                  </tr>
+                  <tr>
+                     <td class="label">Returned:</td>
+                     <td class="data"><%= cr.returned_on %></td>
+                  </tr>
+                  <tr>
+                     <td class="label">New Barcode:</td>
+                     <% if cr.barcode.blank? %>
+                        <td class="data">N/A</td>
+                     <% else %>
+                        <td class="data"><%= cr.barcode.barcode %></td>
+                     <% end %>
+                  </tr>
+                  <tr>
+                     <td class="label">Destination:</td>
+                     <td class="data"><%= cr.destination %></td>
+                  </tr>
+               </table>
+            </div>
          </div>
       <% end %>
    </div>

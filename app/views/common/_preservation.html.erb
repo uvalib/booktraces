@@ -1,31 +1,41 @@
 <div class='panel right-margin top-margin'>
    <div class='header'>
       <span>Preservation</span>
+      <% if logged_in? %>
       <span class="header-buttons">
          <span class="icon-button add"></span>
-         <span class="icon-button edit"></span>
-         <span class="icon-button trash"></span>
       </span>
+      <% end %>
    </div>
    <div class='content'>
       <% if @listing.destinations.count == 0 %>
          No preservation actions for this listing
       <% end %>
-      <table>
-         <% @listing.destinations.each do |d| %>
-         <tr>
-            <td class="label">Destination:</td>
-            <td class="data"><%= d.destination_name.name %></td>
-         </tr>
-         <tr>
-            <td class="label">Date Sent:</td>
-            <td class="data"><%= d.date_sent_out %></td>
-         </tr>
-         <tr>
-            <td class="label">Bookplate:</td>
-            <td class="data"><%= d.bookplate %></td>
-         </tr>
+      <% @listing.destinations.each do |d| %>
+      <div class="preservation">
+         <% if logged_in? %>
+         <div class="card-buttons">
+            <span class="icon-button edit"></span>
+            <span class="icon-button trash"></span>
+         </div>
          <% end %>
-      </table>
+         <div class="details">
+            <table>
+               <tr>
+                  <td class="label">Destination:</td>
+                  <td class="data"><%= d.destination_name.name %></td>
+               </tr>
+               <tr>
+                  <td class="label">Date Sent:</td>
+                  <td class="data"><%= d.date_sent_out %></td>
+               </tr>
+               <tr>
+                  <td class="label">Bookplate:</td>
+                  <td class="data"><%= d.bookplate %></td>
+               </tr>
+            </table>
+         </div>
+      </div>
+      <% end %>
    </div>
 </div>

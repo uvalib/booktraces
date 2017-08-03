@@ -135,10 +135,18 @@ div.content.listing, div.content.detail {
          color: #f5f5f5;
          font-weight: 300;
       }
-      div.intervention, div.catalog-request {
+      div.intervention, div.catalog-request, div.preservation {
          margin: 10px 0px 10px 0px;
-         border: 1px solid #ccc;
-         padding: 10px;
+         border: 1px solid #6A81a5;
+         div.details {
+            padding: 10px;
+         }
+         div.card-buttons {
+            background: #6A81a5;
+            padding: 4px;
+            position: relative;
+            text-align: right;
+         }
       }
       div.content {
          border: none;

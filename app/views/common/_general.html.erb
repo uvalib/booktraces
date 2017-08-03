@@ -1,10 +1,12 @@
 <div class='panel right-margin'>
    <div class='header'>
       <span>General Information</span>
+      <% if logged_in? %>
       <span class="header-buttons">
          <span class="icon-button edit" data-target="general-edit"></span>
          <span class="icon-button trash"></span>
       </span>
+      <% end %>
    </div>
    <div class='content'>
       <table>

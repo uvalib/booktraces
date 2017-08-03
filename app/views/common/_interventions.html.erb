@@ -4,8 +4,6 @@
       <% if logged_in? %>
          <span class="header-buttons">
             <span class="icon-button add"></span>
-            <span class="icon-button edit"></span>
-            <span class="icon-button trash"></span>
          </span>
          <% end %>
    </div>
@@ -15,30 +13,38 @@
       <% end %>
       <% @listing.interventions.each do |i| %>
       <div class="intervention">
-         <table class="intervention">
-            <tr>
-               <td class="label">Found:</td>
-               <td class="data"><%= i.found_at %> by <%= i.who_found.upcase %></td>
-            </tr>
-            <tr>
-               <td class="label">Special Interest:</td>
-               <td class="data"><%= i.special_interest %></td>
-            </tr>
-            <tr>
-               <td class="label">Special Problems:</td>
-               <td class="data"><%= i.special_problems %></td>
-            </tr>
-            <tr>
-               <td class="label">Intervention Types:</td>
-               <td class="data">
-                  <% out = [] %>
-                  <% i.details.each do |d| %>
-                     <% out << "#{d.category} #{d.name}" %>
-                  <% end %>
-                  <%= out.join(", ") %>
-               </td>
-            </tr>
-         </table>
+         <% if logged_in? %>
+         <div class="card-buttons">
+            <span class="icon-button edit"></span>
+            <span class="icon-button trash"></span>
+         </div>
+         <% end %>
+         <div class="details">
+            <table class="intervention">
+               <tr>
+                  <td class="label">Found:</td>
+                  <td class="data"><%= i.found_at %> by <%= i.who_found.upcase %></td>
+               </tr>
+               <tr>
+                  <td class="label">Special Interest:</td>
+                  <td class="data"><%= i.special_interest %></td>
+               </tr>
+               <tr>
+                  <td class="label">Special Problems:</td>
+                  <td class="data"><%= i.special_problems %></td>
+               </tr>
+               <tr>
+                  <td class="label">Intervention Types:</td>
+                  <td class="data">
+                     <% out = [] %>
+                     <% i.details.each do |d| %>
+                        <% out << "#{d.category} #{d.name}" %>
+                     <% end %>
+                     <%= out.join(", ") %>
+                  </td>
+               </tr>
+            </table>
+         </div>
       </div>
       <% end %>
    </div>
