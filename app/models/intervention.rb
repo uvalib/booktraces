@@ -1,6 +1,6 @@
 class Intervention < ApplicationRecord
-   has_many :barcode_interventions
-   has_many :barcodes, through:  :barcode_interventions
+   has_one :barcode_intervention
+   has_one :barcode, through:  :barcode_intervention
 
    has_many :intervention_details
    has_many :details, through: :intervention_details, :class_name=>"InterventionType", :source=>:intervention_type

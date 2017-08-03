@@ -31,11 +31,19 @@ class ApplicationController < ActionController::Base
          if computing_id.blank? && Rails.env != "production"
             computing_id = Figaro.env.dev_test_user
          end
-         redirect_to "/unauthorized" and return if computing_id.nil?
+         if computing_id.nil?
+            Rails.logger.info "Rejected attempt to access authorized page without access token"
+            redirect_to "/unauthorized"
+            return
+         end
 
          @curr_user = User.find_by(computing_id: computing_id)
-         redirect_to "/unauthorized" if @curr_user.nil?
+         if @curr_user.nil?
+            Rails.logger.info "Rejected attempt to access authorized page by non-staff, UVA employee #{computing_id}"
+            redirect_to "/unauthorized"
+         end
       else
+         Rails.logger.info "Non-staff access to authorized page rejected"
          redirect_to "/unauthorized"
       end
    end
