@@ -8,6 +8,15 @@ class Admin::InterventionsController < ApplicationController
    end
 
    def create
+      bc = Barcode.find(params[:barcode])
+      intervention = Intervention.create!(
+         special_interest: params[:special_interest], special_problems: params[:special_problems],
+         who_found: params[:who_found], found_at: params[:found_at].to_datetime)
+      params[:interventions].each do |id|
+         InterventionDetail.create(intervention: intervention, intervention_type_id: id.to_i)
+      end
+      BarcodeIntervention.create(barcode: bc, intervention: intervention)
+      redirect_to "/admin/listings/#{params[:listing_id]}"
    end
 
    def update

@@ -4,9 +4,17 @@
       <%= form_tag("/admin/interventions/", method: "put", class: "pure-form pure-form-aligned") do %>
          <fieldset>
             <input name ="listing_id" type="hidden" value="<%= @listing.id %>">
+            <div class="pure-control-group" id="intervention-barcode-selector">
+               <label class="pure-input-1-3">Barcode</label>
+               <select class="pure-input-2-3" name="barcode">
+                  <% @listing.barcodes.where("active=1").each do |bc|  %>
+                     <option value="<%=bc.id%>"><%= bc.barcode %></option>
+                  <% end %>
+               </select>
+            </div>
             <div class="pure-control-group">
                <label class="pure-input-1-3">Date Found</label>
-               <input class="pure-input-2-3" name="found_at" type="text" placeholder="Date Found" value=""/>
+               <input class="pure-input-2-3" name="found_at" type="text" placeholder="YYYY-MM-DD" value=""/>
             </div>
             <div class="pure-control-group">
                <label class="pure-input-1-3">Found By</label>

@@ -7,6 +7,11 @@ $(function() {
    var populateInterventionModal = function( obj ) {
       var modal = $(".modal.intervention-edit");
       modal.find("form").attr("action", "/admin/interventions/"+obj.id);
+      if ( modal.find('input[name=_method]').length === 0 ) {
+         var put = '<input type="hidden" name="_method" value="put">';
+         modal.find("form").append(put);
+      }
+      $("#intervention-barcode-selector").hide();
       modal.find('input[name=found_at]').val(obj.found_at);
       modal.find('input[name=who_found]').val(obj.who_found);
       modal.find('input[name=special_interest]').val(obj.special_interest);
@@ -27,6 +32,23 @@ $(function() {
          if ( tgt === "intervention-edit") {
             populateInterventionModal(model);
          }
+      }
+   });
+
+   $(".icon-button.add").on("click", function() {
+      var tgt = $(this).data("target");
+      var modal = $(".modal."+tgt);
+      modal.show();
+      $("#dimmer").show();
+
+      var model = $(this).data("model");
+      modal.find('input[name=_method]').remove();
+      modal.find('textarea').val("");
+      modal.find('input[type=checkbox]').prop("checked", false);
+      modal.find('input[type=text]').val("");
+      if ( tgt === "intervention-edit") {
+         modal.find("form").attr("action", "/admin/interventions");
+         $("#intervention-barcode-selector").hide();
       }
    });
 
