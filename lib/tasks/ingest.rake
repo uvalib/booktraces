@@ -295,9 +295,14 @@ namespace :ingest do
             returned = row[date_return_idx].strip.to_date
          rescue Exception=>e
          end
+
+         problems = nil
+         if !row[4].blank?
+            problems = row[4].split(";").map(&:capitalize).join(', ')
+         end
          cr = CatalogingRequest.create!(
             shelf_listing_id: sl.id, sent_out_on: sent_out,
-            returned_on: returned, destination: row[dest_idx])
+            returned_on: returned, destination: row[dest_idx], problems: row[4])
 
          # If there is no matching barcode for this book, create one
          if sl.barcodes.where(barcode: updated_id).count == 0
@@ -305,14 +310,7 @@ namespace :ingest do
             Barcode.where("shelf_listing_id = #{sl.id} and cataloging_request_id is null and active=1").update_all(active: false)
             Barcode.create(barcode: updated_id, shelf_listing_id: sl.id, cataloging_request_id: cr.id, origin: "cataloging_request")
          end
-
-         # Problems are a semicolon separated list. Parse and create problems records
-         # for each and link to the request
-         if !row[4].blank?
-            row[4].split(";").each do |a|
-               Problem.create!(name: a.strip, cataloging_request: cr)
-            end
-         end
+         
          print "."
       end
    end

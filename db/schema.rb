@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170802175935) do
+ActiveRecord::Schema.define(version: 20170804173426) do
 
   create_table "actions", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string "name"
@@ -55,6 +55,7 @@ ActiveRecord::Schema.define(version: 20170802175935) do
     t.string "destination"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "problems"
     t.index ["shelf_listing_id"], name: "index_cataloging_requests_on_shelf_listing_id"
   end
 
@@ -90,12 +91,6 @@ ActiveRecord::Schema.define(version: 20170802175935) do
     t.datetime "found_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-  end
-
-  create_table "problems", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string "name"
-    t.bigint "cataloging_request_id"
-    t.index ["cataloging_request_id"], name: "index_problems_on_cataloging_request_id"
   end
 
   create_table "shelf_listings", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -139,6 +134,5 @@ ActiveRecord::Schema.define(version: 20170802175935) do
   add_foreign_key "destinations", "destination_names"
   add_foreign_key "intervention_details", "intervention_types"
   add_foreign_key "intervention_details", "interventions"
-  add_foreign_key "problems", "cataloging_requests"
   add_foreign_key "shelf_listings", "book_statuses"
 end
