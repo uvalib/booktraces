@@ -37,7 +37,7 @@ class Api::ApiController < ApplicationController
       if !q.blank?
          str =  "(internal_id like '%#{q}%' or title regexp '[[:<:]]#{q}[[:>:]]' or call_number like '%#{q}%'"
          str << " or bookplate_text regexp '[[:<:]]#{q}[[:>:]]' or b.barcode like '%#{q}%'"
-         if !intervention_term.include? "ALL_LISTINGS"
+         if !intervention_term.include?("ALL_LISTINGS") && !intervention_term.include?("NO_INTERVENTIONS")
             str << " or i.special_problems like '%#{q}%'"
             str << " or i.special_interest like '%#{q}%'"
          end
@@ -122,7 +122,7 @@ class Api::ApiController < ApplicationController
                str << " or bookplate_text regexp '%#{q}%' or b.barcode like '%#{q}%'"
             end
 
-            if !intervention_term.include? "ALL_LISTINGS"
+            if !intervention_term.include?("ALL_LISTINGS") && !intervention_term.include?("NO_INTERVENTIONS")
                if full == true
                   str << " or i.special_problems regexp '%[[:<:]]#{q}[[:>:]]'"
                   str << " or i.special_interest regexp '[[:<:]]#{q}[[:>:]]'"
