@@ -16,6 +16,9 @@
       margin: 8% auto;
       width: 350px;
       display: none;
+      input::placeholder {
+         color: #ccc;
+      }
       label.pure-input-2-3.left {
          text-align: left;
       }
@@ -50,6 +53,7 @@
       }
       div.modal-controls {
          text-align: right;
+         font-size: 70%;
       }
       div.interventions-scroller {
          display: inline-block;
@@ -71,7 +75,7 @@
          }
       }
    }
-   .modal.general-edit,.modal.intervention-edit {
+   .modal.general-edit,.modal.intervention-edit,.modal.destination-edit {
       width:550px
    }
 }

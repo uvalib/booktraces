@@ -3,6 +3,9 @@ $(function() {
       $(".modal").hide();
       $("#dimmer").hide();
    });
+   $(".modal .pure-button.submit").on("click", function() {
+      $(this).parent().parent().find("form").submit();
+   });
 
    var populateInterventionModal = function( obj ) {
       var modal = $(".modal.intervention-edit");
@@ -22,6 +25,19 @@ $(function() {
       });
    };
 
+   var populateDestinationModal = function( obj ) {
+      var modal = $(".modal.destination-edit");
+      modal.find("form").attr("action", "/admin/destinations/"+obj.id);
+      if ( modal.find('input[name=_method]').length === 0 ) {
+         var put = '<input type="hidden" name="_method" value="put">';
+         modal.find("form").append(put);
+      }
+      $("#destination-barcode-selector").hide();
+      modal.find('input[name=date_sent_out]').val(obj.date_sent_out);
+      modal.find('input[name=bookplate]').val(obj.bookplate);
+      modal.find('select[name=destination_name_id]').val(obj.destination_name_id);
+   };
+
    $(".icon-button.edit").on("click", function() {
       var tgt = $(this).data("target");
       $(".modal."+tgt).show();
@@ -31,6 +47,8 @@ $(function() {
       if (model ) {
          if ( tgt === "intervention-edit") {
             populateInterventionModal(model);
+         } else if ( tgt === "destination-edit") {
+            populateDestinationModal(model);
          }
       }
    });
@@ -48,7 +66,10 @@ $(function() {
       modal.find('input[type=text]').val("");
       if ( tgt === "intervention-edit") {
          modal.find("form").attr("action", "/admin/interventions");
-         $("#intervention-barcode-selector").hide();
+         $("#intervention-barcode-selector").show();
+      } else if (tgt === "destination-edit") {
+         modal.find("form").attr("action", "/admin/destinations");
+         $("#destination-barcode-selector").show();
       }
    });
 

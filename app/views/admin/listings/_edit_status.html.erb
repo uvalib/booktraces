@@ -28,10 +28,10 @@
                   placeholder="Actions" value="<%= @listing.actions.map { |a| a.name.split.map(&:capitalize).join(' ')}.join ', ' %>"/>
             </div>
          </fieldset>
-         <div class="modal-controls">
-             <button class="pure-button cancel">Cancel</button>
-             <input class="pure-button" type="submit">
-         </div>
       <% end %>
+      <div class="modal-controls">
+          <button class="pure-button cancel">Cancel</button>
+          <button class="pure-button submit">Submit</button>
+      </div>
    </div>
 </div>

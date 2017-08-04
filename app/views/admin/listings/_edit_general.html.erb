@@ -63,10 +63,10 @@
          <% if @listing.interventions.count > 0 || @listing.destinations.count >0 %>
             <span class="note">NOTE: The barcode(s) for this listing have associated interventions and/or preservations and cannot be edited.</span>
          <% end %>
-         <div class="modal-controls">
-             <button class="pure-button cancel">Cancel</button>
-             <input class="pure-button" type="submit">
-         </div>
       <% end %>
+      <div class="modal-controls">
+          <button class="pure-button cancel">Cancel</button>
+          <button class="pure-button submit">Submit</button>
+      </div>
    </div>
 </div>
