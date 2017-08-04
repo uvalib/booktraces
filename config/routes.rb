@@ -6,6 +6,7 @@ Rails.application.routes.draw do
       resources :listings, only: [:index, :show, :update]
       resources :interventions, only: [:create, :update, :destroy]
       resources :destinations, only: [:create, :update, :destroy]
+      resources :cataloging_requests, only: [:create, :update, :destroy]
    end
 
    namespace :api do

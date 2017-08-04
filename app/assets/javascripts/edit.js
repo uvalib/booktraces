@@ -38,6 +38,18 @@ $(function() {
       modal.find('select[name=destination_name_id]').val(obj.destination_name_id);
    };
 
+   var populateCatalogingModal = function( obj ) {
+      var modal = $(".modal.cataloging-edit");
+      modal.find("form").attr("action", "/admin/cataloging_requests/"+obj.id);
+      if ( modal.find('input[name=_method]').length === 0 ) {
+         var put = '<input type="hidden" name="_method" value="put">';
+         modal.find("form").append(put);
+      }
+      modal.find('input[name=problems]').val(obj.date_sent_out);
+      // modal.find('input[name=bookplate]').val(obj.bookplate);
+      // modal.find('select[name=destination_name_id]').val(obj.destination_name_id);
+   };
+
    $(".icon-button.edit").on("click", function() {
       var tgt = $(this).data("target");
       $(".modal."+tgt).show();
@@ -49,6 +61,8 @@ $(function() {
             populateInterventionModal(model);
          } else if ( tgt === "destination-edit") {
             populateDestinationModal(model);
+         } else if ( tgt === "cataloging-edit") {
+            populateCatalogingModal(model);
          }
       }
    });
@@ -70,13 +84,15 @@ $(function() {
       } else if (tgt === "destination-edit") {
          modal.find("form").attr("action", "/admin/destinations");
          $("#destination-barcode-selector").show();
+      } else if (tgt === "catalog-edit") {
+         modal.find("form").attr("action", "/admin/cataloging_requests");
       }
    });
 
    $(".icon-button.trash").on("click", function() {
       var tgtType = $(this).data("target-type");
       var tgtId = $(this).data("target-id");
-      resp = confirm("Delete this "+tgtType+"? The data will be lost and cannot be recovered.");
+      resp = confirm("Delete this "+tgtType.replace("_", " ")+"? The data will be lost and cannot be recovered.");
       if (!resp) return;
 
       $.ajax({

@@ -2,25 +2,20 @@
    <div class='header'>
       <span>Cataloging Requests</span>
       <span class="header-buttons">
-         <span class="icon-button add"></span>
+         <span class="icon-button add" data-target="cataloging-edit"></span>
       </span>
    </div>
    <div class='content'>
       <% if  @listing.cataloging_requests.count == 0 %>
          No catalog requests for this listing
-      <% else %>
-         <table>
-            <tr>
-               <td class="label">Original Item ID:</td>
-               <td class="data"><%= @listing.item_id %></td>
-            </tr>
-         </table>
       <% end %>
       <% @listing.cataloging_requests.each do |cr| %>
          <div class="catalog-request">
             <div class="card-buttons">
-               <span class="icon-button edit"></span>
-               <span class="icon-button trash"></span>
+               <span class="icon-button edit" data-target="cataloging-edit" data-model="<%= cr.to_json(include: :problems) %>"></span>
+               <% if @listing.interventions.count == 0 && @listing.destinations.count == 0 %>
+               <span class="icon-button trash" data-target-type="cataloging_request" data-target-id="<%= cr.id %>"></span>
+               <% end %>
             </div>
             <div class="details">
                <table>
