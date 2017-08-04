@@ -45,9 +45,11 @@ $(function() {
          var put = '<input type="hidden" name="_method" value="put">';
          modal.find("form").append(put);
       }
-      modal.find('input[name=problems]').val(obj.date_sent_out);
-      // modal.find('input[name=bookplate]').val(obj.bookplate);
-      // modal.find('select[name=destination_name_id]').val(obj.destination_name_id);
+      modal.find('input[name=problems]').val(obj.problems);
+      modal.find('input[name=sent_out_on]').val(obj.sent_out_on);
+      modal.find('input[name=returned_on]').val(obj.returned_on);
+      modal.find('input[name=barcode]').val(obj.barcode.barcode);
+      modal.find('input[name=destination]').val(obj.destination);
    };
 
    $(".icon-button.edit").on("click", function() {
