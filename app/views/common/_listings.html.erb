@@ -63,8 +63,8 @@
             <td class="choice">
                <select id="status-filter" class="chosen-select filter"  style="width:100px;">
                   <option value="Any" selected>Any</option>
-                  <% BookStatus.all.each do |t| %>
-                     <option value="<%= t.id %>"><%= t.name.capitalize %></option>
+                  <% ListingStatus.statuses.each do |t| %>
+                     <option value="<%= t %>"><%= t.capitalize %></option>
                   <% end %>
                </select>
             </td>

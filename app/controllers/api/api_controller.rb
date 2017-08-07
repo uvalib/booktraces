@@ -105,7 +105,7 @@ class Api::ApiController < ApplicationController
 
       status_filter = params[:columns]["10"][:search][:value]
       if !status_filter.blank? && status_filter != "Any"
-         query_terms << "book_status_id = #{status_filter}"
+         query_terms << "ls.result = '#{status_filter}'"
       end
 
       q_val = params[:search]["value"]
@@ -170,7 +170,7 @@ class Api::ApiController < ApplicationController
          data << [
             sl.internal_id, bc, sl.call_number, sl.title, sl.bookplate_text,
             sl.library, sl.classification_system, sl.classification, sl.subclassification,
-            flag, sl.book_status.name.capitalize, sl.id
+            flag, sl.listing_status.result.capitalize, sl.id
          ]
       end
 
@@ -235,6 +235,7 @@ class Api::ApiController < ApplicationController
       # build the join query. Barcode is always required. Use initial
       # join to get the total count of listings
       intervention_join = "inner join barcodes b on b.shelf_listing_id = shelf_listings.id"
+      intervention_join << " inner join listing_statuses ls on listing_status_id = ls.id"
       total = ShelfListing.joins(intervention_join).where("b.active = 1").distinct.count
       filtered = total
 
@@ -246,7 +247,6 @@ class Api::ApiController < ApplicationController
          query_terms.delete "ALL_LISTINGS"
       elsif query_terms.include? "NO_INTERVENTIONS"
          # Only take listings with NO interventions (left join where right is null) and remove the flag
-         intervention_join = "inner join barcodes b on b.shelf_listing_id = shelf_listings.id"
          intervention_join << " left join barcode_interventions bi on b.id = bi.barcode_id"
          query_terms.delete "NO_INTERVENTIONS"
          query_terms << "bi.barcode_id is null"

@@ -14,18 +14,18 @@
             </div>
             <div class="pure-control-group">
                <label>Status</label>
-               <select name="book_status" type="text">
-                  <% BookStatus.all.each do |s| %>
+               <select name="result" type="text">
+                  <% ListingStatus.statuses.each do |s| %>
                      <% sel = ""
-                        sel="selected" if s.id == @listing.book_status.id %>
-                     <option <%= sel %> val="<%= s.id %>"><%= s.name %></option>
+                        sel="selected" if s == @listing.listing_status.result %>
+                     <option <%= sel %> val="<%= s %>"><%= s %></option>
                   <% end %>
                </select>
             </div>
             <div class="pure-control-group">
                <label>Actions</label>
                <input name="actions" type="text"
-                  placeholder="Actions" value="<%= @listing.actions.map { |a| a.name.split.map(&:capitalize).join(' ')}.join ', ' %>"/>
+                  placeholder="Actions" value="<%= @listing.listing_status.actions %>"/>
             </div>
          </fieldset>
       <% end %>

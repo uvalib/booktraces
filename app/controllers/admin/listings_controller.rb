@@ -7,15 +7,7 @@ class Admin::ListingsController < ApplicationController
       sl = ShelfListing.find(params[:id])
 
       if params[:update_type] == "status"
-         sl.actions.destroy_all()
-
-         params[:actions].split(",").each do |a|
-            Action.create(name: a.strip, shelf_listing: sl)
-         end
-
-         bs = BookStatus.find_by(name: params[:book_status])
-         sl.update(who_checked: params[:who_checked], date_checked: params[:date_checked],
-            book_status: bs)
+         sl.listing_status.update( status_params)
       elsif params[:update_type] == "general"
          sl.update( general_params)
          item_id = sl.barcodes.find_by(origin: "sirsi")
@@ -29,6 +21,10 @@ class Admin::ListingsController < ApplicationController
       end
 
       redirect_to action: "show", id: params[:id]
+   end
+
+   def status_params
+      params.permit(:who_checked, :date_checked, :result, :actions)
    end
 
    def general_params

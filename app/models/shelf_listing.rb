@@ -2,14 +2,12 @@ class ShelfListing < ApplicationRecord
 
    has_many :barcodes
    has_many :cataloging_requests
-   has_many :actions
-   belongs_to :book_status
+   belongs_to :listing_status
 
    has_many :interventions, through: :barcodes
    has_many :destinations, through: :barcodes
 
    validates :internal_id, presence: true, uniqueness: true
-   validates :book_status, presence: true
    validates :library, presence: true
    validates :classification, presence: true
    validates :subclassification, presence: true

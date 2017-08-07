@@ -310,7 +310,7 @@ namespace :ingest do
             Barcode.where("shelf_listing_id = #{sl.id} and cataloging_request_id is null and active=1").update_all(active: false)
             Barcode.create(barcode: updated_id, shelf_listing_id: sl.id, cataloging_request_id: cr.id, origin: "cataloging_request")
          end
-         
+
          print "."
       end
    end
@@ -320,8 +320,6 @@ namespace :ingest do
       file = ENV["file"]
       abort("file is required") if file.nil?
       puts "Ingesting contents of #{file}"
-
-      statuses = BookStatus.all
 
       ids = []
       CSV.foreach(file, headers: true) do |row|
@@ -334,7 +332,7 @@ namespace :ingest do
          # ... and Law.csv includes a 15th column for classification system
          stacks_item_id = row[3].strip.upcase if !row[3].blank?
          item_id = row[10].strip.upcase
-         statuses, status = find_status(statuses, "valid")
+         status="valid"
 
          # Is this a record with some sort of problem with the exported id vs actual shelved id?
          if row[4].strip.downcase == 'false' || stacks_item_id.downcase == "no barcode"
@@ -342,24 +340,19 @@ namespace :ingest do
                puts "WARN Encountered blank shelf item ID for #{row[9]}. Skipping"
                next
             elsif stacks_item_id[0] == "X"  # barcodes start with an 'X'
-               if stacks_item_id == item_id
-                  statuses, status = find_status(statuses, "valid")
-               else
-                  statuses, status = find_status(statuses, "barcode mismatch")
+               if stacks_item_id != item_id
+                  status = "barcode mismatch"
                end
             elsif stacks_item_id[0...2] == "35"
                # Law uses a long numeric item id that starts with 35
-               if stacks_item_id == item_id
-                  statuses, status = find_status(statuses, "valid")
-               else
-                  statuses, status = find_status(statuses, "barcode mismatch")
+               if stacks_item_id != item_id
+                  status = "barcode mismatch"
                end
             elsif stacks_item_id.downcase == "no barcode"
-               statuses, status = find_status(statuses, "no barcode")
+               status = "no barcode"
                stacks_item_id = nil
             else
-               status_string = stacks_item_id.downcase.gsub(/\s+/, " ")
-               statuses, status = find_status(statuses, status_string)
+               status = stacks_item_id.downcase.gsub(/\s+/, " ")
                stacks_item_id = nil
             end
          end
@@ -370,9 +363,12 @@ namespace :ingest do
             ids << item_id
          end
 
+         # Actions are a semicolon separated list; parse
+         acts = row[6].split(";")
+         ls = ListingStatus.create(date_checked: row[7], who_checked: row[8], result: status, actions: acts.join(", "))
          sl = ShelfListing.create!(title: row[1], call_number: row[2],
-            book_status: status, bookplate_text: row[5], date_checked: row[7],
-            who_checked: row[8], internal_id: row[9].strip, location: row[11].strip,
+            bookplate_text: row[5], listing_status: ls,
+            internal_id: row[9].strip, location: row[11].strip,
             library: row[12].strip, classification: row[13].strip, subclassification:  row[14].strip )
 
          # Create brarcode records for this listing; the original item ID
@@ -387,14 +383,6 @@ namespace :ingest do
          if file.include? "Law.csv"
             sl.update(classification_system: row[15].strip )
          end
-
-         # Actions are a semicolon separated list. Parse and create action records
-         # for each and link to the ShelfListing
-         if !row[6].blank?
-            row[6].split(";").each do |a|
-               Action.create(name: a.strip, shelf_listing: sl)
-            end
-         end
       end
       puts "DONE"
    end
@@ -404,8 +392,6 @@ namespace :ingest do
       file = ENV["file"]
       abort("file is required") if file.nil?
       puts "Ingesting contents of #{file}"
-
-      valid_status = BookStatus.first
 
       ids = []
       seq = 1
@@ -424,8 +410,9 @@ namespace :ingest do
          end
 
          pub_year = row[4].split(".")[0]
+         ls = ListingStatus.create( result: "valid" )
          sl = ShelfListing.create!(title: row[6], call_number: row[1],
-            book_status: valid_status,
+            listing_stats: ls,
             author: row[5], publication_year: pub_year,
             internal_id: "IS-%05d" % seq, location: row[3].strip, library: row[9].strip,
             classification: row[10].strip, subclassification:  row[11].strip )
@@ -433,23 +420,5 @@ namespace :ingest do
          seq += 1
       end
       puts "DONE"
-   end
-
-   def find_status(statuses, status_txt)
-      status_txt = "duplicate" if status_txt == "duplicate listing" || status_txt == "double listing"
-      status_txt = "cataloging problem" if status_txt == "cataloging error"
-      status_txt "too late" if status_txt == "date too late"
-      match = nil
-      statuses.each do |s|
-         if s.name == status_txt
-            match = s
-            break
-         end
-      end
-      if match.nil?
-         match = BookStatus.create(name: status_txt)
-         statuses = BookStatus.all
-      end
-      return statuses, match
    end
 end

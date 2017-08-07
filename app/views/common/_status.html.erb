@@ -9,19 +9,19 @@
       <table>
          <tr>
             <td class="label">Date Checked:</td>
-            <td class="data"><%= @listing.date_checked %></td>
+            <td class="data"><%= @listing.listing_status.date_checked %></td>
          </tr>
          <tr>
             <td class="label">Checked By:</td>
-            <td class="data"><%= @listing.who_checked %></td>
+            <td class="data"><%= @listing.listing_status.who_checked %></td>
          </tr>
          <tr>
             <td class="label">Status:</td>
-            <td class="data"><%= @listing.book_status.name.split.map(&:capitalize).join(' ') %></td>
+            <td class="data"><%= @listing.listing_status.result %></td>
          </tr>
          <tr>
             <td class="label">Actions:</td>
-            <td class="data"><%= @listing.actions.map { |a| a.name.split.map(&:capitalize).join(' ')}.join ', ' %></td>
+            <td class="data"><%= @listing.listing_status.actions %></td>
          </tr>
       </table>
    </div>
