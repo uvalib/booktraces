@@ -2,10 +2,14 @@ class ApplicationController < ActionController::Base
    protect_from_forgery with: :exception
    helper_method :current_user, :logged_in?, :clear_session
 
-   before_action :authorize
+   before_action :authorize, :set_page
 
    # Shibboleth auth requires all to be https
    force_ssl unless Rails.env.development?
+
+   def set_page
+      @page = :listing
+   end
 
    def current_user
       return @curr_user

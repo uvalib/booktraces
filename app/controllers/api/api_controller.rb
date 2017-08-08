@@ -257,7 +257,6 @@ class Api::ApiController < ApplicationController
          intervention_join << " inner join intervention_details details on i.id = details.intervention_id"
       end
 
-      puts "TERMS: #{query_terms} - JOIN: #{intervention_join}"
       if query_terms.empty?
          filtered = ShelfListing.joins(intervention_join).distinct.count
          res = ShelfListing.joins(intervention_join).distinct.order(order_str).offset(start).limit(len)
@@ -268,5 +267,13 @@ class Api::ApiController < ApplicationController
             .order(order_str).offset(start).limit(len)
       end
       return total, filtered, res
+   end
+
+   def report
+      if params[:type] == "intervention-distribution"
+         render json: Report.intervention_distribution
+         return
+      end
+      render plain: "Invalid report type", status: :error
    end
 end

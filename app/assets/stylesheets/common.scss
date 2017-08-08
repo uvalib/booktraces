@@ -5,6 +5,20 @@ body {
     font-family:  "Helvetica Neue", Helvetica, Arial, sans-serif
 }
 
+div.distribution-container {
+   border:1px solid #ccc;
+   padding: 10px;
+   margin:10px;
+   h5 {
+      text-align: center;
+      margin: 0 0 15px 0;
+      font-size: 1.25em;
+      color: #666;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 10px;
+   }
+}
+
 .main.home {
    max-width: 1000px;
 }
@@ -14,6 +28,35 @@ body {
    padding: 0px;
    z-index: 0;
    background-color: #eee;
+
+   .pure-menu.pure-menu-horizontal.booktraces{
+      border-top: 1px solid #AAC1E5;
+      background: #6A81a5;
+      color: white;
+      margin: 0;
+      position: relative;
+      span.user {
+         position: absolute;
+         right: 8px;
+         top: 8px;
+         font-weight: 200;
+      }
+      a.pure-menu-link {
+         color: white;
+         font-weight: 100;
+         cursor: pointer;
+         &:hover {
+            text-decoration: none;
+            background-color: #AAC1E5;
+         }
+      }
+      li.pure-menu-item.pure-menu-selected {
+         a.pure-menu-link {
+            font-weight: bold;
+         }
+      }
+   }
+
    a {
       outline: none;
    }

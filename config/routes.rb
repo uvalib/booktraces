@@ -2,8 +2,11 @@ Rails.application.routes.draw do
    get 'unauthorized' => "unauthorized#index"
 
    resources :listings, only: [:index, :show]
+   resources :reports, only: [:index]
+
    namespace :admin do
       resources :listings, only: [:index, :show, :update]
+      resources :reports, only: [:index]
       resources :interventions, only: [:create, :update, :destroy]
       resources :destinations, only: [:create, :update, :destroy]
       resources :cataloging_requests, only: [:create, :update, :destroy]
@@ -16,6 +19,7 @@ Rails.application.routes.draw do
       get 'detail/:id' => 'api#detail'
       post 'query' => 'api#query'
       get 'search_state' => 'api#search_state'
+      get 'report' => 'api#report'
    end
 
    root :to => 'home#index'
