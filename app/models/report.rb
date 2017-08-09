@@ -10,4 +10,18 @@ class Report
       end
       return chart
    end
+
+   def self.library_hit_rate
+      data = {labels:[], data:[]}
+      ShelfListing.distinct.pluck(:library).each do |l|
+         j = "inner join barcodes b on shelf_listings.id = b.shelf_listing_id"
+         j << " inner join barcode_interventions i on b.id = i.barcode_id"
+         total = ShelfListing.where(library: l).count
+         cnt = ShelfListing.joins(j).where(library: l).count
+         pct = ((cnt.to_f/total.to_f)*100.0).round(2)
+         data[:data] << pct
+         data[:labels] << "#{l}|#{total}|#{cnt}"
+      end
+      return data
+   end
 end

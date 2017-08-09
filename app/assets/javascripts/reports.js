@@ -1,10 +1,5 @@
 $(function() {
-   var randomColorGenerator = function () {
-    return '#' + (Math.random().toString(16) + '0000000').slice(2, 8);
-};
-
    var createDistributionChart = function() {
-
       var config = {
          type: 'pie',
          data: {
@@ -24,15 +19,12 @@ $(function() {
             legend: {
                display: true,
                position: 'bottom'
-           }
+            }
          }
       };
       $.getJSON("/api/report?type=intervention-distribution", function ( data, textStatus, jqXHR ){
          if (textStatus == "success" ) {
             config.data.datasets[0].data = data.data;
-            $.each(data.data, function(idx,val) {
-               config.data.datasets[0].backgroundColor.push(randomColorGenerator());
-            });
             config.data.labels = data.labels;
             var ctx = document.getElementById("distribution-chart").getContext("2d");
             var pie = new Chart(ctx, config);
@@ -40,7 +32,66 @@ $(function() {
       });
    };
 
+   var createLibraryHitRate = function() {
+      var config = {
+         type: 'bar',
+         data: {
+            datasets: [{
+               data: [],
+               borderWidth: 1,
+               backgroundColor: "#44aacc"
+            }],
+            labels: []
+         },
+         options: {
+            responsive: true,
+            title: {
+               display: false,
+            },
+            legend: {
+               display: false
+            },
+            scales: {
+               yAxes: [{
+                  ticks: {
+                     callback: function(value, index, values) {
+                        return value + '%';
+                     }
+                  }
+               }],
+               xAxes: [{
+                  ticks: {
+                     callback: function(value, index, values) {
+                        return value.split("|")[0];
+                     }
+                  }
+               }]
+            },
+            tooltips: {
+               callbacks: {
+                  title: function(tooltipItem, data) {
+                     var v = data.labels[tooltipItem[0].index].split("|");
+                     return v[0]+" ("+v[2]+"/"+v[1]+")";
+                  },
+                  label: function(tooltipItem, data) {
+                     return Number(tooltipItem.yLabel) + "%";
+                  }
+               }
+            }
+         }
+      };
+      $.getJSON("/api/report?type=hit-rate&pool=library", function ( data, textStatus, jqXHR ){
+         if (textStatus == "success" ) {
+            config.data.datasets[0].data = data.data;
+            config.data.labels = data.labels;
+            var ctx = document.getElementById("library-hit-rate").getContext("2d");
+            var pie = new Chart(ctx, config);
+         }
+      });
+   };
+
    if ( $("#distribution-chart").length > 0 ) {
+      createLibraryHitRate();
       createDistributionChart();
    }
 });

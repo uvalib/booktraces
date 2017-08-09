@@ -271,8 +271,11 @@ class Api::ApiController < ApplicationController
 
    def report
       if params[:type] == "intervention-distribution"
-         render json: Report.intervention_distribution
-         return
+         render json: Report.intervention_distribution and return
+      elsif params[:type] == "hit-rate"
+         if params[:pool] == "library"
+            render json: Report.library_hit_rate and return
+         end
       end
       render plain: "Invalid report type", status: :error
    end
