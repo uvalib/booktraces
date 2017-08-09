@@ -37,9 +37,13 @@ class ShelfListing < ApplicationRecord
       return ShelfListing.pluck(:library).uniq.sort.unshift('Any')
    end
 
-   def self.classifications
+   def self.classifications(include_any = true)
       out = ShelfListing.pluck(:classification).uniq.sort
-      return out.unshift('Any')
+      if include_any
+         return out.unshift('Any')
+      else
+         return out
+      end
    end
 
    def self.subclassifications

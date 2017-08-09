@@ -32,7 +32,8 @@ $(function() {
       });
    };
 
-   var createLibraryHitRate = function() {
+   var createHitRateChart = function(hitsPer, classification) {
+      $("#generating").show();
       var config = {
          type: 'bar',
          data: {
@@ -80,18 +81,33 @@ $(function() {
             }
          }
       };
-      $.getJSON("/api/report?type=hit-rate&pool=library", function ( data, textStatus, jqXHR ){
+
+      $.getJSON("/api/report?type=hit-rate&pool="+hitsPer, function ( data, textStatus, jqXHR ){
+         $("#generating").hide();
          if (textStatus == "success" ) {
             config.data.datasets[0].data = data.data;
             config.data.labels = data.labels;
+            if (window.barChart ) {
+               window.barChart.destroy();
+            }
             var ctx = document.getElementById("library-hit-rate").getContext("2d");
-            var pie = new Chart(ctx, config);
+            window.barChart = new Chart(ctx, config);
+
          }
       });
    };
 
    if ( $("#distribution-chart").length > 0 ) {
-      createLibraryHitRate();
+      createHitRateChart("library", "any");
       createDistributionChart();
    }
+
+   $(".pure-button.generate").on("click", function() {
+      var hitsPer = $('input[name=rate-select]:checked').val();
+      var classification = "any";
+      if (hitsPer == "subclassification") {
+         classification = $("#rate-class-filter").val();
+      }
+      createHitRateChart(hitsPer, classification);
+   });
 });

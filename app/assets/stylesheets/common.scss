@@ -22,6 +22,47 @@ div.distribution-container, div.rates-container  {
 div.rates-container  {
    padding:10px 50px 50px 50px;
    margin: 20px;
+   #generating {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1000;
+      background: rgba(0,0,0,0.3);
+      display: none;
+      .wait {
+         background: white;
+         width: 150px;
+         border-radius: 20px;
+         border: 1px solid black;
+         box-shadow: 1px 1px 10px black;
+         margin: 20% auto;
+         padding: 25px;
+         text-align: center;
+      }
+   }
+}
+div.rate-title-bar {
+   padding: 10px 10px 15px 10px;
+   font-weight: 200;
+   margin-bottom: 20px;
+   border-bottom: 1px solid #ccc;
+   color: #444;
+   position: relative;
+   button.pure-button {
+      font-size: 70%;
+      position: absolute;
+      right: 0;
+   }
+   span.title {
+      font-weight: bold;
+   }
+   label { margin-left: 5px;}
+   input[type=radio] { margin: 0 10px; }
+   select {
+      margin-left: 5px;
+   }
 }
 
 .main.home {
