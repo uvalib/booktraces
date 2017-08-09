@@ -32,7 +32,7 @@ $(function() {
       });
    };
 
-   var createHitRateChart = function(hitsPer, classification) {
+   var createHitRateChart = function(hitsPer, classification, system) {
       $("#generating").show();
       var config = {
          type: 'bar',
@@ -82,7 +82,14 @@ $(function() {
          }
       };
 
-      $.getJSON("/api/report?type=hit-rate&pool="+hitsPer, function ( data, textStatus, jqXHR ){
+      var extra = "";
+      if (system != "any") {
+         extra += "&system="+system;
+      }
+      if (classification != "any") {
+         extra += "&classification="+classification;
+      }
+      $.getJSON("/api/report?type=hit-rate&pool="+hitsPer+extra, function ( data, textStatus, jqXHR ){
          $("#generating").hide();
          if (textStatus == "success" ) {
             config.data.datasets[0].data = data.data;
@@ -98,16 +105,19 @@ $(function() {
    };
 
    if ( $("#distribution-chart").length > 0 ) {
-      createHitRateChart("library", "any");
+      createHitRateChart("library", "any", "any");
       createDistributionChart();
    }
 
    $(".pure-button.generate").on("click", function() {
       var hitsPer = $('input[name=rate-select]:checked').val();
       var classification = "any";
+      var system = "any";
       if (hitsPer == "subclassification") {
          classification = $("#rate-class-filter").val();
+      } else if (hitsPer == "classification") {
+         system = $("#system-class-filter").val();
       }
-      createHitRateChart(hitsPer, classification);
+      createHitRateChart(hitsPer, classification, system);
    });
 });

@@ -276,7 +276,9 @@ class Api::ApiController < ApplicationController
          if params[:pool] == "library"
             render json: Report.library_hit_rate and return
          elsif params[:pool] == "classification"
-            render json: Report.classification_hit_rate and return
+            render json: Report.classification_hit_rate(params[:system]) and return
+         elsif params[:pool] == "subclassification"
+            render json: Report.subclassification_hit_rate(params[:classification]) and return
          end
       end
       render plain: "Invalid report type", status: :error

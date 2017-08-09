@@ -2,13 +2,18 @@
    <div class="rate-title-bar">
       <span class="title">Hit Rates:</span>
       <span class="controls">
-         <label class="pure-radio"><input type="radio" name="rate-select" checked value="library">Per Library</label>
-         <label class="pure-radio"><input type="radio" name="rate-select" value="classification">Per Classification</label>
-         <label class="pure-radio"><input type="radio" name="rate-select" value="subclassification">Per Subclassification of
+         <label class="pure-radio"><input type="radio" name="rate-select" checked value="library">Library</label>
+         <label class="pure-radio"><input type="radio" name="rate-select" value="classification">Classification of
+            <select name="system" id="system-class-filter">
+               <option value="LC">Library of Congress</option>
+               <option value="Hicks">Hicks</option>
+            </select>
+         </label>
+         <label class="pure-radio"><input type="radio" name="rate-select" value="subclassification">Subclassification of
             <%= select_tag "subclassification", options_for_select(ShelfListing.classifications(false)), id: "rate-class-filter" %>
          </label>
-         <label class="pure-radio"><input type="radio" name="rate-select" value="top25">Top 25</label>
-         <label class="pure-radio"><input type="radio" name="rate-select" value="bottom25">Bottom 25</label>
+         <!-- <label class="pure-radio"><input type="radio" name="rate-select" value="top25">Top 25</label>
+         <label class="pure-radio"><input type="radio" name="rate-select" value="bottom25">Bottom 25</label> -->
          <button class="pure-button generate">Generate Chart</button>
       </span>
    </div>
