@@ -279,6 +279,10 @@ class Api::ApiController < ApplicationController
             render json: Report.classification_hit_rate(params[:system]) and return
          elsif params[:pool] == "subclassification"
             render json: Report.subclassification_hit_rate(params[:classification]) and return
+         elsif params[:pool] == "top25"
+            render json: Report.hit_rate_extremes(:top) and return
+         elsif params[:pool] == "bottom25"
+            render json: Report.hit_rate_extremes(:bottom) and return
          end
       end
       render plain: "Invalid report type", status: :error

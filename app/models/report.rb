@@ -69,4 +69,41 @@ class Report
       end
       return data
    end
+
+   def self.hit_rate_extremes( mode )
+      data = {labels:[], data:[]}
+
+      # get the total number of shelf listings for each subclassification
+      tc = "select l.subclassification,count( l.subclassification) as cnt  from shelf_listings l"
+      tc << " inner join barcodes b on l.id = b.shelf_listing_id"
+      tc << " where b.active=1 and b.origin > 0"
+      tc << " group by  l.subclassification order by cnt desc"
+      totals = ShelfListing.connection.execute(tc)
+
+      # Now get total number of interventions in each subcategory
+      ic = "select l.subclassification,count( l.subclassification) as cnt  from shelf_listings l"
+      ic << " inner join barcodes b on l.id = b.shelf_listing_id"
+      ic << " inner join barcode_interventions i on b.id = i.barcode_id"
+      ic << " where b.active=1 and b.origin > 0"
+      ic << " group by  l.subclassification order by cnt desc"
+      raw = []
+      ShelfListing.connection.execute(ic).each do |iv|
+         subclass = iv[0]
+         total_info = totals.detect{ |(sc, t)| sc == subclass }
+         next if total_info[1] < 20
+         pct = ((iv[1].to_f/total_info[1].to_f)*100.0).round(2)
+         label = "#{subclass}|#{total_info[1]}|#{iv[1]}"
+         raw << {percent: pct, label: label}
+      end
+
+      raw.sort_by! { |hsh| hsh[:percent] }
+      raw.reverse! if mode == :top
+      raw = raw[0..25]
+      raw.each do |v|
+         data[:data] << v[:percent]
+         data[:labels] << v[:label]
+      end
+
+      return data
+   end
 end

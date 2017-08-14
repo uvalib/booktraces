@@ -117,7 +117,7 @@ $(function() {
          classification = $("#rate-class-filter").val();
       } else if (hitsPer == "classification") {
          system = $("#system-class-filter").val();
-      }
+      } 
       createHitRateChart(hitsPer, classification, system);
    });
 });
