@@ -2,16 +2,16 @@
    <ul class="pure-menu-list">
       <% cn = "pure-menu-item"
          cn << " pure-menu-selected" if @page == :listing
-         url = "/reports"
-         url = "/admin/reports" if logged_in?
          url = "/listings"
-         url = "/admin/listings" if logged_in? %>
+         url = "/admin/listings" if logged_in?  %>
       <li class="<%= cn %>"><a href="<%= url %>" class="pure-menu-link">Shelf Listings</a></li>
       <% cn = "pure-menu-item"
          cn << " pure-menu-selected" if @page == :reports
          url = "/reports"
-         url = "/admin/reports" if logged_in? %>
+         url = "/admin/reports" if logged_in?  %>
       <li class="<%= cn %>"><a href="<%= url %>" class="pure-menu-link">Reports</a></li>
    </ul>
-   <span class="user"><%= current_user.full_name %></span></h4>
+   <% if logged_in? %>
+      <span class="user"><%= current_user.full_name %></span></h4>
+   <% end %>
 </div>
