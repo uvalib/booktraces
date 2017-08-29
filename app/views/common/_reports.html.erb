@@ -1,24 +1,42 @@
 <div class="rates-container library">
    <div class="rate-title-bar">
-      <span class="title">Hit Rates:</span>
-      <span class="controls">
-         <label class="pure-radio"><input type="radio" name="rate-select" checked value="library">Library</label>
-         <label class="pure-radio"><input type="radio" name="rate-select" value="classification">Classification of
-            <select name="system" id="system-class-filter">
-               <option value="LC">Library of Congress</option>
-               <option value="Hicks">Hicks</option>
-            </select>
-         </label>
-         <label class="pure-radio"><input type="radio" name="rate-select" value="subclassification">Subclassification of
-            <%= select_tag "subclassification", options_for_select(ShelfListing.classifications(false)), id: "rate-class-filter" %>
-         </label>
-         <label class="pure-radio"><input type="radio" name="rate-select" value="top25">Top 25</label>
-         <label class="pure-radio"><input type="radio" name="rate-select" value="bottom25">Bottom 25</label>
+      <span class="title">Hit Rate per </span>
+      <span class="rate-controls">
+         <select name="system" id="x-axis-type" style="width:150px">
+            <option value="library">Library</option>
+            <option value="class">Classification</option>
+            <option value="subclass">Subclassification</option>
+         </select>
+
+         <span class="rate-settings-label">Settings:</span>
+
+         <label>Library&nbsp;</label><%= select_tag "library", options_for_select(ShelfListing.libraries), class: "rate-setting", id: "library-rate", disabled:"disabled" %>
+
+         <label>Classification System&nbsp;</label>
+         <select name="system" id="system-rate" class="rate-setting" disabled="disabled">
+            <option value="Any">Any</option>
+            <option value="LC">LC</option>
+            <option value="Hicks">Hicks</option>
+         </select>
+
+         <label>Classification&nbsp;</label>
+         <%= select_tag "classification", options_for_select(ShelfListing.classifications), class: "rate-setting", id: "class-rate" %>
+
          <button class="pure-button generate">Generate Chart</button>
       </span>
    </div>
    <canvas id="library-hit-rate"></canvas>
    <div id="generating"><div class="wait">Please wait...</div></div>
+</div>
+<div class="extremes-container">
+   <div class="double-chart">
+      <h5>Top 25 Hit Rates</h5>
+      <canvas id="top25-chart"></canvas>
+   </div>
+   <div class="double-chart">
+      <h5>Bottom 25 Hit Rates</h5>
+      <canvas id="bottom25-chart"></canvas>
+   </div>
 </div>
 <div class="distribution-container" style="width:45%">
    <h5>Intervention Distribution</h5>

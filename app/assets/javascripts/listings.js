@@ -5,6 +5,10 @@ $(function() {
        no_results_text: "Sorry, no matches found",
        width: "100%"
    });
+   $(".rate-setting").chosen({
+       no_results_text: "Sorry, no matches found",
+       width: "100px"
+   });
 
    // Columns in the table:
    //   ID, CallNum, Title, Bookplate, Library, class, subclass, intervention
@@ -43,7 +47,6 @@ $(function() {
       stateDuration: 0,
       stateSave: true,
       stateLoadCallback: function (settings, callback) {
-         console.log("CALLBACK")
          $.ajax({
             url: '/api/search_state',
             dataType: 'json',

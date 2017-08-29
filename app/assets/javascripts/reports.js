@@ -32,7 +32,7 @@ $(function() {
       });
    };
 
-   var createHitRateChart = function(hitsPer, classification, system) {
+   var createHitRateChart = function(tgtElement, chartType, library, system, classification ) {
       $("#generating").show();
       var config = {
          type: 'bar',
@@ -82,42 +82,97 @@ $(function() {
          }
       };
 
-      var extra = "";
-      if (system != "any") {
-         extra += "&system="+system;
+      var url = "/api/report?type=";
+      var preserveChart = false;
+      if (chartType === "top25" || chartType === "bottom25") {
+         url += chartType;
+      } else {
+         url += chartType+"-hit-rate&library="+library+"&system="+system+"&classification="+classification;
+         preserveChart = true;
       }
-      if (classification != "any") {
-         extra += "&classification="+classification;
-      }
-      $.getJSON("/api/report?type=hit-rate&pool="+hitsPer+extra, function ( data, textStatus, jqXHR ){
+
+      $.getJSON(url, function ( data, textStatus, jqXHR ){
          $("#generating").hide();
          if (textStatus == "success" ) {
+            if ( preserveChart ) {
+               if ( window.hitRateChart ) {
+                  window.hitRateChart.destroy();
+               }
+            }
             config.data.datasets[0].data = data.data;
             config.data.labels = data.labels;
-            if (window.barChart ) {
-               window.barChart.destroy();
+            var ctx = document.getElementById(tgtElement).getContext("2d");
+            var newChart = new Chart(ctx, config);
+            if ( preserveChart ) {
+               window.hitRateChart = newChart;
             }
-            var ctx = document.getElementById("library-hit-rate").getContext("2d");
-            window.barChart = new Chart(ctx, config);
-
          }
       });
    };
 
    if ( $("#distribution-chart").length > 0 ) {
-      createHitRateChart("library", "any", "any");
+      window.hitRateChart = null;
+      createHitRateChart("library-hit-rate", "library", "any", "any", "any");
+      createHitRateChart("top25-chart", "top25", "any", "any", "any");
+      createHitRateChart("bottom25-chart", "bottom25", "any", "any", "any");
       createDistributionChart();
    }
 
    $(".pure-button.generate").on("click", function() {
-      var hitsPer = $('input[name=rate-select]:checked').val();
-      var classification = "any";
-      var system = "any";
-      if (hitsPer == "subclassification") {
-         classification = $("#rate-class-filter").val();
-      } else if (hitsPer == "classification") {
-         system = $("#system-class-filter").val();
-      } 
-      createHitRateChart(hitsPer, classification, system);
+      var hitsPer = $("#x-axis-type").val();
+      var lib = $("#library-rate").val();
+      var system = $("#system-rate").val();
+      var classification = $("#class-rate").val();
+      if ( hitsPer != "library" && system=="Any" ) {
+         alert("Please select a cataloging system other than Any");
+         return;
+      }
+      if ( hitsPer != "subclassificaton" && classification=="Any" ) {
+         alert("Please select a classification other than Any");
+         return;
+      }
+      createHitRateChart("library-hit-rate", hitsPer, lib, system, classification);
+   });
+
+   $("#x-axis-type").chosen().change( function() {
+      var val = $("#x-axis-type").val();
+      if ( val==="library") {
+         $("#library-rate").prop("disabled", true);
+         $("#system-rate").prop("disabled", true);
+         $("#class-rate").prop("disabled", false);
+      } else if ( val==="class") {
+         $("#library-rate").prop("disabled", false);
+         $("#system-rate").prop("disabled", false);
+         $("#class-rate").prop("disabled", true);
+      } else if ( val==="subclass") {
+         $("#library-rate").prop("disabled", false);
+         $("#system-rate").prop("disabled", false);
+         $("#class-rate").prop("disabled", false);
+      }
+      $("#library-rate").val("Any");
+      $("#system-rate").val("Any");
+      $("#class-rate").val("Any");
+      $("#library-rate").trigger("chosen:updated");
+      $("#system-rate").trigger("chosen:updated");
+      $("#class-rate").trigger("chosen:updated");
+   });
+
+   $("#system-rate").chosen().change( function() {
+      var val = $("#system-rate").val();
+      $.ajax({
+         url: "/api/classifications/"+val,
+         method: "GET",
+         complete: function( jqXHR, textStatus ) {
+            var vals = jqXHR.responseJSON;
+            $("#class-rate option").remove();
+            $.each(vals, function(idx, v) {
+               $("#class-rate").append( $('<option>', {
+                    value: v,
+                    text : v
+                }));
+            });
+            $("#class-rate").trigger("chosen:updated");
+         }
+      });
    });
 });

@@ -11,60 +11,131 @@ class Report
       return chart
    end
 
-   def self.library_hit_rate
+   def self.lib_hit_rate(classification)
       data = {labels:[], data:[]}
-      ShelfListing.distinct.pluck(:library).each do |l|
+      libraries = []
+      query = []
+      if classification.downcase == "any"
+         libraries = ShelfListing.distinct.pluck(:library).sort
+      else
+         libraries = ShelfListing.where("classification=?", classification).distinct.pluck(:library).sort
+      end
 
+      libraries.each do | lib |
+         # Both of these queries need to acount for classificaton being set
          tj="inner join barcodes b on shelf_listings.id = b.shelf_listing_id"
-         total = ShelfListing.joins(tj).where("library=? and active=? and origin>?", l,1,0).pluck("shelf_listings.id").uniq.count
+         total = 0
+         if classification.downcase == "any"
+            total = ShelfListing.joins(tj).where("library=? and active=? and origin>?", lib,1,0).pluck("shelf_listings.id").uniq.count
+         else
+            total = ShelfListing.joins(tj).where("library=? and classification=? and active=? and origin>?", lib,classification,1,0)
+               .pluck("shelf_listings.id").uniq.count
+         end
 
          j = "inner join barcodes b on shelf_listings.id = b.shelf_listing_id"
          j << " inner join barcode_interventions i on b.id = i.barcode_id"
 
-         cnt = ShelfListing.joins(j).where(library: l).count
+         cnt = 0
+         if classification.downcase == "any"
+            cnt = ShelfListing.joins(j).where(library: lib).count
+         else
+            cnt = ShelfListing.joins(j).where(library: lib).where( classification: classification ).count
+         end
          pct = ((cnt.to_f/total.to_f)*100.0).round(2)
          data[:data] << pct
-         data[:labels] << "#{l}|#{total}|#{cnt}"
+         data[:labels] << "#{lib}|#{total}|#{cnt}"
       end
       return data
    end
 
-   def self.classification_hit_rate(system)
+   def self.classification_hit_rate(library, system)
       data = {labels:[], data:[]}
-      ShelfListing.where(classification_system: system).distinct.pluck(:classification).sort.each do |l|
+      classes = []
+      if library.downcase != "any"
+         classes = ShelfListing.where(library: library, classification_system: system)
+            .distinct.pluck(:classification).sort
+      else
+         classes = ShelfListing.where(classification_system: system)
+            .distinct.pluck(:classification).sort
+      end
 
+      classes.each do |clazz|
          # only consider books that have a stacks item ID or barcode from a cataloging
          # request. These are books that were actually found
          tj="inner join barcodes b on shelf_listings.id = b.shelf_listing_id"
-         total = ShelfListing.joins(tj).where("classification=? and active=? and origin>?", l,1,0).pluck("shelf_listings.id").uniq.count
+         total = 0
+         if library.downcase == "any"
+            total = ShelfListing.joins(tj).where(
+               "classification_system=? and classification=? and active=? and origin>?", system,clazz,1,0)
+               .pluck("shelf_listings.id").uniq.count
+         else
+            total = ShelfListing.joins(tj).where(
+               "classification_system=? and library=? and classification=? and active=? and origin>?",
+               system,library,clazz,1,0)
+               .pluck("shelf_listings.id").uniq.count
+         end
 
          j = "inner join barcodes b on shelf_listings.id = b.shelf_listing_id"
          j << " inner join barcode_interventions i on b.id = i.barcode_id"
-         cnt = ShelfListing.joins(j).where(classification: l).count
+         cnt = 0
+         if library.downcase == "any"
+            cnt = ShelfListing.joins(j).where(classification: clazz).where(classification_system: system).count
+         else
+            cnt = ShelfListing.joins(j).where(classification: clazz).where(classification_system: system).where(library: library).count
+         end
          if cnt > 0
             pct = ((cnt.to_f/total.to_f)*100.0).round(2)
             data[:data] << pct
-            data[:labels] << "#{l}|#{total}|#{cnt}"
+            data[:labels] << "#{clazz}|#{total}|#{cnt}"
          end
       end
       return data
    end
 
-   def self.subclassification_hit_rate(classification)
+   def self.subclassification_hit_rate(library, system, classification)
+      # System and classification are both required. Library may be Any
       data = {labels:[], data:[]}
-      ShelfListing.where(classification: classification).distinct.pluck(:subclassification).sort.each do |l|
+      subclasses = []
+
+      if library.downcase == "any"
+         subclasses = ShelfListing.where(classification_system: system).where(classification: classification)
+            .distinct.pluck(:subclassification).sort
+      else
+         subclasses = ShelfListing.where(classification_system: system)
+            .where(classification: classification).where(library: library)
+            .distinct.pluck(:subclassification).sort
+      end
+
+      subclasses.each do | subclass |
          # only consider books that have a stacks item ID or barcode from a cataloging
          # request. These are books that were actually found
          tj="inner join barcodes b on shelf_listings.id = b.shelf_listing_id"
-         total = ShelfListing.joins(tj).where("subclassification=? and active=? and origin>?", l,1,0).pluck("shelf_listings.id").uniq.count
+         total = 0
+         if library.downcase == "any"
+            q = "classification_system=? and subclassification=? and active=1 and origin > 0"
+            total = ShelfListing.joins(tj).where(q, system, subclass)
+               .pluck("shelf_listings.id").uniq.count
+         else
+            q = "library=? and classification_system=? and subclassification=? and active=1 and origin > 0"
+            total = ShelfListing.joins(tj).where(q, library, system, subclass)
+               .pluck("shelf_listings.id").uniq.count
+         end
 
          j = "inner join barcodes b on shelf_listings.id = b.shelf_listing_id"
          j << " inner join barcode_interventions i on b.id = i.barcode_id"
-         cnt = ShelfListing.joins(j).where(subclassification: l).count
+         cnt = 0
+         if library.downcase == "any"
+            cnt = ShelfListing.joins(j).where(classification_system: system)
+               .where(subclassification: subclass).count
+         else
+            cnt = ShelfListing.joins(j).where(classification_system: system)
+               .where(subclassification: subclass).where(library: library)
+               .count
+         end
          if cnt > 0
             pct = ((cnt.to_f/total.to_f)*100.0).round(2)
             data[:data] << pct
-            data[:labels] << "#{l}|#{total}|#{cnt}"
+            data[:labels] << "#{subclass}|#{total}|#{cnt}"
          end
       end
       return data

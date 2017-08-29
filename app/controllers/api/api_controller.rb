@@ -216,10 +216,11 @@ class Api::ApiController < ApplicationController
 
    def classifications
       if params[:id].downcase == "any"
-         render json: ["Any"] + ShelfListing.all.pluck(:classification).uniq.to_a
+         out = ShelfListing.all.pluck(:classification).uniq.to_a.sort
       else
-         render json: ["Any"] + ShelfListing.where(classification_system: params[:id]).pluck(:classification).uniq.to_a
+         out = ShelfListing.where(classification_system: params[:id]).pluck(:classification).uniq.to_a.sort
       end
+      render json: ["Any"] + out
    end
 
    def subclassifications
@@ -272,18 +273,16 @@ class Api::ApiController < ApplicationController
    def report
       if params[:type] == "intervention-distribution"
          render json: Report.intervention_distribution and return
-      elsif params[:type] == "hit-rate"
-         if params[:pool] == "library"
-            render json: Report.library_hit_rate and return
-         elsif params[:pool] == "classification"
-            render json: Report.classification_hit_rate(params[:system]) and return
-         elsif params[:pool] == "subclassification"
-            render json: Report.subclassification_hit_rate(params[:classification]) and return
-         elsif params[:pool] == "top25"
-            render json: Report.hit_rate_extremes(:top) and return
-         elsif params[:pool] == "bottom25"
-            render json: Report.hit_rate_extremes(:bottom) and return
-         end
+      elsif params[:type] == "top25"
+         render json: Report.hit_rate_extremes(:top) and return
+      elsif params[:type] == "bottom25"
+         render json: Report.hit_rate_extremes(:bottom) and return
+      elsif params[:type] == "library-hit-rate"
+         render json: Report.lib_hit_rate(params[:classification]) and return
+      elsif params[:type] == "class-hit-rate"
+         render json: Report.classification_hit_rate(params[:library], params[:system]) and return
+      elsif params[:type] == "subclass-hit-rate"
+         render json: Report.subclassification_hit_rate(params[:library], params[:system], params[:classification]) and return
       end
       render plain: "Invalid report type", status: :error
    end

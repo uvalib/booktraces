@@ -2,10 +2,34 @@ body {
     background: #e2e2e2;
     padding: 0;
     margin: 0;
-    font-family:  "Helvetica Neue", Helvetica, Arial, sans-serif
+    font-family:  "Helvetica Neue", Helvetica, Arial, sans-serif;
+    .chosen-container-single .chosen-single span {
+      color: #666;
+      font-weight: 400;
+   }
+}
+.rate-title-bar span.rate-controls {
+   label {
+      margin-left:15px;
+   }
 }
 
-div.distribution-container, div.rates-container  {
+span.rate-settings-label {
+   font-weight: bold;
+   margin-left: 25px;
+}
+
+div.extremes-container  {
+   text-align: center;
+   padding: 0px !important;
+   margin: 20px !important;
+   div.double-chart {
+      margin:10px;
+      width:45%;
+      display:inline-block;
+   }
+}
+div.distribution-container, div.rates-container,div.extremes-container  {
    border:1px solid #ccc;
    padding: 10px;
    margin:10px auto;
