@@ -20,6 +20,9 @@ Rails.application.routes.draw do
       post 'query' => 'api#query'
       get 'search_state' => 'api#search_state'
       get 'report' => 'api#report'
+      get 'intervention_types' => 'api#intervention_types'
+      get 'statuses' => 'api#statuses'
+      get 'search_fields' => 'api#search_fields'
    end
 
    root :to => 'home#index'

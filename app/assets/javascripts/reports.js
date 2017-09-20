@@ -127,7 +127,7 @@ $(function() {
          alert("Please select a classification system other than Any");
          return;
       }
-      if ( hitsPer == "subclassificaton" && classification=="Any" ) {
+      if ( hitsPer == "subclass" && classification=="Any" ) {
          alert("Please select a classification other than Any");
          return;
       }

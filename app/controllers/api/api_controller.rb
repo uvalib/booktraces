@@ -1,51 +1,69 @@
 class Api::ApiController < ApplicationController
    skip_before_action :authorize
-   # Non-datatables search API. Simple params:
-   # q=[global query], l=library, c=class, s=subclass,
-   #                   i=interventions[none,any,inscription,annotation,marginalia,insertion,artwork,library]
-   # start=start offset, length=how many to return; limit 1000
-   def search
-      query_terms = []
-      start = params[:start]
-      start = 0 if start.nil?
-      len = params[:length]
-      if len.nil?
-         len = 100
+
+   # Get a json list of possible classifications
+   #
+   def classifications
+      if params[:id].downcase == "any"
+         out = ShelfListing.all.pluck(:classification).uniq.to_a.sort
       else
-         len = len.to_i
+         out = ShelfListing.where(classification_system: params[:id]).pluck(:classification).uniq.to_a.sort
       end
+      render json: ["Any"] + out
+   end
 
-      lib_filter = params[:l]
-      if !lib_filter.blank? && lib_filter != "Any"
-         query_terms << "library = '#{lib_filter}'"
+   # Get a json list of possible subclassifications
+   #
+   def subclassifications
+      if params[:id].downcase == "any"
+         render json: ["Any"] + ShelfListing.all.pluck(:subclassification).uniq.to_a
+      else
+         render json: ["Any"] + ShelfListing.where(classification: params[:id]).pluck(:subclassification).uniq.to_a
       end
+   end
 
-      class_filter = params[:c]
-      if !class_filter.blank? && class_filter != "Any"
-         query_terms << "classification = '#{class_filter}'"
+   # Call to get a list of possible intervention types to be used
+   # by the API search call
+   #
+   def intervention_types
+      out = []
+      out << {id: "all", description: "All Listings"}
+      out << {id: "none", description: "No Interventions"}
+      out << {id: "any", description: "Any Intervention"}
+      out << {id: "inscription", description: "Any Inscription"}
+      out << {id: "annotation", description: "Any Annotation"}
+      out << {id: "marginalia", description: "Any Marginalia"}
+      out << {id: "insertion", description: "Any Insertion"}
+      out << {id: "artwork", description: "Any Artwork"}
+      out << {id: "library", description: "Any Library Intervention"}
+      InterventionType.all.each do |t|
+         name = "#{t.category.capitalize}: #{t.name.capitalize}"
+         out << { id: t.id, description: name }
       end
+      render json: out
+   end
 
-      subclass_filter = params[:s]
-      if !subclass_filter.blank? && subclass_filter != "Any"
-         query_terms << "subclassification = '#{subclass_filter}'"
+   # Get a json list of listing statuses
+   #
+   def statuses
+      out = [ "any" ]
+      ListingStatus.statuses.each do |t|
+         out <<  t
       end
+      render json: out
+   end
 
-      intervention_term = get_intervention_term( params[:i] )
-      query_terms << intervention_term if !intervention_term.blank?
-
-      q = params[:q]
-      if !q.blank?
-         str =  "(internal_id like '%#{q}%' or title regexp '[[:<:]]#{q}[[:>:]]' or call_number like '%#{q}%'"
-         str << " or bookplate_text regexp '[[:<:]]#{q}[[:>:]]' or b.barcode like '%#{q}%'"
-         if !intervention_term.include?("ALL_LISTINGS") && !intervention_term.include?("NO_INTERVENTIONS")
-            str << " or i.special_problems like '%#{q}%'"
-            str << " or i.special_interest like '%#{q}%'"
-         end
-         str << ")"
-         query_terms << str
-      end
-      total, filtered, res  = do_search(query_terms, start, len, "id asc")
-      render json: { total: total, filtered: filtered, start: start, length: len, data: res.as_json(except: ["created_at", "updated_at", "who_checked", "id"]) }
+   def search_fields
+      render json: [
+         {id:"all", description: "All Fields"},
+         {id:"internal_id", description: "Index"},
+         {id:"b.barcode", description: "Barcode"},
+         {id:"call_number", description: "Call Number"},
+         {id:"title", description: "Title"},
+         {id:"bookplate_text", description: "Bookplate"},
+         {id:"i.special_problems", description: "Special Problems"},
+         {id:"i.special_interest", description: "Special Interest"}
+      ]
    end
 
    # public API to get listing details. Accepts 1 param; ID which
@@ -68,6 +86,84 @@ class Api::ApiController < ApplicationController
          json[:preservation] = { date_sent_out: dest.date_sent_out, destination: dest.destination_name.name, bookplate: dest.bookplate}
       end
       render json: json
+   end
+
+   # Non-datatables search API. Simple params:
+   #   q=[query string],
+   #   l=library, sys=system, c=class, s=subclass,
+   #   i=interventions (from intervention_types above)
+   #   status=listing status (from statues call above)
+   #   start=start offset, length=how many to return; limit 1000
+   #   full=[true|false] full word match on. Default to full word
+   #   field=field to search in
+   # format=[json|csv] default json
+   #
+   def search
+      query_terms = []
+      start = params[:start]
+      start = 0 if start.nil?
+      len = params[:length]
+      if len.nil?
+         len = 100
+      else
+         len = len.to_i
+      end
+
+      lib_filter = params[:l]
+      if !lib_filter.blank? && lib_filter != "Any"
+         query_terms << "library = '#{lib_filter}'"
+      end
+
+      sys_filter =params[:sys]
+      if !sys_filter.blank? && sys_filter != "Any"
+         query_terms << "classification_system = '#{sys_filter}'"
+      end
+
+      class_filter = params[:c]
+      if !class_filter.blank? && class_filter != "Any"
+         query_terms << "classification = '#{class_filter}'"
+      end
+
+      subclass_filter = params[:s]
+      if !subclass_filter.blank? && subclass_filter != "Any"
+         query_terms << "subclassification = '#{subclass_filter}'"
+      end
+
+      i_filter = params[:i]
+      i_filter = "any" if i_filter.blank?
+      intervention_term = get_intervention_term( i_filter )
+      query_terms << intervention_term if !intervention_term.blank?
+
+      status_filter = params[:status]
+      if !status_filter.blank? && status_filter != "Any"
+         query_terms << "ls.result = '#{status_filter}'"
+      end
+
+      q = params[:q]
+      if !q.blank?
+         field = params[:field]
+         field = "all" if field.nil?
+         full = params[:full]
+         full = "true" if full.nil?
+         q_val = "#{q}|#{field}|#{full}"
+         query_terms << get_query_term(q_val, intervention_term)
+      end
+
+      format = params[:format]
+      format = "json" if format.nil?
+      format = format.downcase
+      if format != "json" &&  format != "csv"
+         render plain: "Invalid format #{format}", status: :error
+      else
+         total, filtered, res  = do_search(query_terms, start, len, "id asc")
+         if format == "json"
+            render json: {
+               total: total, filtered: filtered, start: start, length: len,
+               data: res.as_json(except: ["created_at", "updated_at", "who_checked", "id"]) }
+         else
+            render csv: get_csv_results(res)
+         end
+      end
    end
 
    # POST query request from datatables
@@ -109,38 +205,7 @@ class Api::ApiController < ApplicationController
       end
 
       q_val = params[:search]["value"]
-      if !q_val.blank?
-         q = q_val.split("|")[0]
-         field = q_val.split("|")[1]
-         full = q_val.split("|")[2]
-         if field == "all"
-            if full == true
-               str =  "(internal_id like '%#{q}%' or title regexp '[[:<:]]#{q}[[:>:]]' or call_number like '%#{q}%'"
-               str << " or bookplate_text regexp '[[:<:]]#{q}[[:>:]]' or b.barcode like '%#{q}%'"
-            else
-               str =  "(internal_id like '%#{q}%' or title like '%#{q}%' or call_number like '%#{q}%'"
-               str << " or bookplate_text regexp '%#{q}%' or b.barcode like '%#{q}%'"
-            end
-
-            if !intervention_term.include?("ALL_LISTINGS") && !intervention_term.include?("NO_INTERVENTIONS")
-               if full == true
-                  str << " or i.special_problems regexp '%[[:<:]]#{q}[[:>:]]'"
-                  str << " or i.special_interest regexp '[[:<:]]#{q}[[:>:]]'"
-               else
-                  str << " or i.special_problems like '%#{q}%'"
-                  str << " or i.special_interest like '%#{q}%'"
-               end
-            end
-            str << ")"
-         else
-            if full == "true" && (field == 'title' || field == 'bookplate' || field == 'i.special_problems' || field == 'i.special_interest')
-               str = "#{field} regexp '[[:<:]]#{q}[[:>:]]'"
-            else
-               str = "#{field} like '%#{q}%'"
-            end
-         end
-         query_terms << str
-      end
+      query_terms << get_query_term(q_val, intervention_term) if !q_val.blank?
 
       # ordering!
       columns = ["internal_id","b.barcode","call_number","title","bookplate_text",
@@ -184,6 +249,42 @@ class Api::ApiController < ApplicationController
       render json: session[:search_state]
    end
 
+   private
+   def get_query_term( q_val, intervention_term )
+      str = ""
+      q = q_val.split("|")[0]
+      field = q_val.split("|")[1]
+      full = q_val.split("|")[2] == "true"
+      if field == "all"
+         if full == true
+            str =  "(internal_id like '%#{q}%' or title regexp '[[:<:]]#{q}[[:>:]]' or call_number like '%#{q}%'"
+            str << " or bookplate_text regexp '[[:<:]]#{q}[[:>:]]' or b.barcode like '%#{q}%'"
+         else
+            str =  "(internal_id like '%#{q}%' or title like '%#{q}%' or call_number like '%#{q}%'"
+            str << " or bookplate_text regexp '%#{q}%' or b.barcode like '%#{q}%'"
+         end
+
+         if !intervention_term.include?("ALL_LISTINGS") && !intervention_term.include?("NO_INTERVENTIONS")
+            if full == true
+               str << " or i.special_problems regexp '%[[:<:]]#{q}[[:>:]]'"
+               str << " or i.special_interest regexp '[[:<:]]#{q}[[:>:]]'"
+            else
+               str << " or i.special_problems like '%#{q}%'"
+               str << " or i.special_interest like '%#{q}%'"
+            end
+         end
+         str << ")"
+      else
+         if full == "true" && (field == 'title' || field == 'bookplate' || field == 'i.special_problems' || field == 'i.special_interest')
+            str = "#{field} regexp '[[:<:]]#{q}[[:>:]]'"
+         else
+            str = "#{field} like '%#{q}%'"
+         end
+      end
+      return str
+   end
+
+   private
    def get_intervention_term( intervention_filter )
       return "ALL_LISTINGS" if intervention_filter.downcase == "all"
 
@@ -214,23 +315,7 @@ class Api::ApiController < ApplicationController
       return term
    end
 
-   def classifications
-      if params[:id].downcase == "any"
-         out = ShelfListing.all.pluck(:classification).uniq.to_a.sort
-      else
-         out = ShelfListing.where(classification_system: params[:id]).pluck(:classification).uniq.to_a.sort
-      end
-      render json: ["Any"] + out
-   end
-
-   def subclassifications
-      if params[:id].downcase == "any"
-         render json: ["Any"] + ShelfListing.all.pluck(:subclassification).uniq.to_a
-      else
-         render json: ["Any"] + ShelfListing.where(classification: params[:id]).pluck(:subclassification).uniq.to_a
-      end
-   end
-
+   private
    def do_search(query_terms, start, len, order_str)
 
       # build the join query. Barcode is always required. Use initial
@@ -270,6 +355,9 @@ class Api::ApiController < ApplicationController
       return total, filtered, res
    end
 
+   # Get JSON data to drive a report
+   #
+   public
    def report
       if params[:type] == "intervention-distribution"
          render json: Report.intervention_distribution and return
@@ -285,5 +373,10 @@ class Api::ApiController < ApplicationController
          render json: Report.subclassification_hit_rate(params[:library], params[:system], params[:classification]) and return
       end
       render plain: "Invalid report type", status: :error
+   end
+
+   private
+   def get_csv_results(res)
+      return ""
    end
 end
