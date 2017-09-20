@@ -124,10 +124,10 @@ $(function() {
       var system = $("#system-rate").val();
       var classification = $("#class-rate").val();
       if ( hitsPer != "library" && system=="Any" ) {
-         alert("Please select a cataloging system other than Any");
+         alert("Please select a classification system other than Any");
          return;
       }
-      if ( hitsPer != "subclassificaton" && classification=="Any" ) {
+      if ( hitsPer == "subclassificaton" && classification=="Any" ) {
          alert("Please select a classification other than Any");
          return;
       }
