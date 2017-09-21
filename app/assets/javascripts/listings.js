@@ -286,6 +286,8 @@ $(function() {
       $("#full-word").prop("checked", true);
       $("#intervention-filter").val("Any");
       $("#intervention-filter").trigger("chosen:updated");
+      $("#status-filter").val("Any");
+      $("#status-filter").trigger("chosen:updated");
       doFilter();
    });
 
