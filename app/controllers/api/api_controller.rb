@@ -96,7 +96,9 @@ class Api::ApiController < ApplicationController
    #   start=start offset, length=how many to return; limit 1000
    #   full=[true|false] full word match on. Default to full word
    #   field=field to search in
-   # format=[json|csv] default json
+   #   format=[json|csv] default json
+   #   oc=order column index (0 based)
+   #   od=order direction [asc|desc]
    #
    def search
       query_terms = []
@@ -149,19 +151,22 @@ class Api::ApiController < ApplicationController
          query_terms << get_query_term(q_val, intervention_term)
       end
 
+      order_col = get_order_column( params[:oc].to_i)
+      order_str = "#{order_col} #{params[:od]}"
+
       format = params[:format]
       format = "json" if format.nil?
       format = format.downcase
       if format != "json" &&  format != "csv"
          render plain: "Invalid format #{format}", status: :error
       else
-         total, filtered, res  = do_search(query_terms, start, len, "id asc")
+         total, filtered, res  = do_search(query_terms, start, len, order_str)
          if format == "json"
             render json: {
                total: total, filtered: filtered, start: start, length: len,
                data: res.as_json(except: ["created_at", "updated_at", "who_checked", "id"]) }
          else
-            render csv: get_csv_results(res)
+            send_file( get_csv_results(res), {filename: "results.csv"} )
          end
       end
    end
@@ -208,11 +213,9 @@ class Api::ApiController < ApplicationController
       query_terms << get_query_term(q_val, intervention_term) if !q_val.blank?
 
       # ordering!
-      columns = ["internal_id","b.barcode","call_number","title","bookplate_text",
-         "library","classification_system","classification","subclassification"]
       order_info = params[:order]["0"]
-      idx = order_info['column'].to_i
-      order_str = "#{columns[idx]} #{order_info['dir']}"
+      order_col = get_order_column( order_info['column'].to_i )
+      order_str = "#{order_col} #{order_info['dir']}"
 
       # convert these settings into a structure that datatables can
       # unpack and restore upon page refresh
@@ -282,6 +285,13 @@ class Api::ApiController < ApplicationController
          end
       end
       return str
+   end
+
+   private
+   def get_order_column( col_idx )
+      columns = ["internal_id","b.barcode","call_number","title","bookplate_text",
+         "library","classification_system","classification","subclassification"]
+      return columns[col_idx]
    end
 
    private
@@ -377,6 +387,60 @@ class Api::ApiController < ApplicationController
 
    private
    def get_csv_results(res)
-      return ""
+      tmp = Tempfile.new(["search", ".csv"])
+      header = 'Index,Barcode(s),Call Number,Title,Bookplate,Library,System,Class,'
+      header << 'Subclass,Date Checked,Who Checked,Action,Status,Intervention Types,'
+      header << 'Special Interest,Special Problems,Preservation'
+      tmp.puts(header)
+      res.each do |r|
+         line = "#{r.internal_id},\"#{r.active_barcodes.join(',')}\",\"#{r.call_number}\","
+         line << "\"#{r.title}\",\"#{r.bookplate_text}\",#{r.library},"
+         line << "#{r.classification_system},#{r.classification},#{r.subclassification},"
+         line << "#{r.listing_status.date_checked},"
+         line << "#{r.listing_status.who_checked},"
+         line << "\"#{r.listing_status.actions}\","
+         line << "#{r.listing_status.result},"
+         if r.interventions.count > 0
+            types = []
+            interest = []
+            problems = []
+            r.interventions.each do |i|
+               details = []
+               i.details.each do |d|
+                  details << "#{d.category} #{d.name}"
+               end
+               types << details.join(",")
+               interest << i.special_interest.gsub(/\"/,"'").gsub(/\n/, " ").gsub(/\s+/, " ") if !i.special_interest.blank?
+               problems << i.special_problems.gsub(/\"/,"'").gsub(/\n/, " ").gsub(/\s+/, " ") if !i.special_problems.blank?
+            end
+            if types.length > 0
+               line << "\"#{types.join(',')}\","
+            else
+               line << ","
+            end
+            if interest.length > 0
+               line << "\"#{interest.join(',')}\","
+            else
+               line << ","
+            end
+            if problems.length > 0
+               line << "\"#{problems.join(',')}\","
+            else
+               line << ","
+            end
+         else
+            line << ",,,"
+         end
+         if r.destinations.count > 0
+            dests = []
+            r.destinations.each do |d|
+               dests << d.destination_name.name
+            end
+            line << "\"#{dests.join(',')}\""
+         end
+         tmp.puts(line)
+      end
+      tmp.close
+      return tmp.path
    end
 end

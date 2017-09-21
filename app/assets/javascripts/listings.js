@@ -17,7 +17,6 @@ $(function() {
       serverSide: true,
       processing: true,
       dom: 'lBrtip',
-      buttons: ['csv','excel'],
       pageLength: pageLen,
       columnDefs: [
          { orderable: false, targets: [9,10,11] },
@@ -150,6 +149,86 @@ $(function() {
             $("#subclass-filter").trigger("chosen:updated");
          }
       });
+   });
+
+   // NOTES: This is necessary because the data returned by the built-in datatables CSV generator is
+   // just what is in the visible table. The requirements for the export exceed this: the intervention
+   // dates and preservation data is also necessary. To acheive this, make a call directly to the search API
+   // with a format of CSV. This will pull all required data into the report
+   $("#csv").on("click", function() {
+      // convert all of the UI filter/order settings into a set of query params for the API Call
+      params = [];
+      var val = $("#library-filter").val();
+      if (val !== "Any") {
+         params.push("l="+val);
+      }
+
+      val = $("#system-filter").val();
+      if (val !== "Any") {
+         params.push("sys="+val);
+      }
+
+      val = $("#class-filter").val();
+      if (val !== "Any") {
+         params.push("c="+val);
+      }
+
+      val = $("#subclass-filter").val();
+      if (val !== "Any") {
+         params.push("s="+val);
+      }
+
+      val = $("#intervention-filter").val();
+      if (val !== "Any") {
+         params.push("i="+val);
+      }
+
+      val = $("#status-filter").val();
+      if (val !== "Any") {
+         params.push("status="+val);
+      }
+
+      val = $("#query").val();
+      if (val.length > 0) {
+         params.push("q="+val);
+         var fields = $("#query-fields").val();
+         if (fields !== "all") {
+            params.push("field="+fields);
+         }
+         var full = $("#full-word").is(":checked");
+         params.push("full="+full);
+      }
+
+      var pg = $("a.paginate_button.current").data("dt-idx");
+      var num = parseInt(pg, 10) -1;
+
+      var len = $("#shelf-listings_length select").val();
+      if (num > 0) {
+         var start = num * parseInt(len, 10);
+         params.push("start="+start);
+      }
+      params.push("length="+len);
+      params.push("format=csv");
+
+      // figure out ordering. Get all of the TH elements in the report table
+      // find the one that has the class sorting_asc or sorting_desc. Note the index
+      // and send this info along with the query to get CSV
+      $("#shelf-listings th").each( function(idx) {
+         if ( $(this).hasClass("sorting_asc") ) {
+            params.push("oc="+idx);
+            params.push("od=asc");
+         } else if (  $(this).hasClass("sorting_desc")) {
+            params.push("oc="+idx);
+            params.push("od=desc");
+         }
+      });
+
+      // Redirect to the API call for search. Since search results
+      // are returned as a CSV attachment, the current page will remain
+      var origUrl = window.location.href;
+      var bits = origUrl.split("/");
+      var searchUrl = bits[0] + "//" + bits[2] + "/api/search?"+params.join("&");
+      window.location.href = searchUrl;
    });
 
    var doFilter = function() {

@@ -2,6 +2,14 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 div.content.listing, div.content.detail {
+   .button-secondary {
+      background: rgb(66, 184, 221);
+      color: white;
+      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+      &:hover {
+         background: rgb(46, 164, 201);
+      }
+   }
    div.dt-buttons {
       position: relative;
       float: right;
@@ -103,6 +111,10 @@ div.content.listing, div.content.detail {
          }
          .filter-controls {
             text-align: right;
+            position: relative;
+            #csv {
+               margin-left: 10px;
+            }
          }
          td.gap {
             width: 25px;
