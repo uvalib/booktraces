@@ -6,11 +6,11 @@
             <input name ="update_type" type="hidden" value="status">
             <div class="pure-control-group">
                <label>Date Checked</label>
-               <input name="date_checked" type="text" placeholder="Date Checked" value="<%= @listing.date_checked %>"/>
+               <input name="date_checked" type="text" placeholder="Date Checked" value="<%= @listing.listing_status.date_checked %>"/>
             </div>
             <div class="pure-control-group">
                <label>Checked By</label>
-               <input name="who_checked" type="text" placeholder="Checked By" value="<%= @listing.who_checked %>"/>
+               <input name="who_checked" type="text" placeholder="Checked By" value="<%= @listing.listing_status.who_checked %>"/>
             </div>
             <div class="pure-control-group">
                <label>Status</label>

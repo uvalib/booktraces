@@ -10,6 +10,15 @@ div.content.listing, div.content.detail {
          background: rgb(46, 164, 201);
       }
    }
+   .button-add {
+      margin-left: 10px;
+      background: rgb(28, 184, 65);
+      color: white;
+      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+      &:hover {
+         background: rgb(8, 164, 45);
+      }
+   }
    div.dt-buttons {
       position: relative;
       float: right;

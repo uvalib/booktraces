@@ -1,0 +1,68 @@
+<div class="modal add-listing">
+   <h4 class="modal-header">Add Shelf Listing</h4>
+   <div class="modal-content">
+      <%= form_tag("/admin/listings", method: "post", class: "pure-form pure-form-aligned") do %>
+         <fieldset>
+            <div class="pure-control-group">
+               <label class="pure-input-1-3">Index</label>
+               <input class="pure-input-2-3" name="internal_id" type="text" placeholder="Index"/>
+            </div>
+            <div class="pure-control-group">
+               <label class="pure-input-1-3">Title</label>
+               <textarea class="pure-input-2-3" name="title" type="text" placeholder="Title" ></textarea>
+            </div>
+            <div class="pure-control-group">
+               <label class="pure-input-1-3">Call Number</label>
+               <input class="pure-input-2-3" name="call_number" type="text" placeholder="Call Number"/>
+            </div>
+            <div class="pure-control-group">
+               <label class="pure-input-1-3">Item ID</label>
+               <input class="pure-input-2-3" name="item_id" type="text" placeholder="Item ID"/>
+            </div>
+            <div class="pure-control-group">
+               <label class="pure-input-1-3">Barcode</label>
+               <input class="pure-input-2-3" name="barcode" type="text" placeholder="Barcode"/>
+            </div>
+            <div class="pure-control-group">
+               <label class="pure-input-1-3">Bookplate</label>
+               <input class="pure-input-2-3" name="bookplate_text" type="text" placeholder="Bookplate"/>
+            </div>
+            <div class="pure-control-group">
+               <label class="pure-input-1-3">Author</label>
+               <input class="pure-input-2-3" name="author" type="text" placeholder="Author"/>
+            </div>
+            <div class="pure-control-group">
+               <label class="pure-input-1-3">Year</label>
+               <input class="pure-input-2-3" name="publication_year" type="text" placeholder="Publication Year"/>
+            </div>
+            <div class="pure-control-group">
+               <label class="pure-input-1-3">Library</label>
+               <input class="pure-input-2-3" name="library" type="text" placeholder="Library"/>
+            </div>
+            <div class="pure-control-group">
+               <label>Classification System</label>
+               <select name="classification_system">
+                  <option value="LC">Library of Congress</option>
+                  <option value="Hicks">Hicks</option>
+               </select>
+            </div>
+            <div class="pure-control-group">
+               <label>Classification</label>
+               <input class="pure-input-2-3" name="classification" type="text" placeholder="Classification"/>
+            </div>
+            <div class="pure-control-group">
+               <label>Subclassification</label>
+               <input class="pure-input-2-3" name="subclassification" type="text" placeholder="Subclassification"/>
+            </div>
+            <div class="pure-control-group">
+               <label>Location</label>
+               <input class="pure-input-2-3" name="location" type="text" placeholder="Location"/>
+            </div>
+         </fieldset>
+      <% end %>
+      <div class="modal-controls">
+          <button class="pure-button cancel">Cancel</button>
+          <button class="pure-button submit">Create</button>
+      </div>
+   </div>
+</div>

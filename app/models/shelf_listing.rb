@@ -2,7 +2,7 @@ class ShelfListing < ApplicationRecord
 
    has_many :barcodes
    has_many :cataloging_requests
-   belongs_to :listing_status
+   belongs_to :listing_status, optional: true
 
    has_many :interventions, through: :barcodes
    has_many :destinations, through: :barcodes

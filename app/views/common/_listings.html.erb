@@ -80,6 +80,9 @@
                 <button id="filter" class="pure-button pure-button-primary">Filter</button>
                 <button id="clear" class="pure-button pure-button-primary">Reset</button>
                 <button id="csv" class="button-secondary pure-button">Download CSV</button>
+                <% if logged_in? %>
+                  <button id="add-listing" class="button-add pure-button">Add Listing</button>
+               <% end %>
              </td>
          </tr>
          <tr>

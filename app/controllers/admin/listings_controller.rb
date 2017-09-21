@@ -3,6 +3,15 @@ class Admin::ListingsController < ApplicationController
       @listing = ShelfListing.find(params[:id])
    end
 
+   def create
+      sl = ShelfListing.create( listing_params )
+      Barcode.create(shelf_listing: sl, origin: "sirsi", barcode: params[:item_id])
+      Barcode.create(shelf_listing: sl, origin: "stacks", barcode: params[:barcode])
+      ls = ListingStatus.create(result: "Not Checked")
+      sl.update(listing_status: ls)
+      redirect_to "/admin/listings"
+   end
+
    def update
       sl = ShelfListing.find(params[:id])
 
@@ -30,5 +39,11 @@ class Admin::ListingsController < ApplicationController
    def general_params
       params.permit(:title, :call_number, :bookplate_text, :author, :publication_year, :library,
          :classification_system, :classification, :subclassification, :location)
+   end
+
+   def listing_params
+      params.permit(
+         :internal_id, :title, :call_number, :bookplate_text, :author, :publication_year,
+         :library, :classification_system, :classification, :subclassification, :location )
    end
 end
