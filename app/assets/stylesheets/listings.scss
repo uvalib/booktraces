@@ -2,6 +2,26 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 div.content.listing, div.content.detail {
+   p.detail {
+      margin: 1px 0;
+    font-weight: bold;
+    color: #666;
+   }
+   table.intervention-detail {
+      margin-left: 20px;
+      font-size: 0.8em;
+      border-collapse: collapse;
+      border: none;
+      color: #444;
+      tr, td {
+         border:none;
+         padding: 2px 4px;
+      }
+      td.label {
+         text-align: right;
+         font-weight: bold;
+      }
+   }
    .button-secondary {
       background: rgb(66, 184, 221);
       color: white;
@@ -102,6 +122,7 @@ div.content.listing, div.content.detail {
          background-image: image-url('none.png')
       }
       span.intervention.yes {
+         cursor:pointer;
          background-image: image-url('check.png')
       }
       .filter {

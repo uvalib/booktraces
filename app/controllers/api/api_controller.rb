@@ -235,10 +235,12 @@ class Api::ApiController < ApplicationController
       res.each do |sl|
          bc = sl.active_barcodes.join(", ")
          flag = !sl.interventions.empty?
+         intervention_detail = ""
+         intervention_detail = get_intervention_detail(sl.interventions) if flag
          data << [
             sl.internal_id, bc, sl.call_number, sl.title, sl.bookplate_text,
             sl.library, sl.classification_system, sl.classification, sl.subclassification,
-            flag, sl.listing_status.result.capitalize, sl.id
+            flag, sl.listing_status.result.capitalize, sl.id, intervention_detail
          ]
       end
 
@@ -250,6 +252,29 @@ class Api::ApiController < ApplicationController
    # Get the last saved search filter state
    def search_state
       render json: session[:search_state]
+   end
+
+   private
+   def get_intervention_detail(interventions)
+      out = []
+      interventions.each do |i|
+         details = []
+         i.details.each do |d|
+            details << "#{d.category} #{d.name}"
+         end
+         types = details.join(",")
+         discovered = "#{i.found_at} by #{i.who_found.upcase}"
+         si = ""
+         sp = ""
+         if !i.special_interest.blank?
+            si = i.special_interest.gsub(/\"/,"'").gsub(/\n/, " ").gsub(/\s+/, " ")
+         end
+         if !i.special_problems.blank?
+            sp = i.special_problems.gsub(/\"/,"'").gsub(/\n/, " ").gsub(/\s+/, " ")
+         end
+         out << {discovered: discovered, interventions: types, si: si, sp: sp}
+      end
+      return out
    end
 
    private

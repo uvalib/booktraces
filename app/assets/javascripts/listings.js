@@ -1,6 +1,33 @@
 // Place all the behaviors and hooks related to the matching controller here.
 // All this logic will automatically be available in application.js.
 $(function() {
+
+   var formatDetails = function(data) {
+      var out = "<p class='detail'>Intervention Details</p><table class='intervention-detail'>";
+      $.each(data[12], function(idx, val) {
+         out = out + "<tr><td class='label'>Discovered:</td><td>"+val.discovered+"</td></tr>";
+         if ( val.si.length > 0 ) {
+            out = out + "<tr><td class='label'>Special Interest:</td><td>"+val.si+"</td></tr>";
+         }
+         if ( val.sp.length > 0 ) {
+            out = out + "<tr><td class='label'>Special Problems:</td><td>"+val.sp+"</td></tr>";
+         }
+         out = out + "<tr><td class='label'>Intervention Types:</td><td>"+val.interventions+"</td></tr>";
+      });
+      out = out + "</table>"
+      return out;
+   };
+
+   $('body').on( 'click', 'td.intervention .intervention.yes', function () {
+      var tr = $(this).closest('tr');
+      var row = table.row( tr );
+      if ( row.child.isShown() ) {
+         row.child.hide();
+      } else {
+         row.child( formatDetails( row.data() ) ).show();
+      }
+   });
+
    $(".chosen-select").chosen({
        no_results_text: "Sorry, no matches found",
        width: "100%"
@@ -31,7 +58,8 @@ $(function() {
             url += safe;
             return "<a title='View in Virgo' target='_blank' href='"+url+"'>"+data+"</a>";
          }, targets: 2},
-         { render: function ( data, type, row ) {
+         { class: "intervention",
+            render: function ( data, type, row ) {
             clazz = "no";
             if ( data === true) clazz= "yes";
             return "<div class='intervention'><span class='intervention "+clazz+"'></span></div>";
