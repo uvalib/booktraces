@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170804194307) do
+ActiveRecord::Schema.define(version: 20170921150555) do
 
   create_table "barcode_destinations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.bigint "destination_id"
@@ -104,8 +104,6 @@ ActiveRecord::Schema.define(version: 20170804194307) do
     t.string "classification", limit: 10
     t.string "subclassification", limit: 10
     t.string "classification_system"
-    t.date "date_checked"
-    t.string "who_checked"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "listing_status_id"
