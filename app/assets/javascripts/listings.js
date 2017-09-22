@@ -14,7 +14,7 @@ $(function() {
          }
          out = out + "<tr><td class='label'>Intervention Types:</td><td>"+val.interventions+"</td></tr>";
       });
-      out = out + "</table>"
+      out = out + "</table>";
       return out;
    };
 
@@ -226,16 +226,6 @@ $(function() {
          var full = $("#full-word").is(":checked");
          params.push("full="+full);
       }
-
-      var pg = $("a.paginate_button.current").data("dt-idx");
-      var num = parseInt(pg, 10) -1;
-
-      var len = $("#shelf-listings_length select").val();
-      if (num > 0) {
-         var start = num * parseInt(len, 10);
-         params.push("start="+start);
-      }
-      params.push("length="+len);
       params.push("format=csv");
 
       // figure out ordering. Get all of the TH elements in the report table
@@ -256,7 +246,7 @@ $(function() {
       var origUrl = window.location.href;
       var bits = origUrl.split("/");
       var searchUrl = bits[0] + "//" + bits[2] + "/api/search?"+params.join("&");
-      window.location.href = searchUrl;
+      window.open( searchUrl);
    });
 
    var doFilter = function() {

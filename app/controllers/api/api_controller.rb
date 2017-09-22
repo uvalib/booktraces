@@ -160,6 +160,10 @@ class Api::ApiController < ApplicationController
       if format != "json" &&  format != "csv"
          render plain: "Invalid format #{format}", status: :error
       else
+         if format == "csv"
+            len = 0
+            start = 0
+         end
          total, filtered, res  = do_search(query_terms, start, len, order_str)
          if format == "json"
             render json: {
@@ -359,6 +363,7 @@ class Api::ApiController < ApplicationController
       intervention_join << " inner join listing_statuses ls on listing_status_id = ls.id"
       total = ShelfListing.joins(intervention_join).where("b.active = 1").distinct.count
       filtered = total
+      len = total if len == 0
 
       # in all cases, we only care about ACTIVE barcodes
       query_terms << "b.active = 1"
@@ -380,11 +385,15 @@ class Api::ApiController < ApplicationController
 
       if query_terms.empty?
          filtered = ShelfListing.joins(intervention_join).distinct.count
-         res = ShelfListing.joins(intervention_join).distinct.order(order_str).offset(start).limit(len)
+         res = ShelfListing.joins(intervention_join)
+               .includes(:interventions).includes(interventions: :details).includes(:listing_status)
+               .distinct.order(order_str).offset(start).limit(len)
       else
          q_str = query_terms.join(" and ")
          filtered = ShelfListing.where(q_str).joins(intervention_join).distinct.count
-         res = ShelfListing.joins(intervention_join).where(q_str).distinct
+         res = ShelfListing.joins(intervention_join)
+            .includes(:interventions).includes(interventions: :details).includes(:listing_status)
+            .where(q_str).distinct
             .order(order_str).offset(start).limit(len)
       end
       return total, filtered, res
