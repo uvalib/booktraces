@@ -177,4 +177,47 @@ class Report
 
       return data
    end
+
+   def self.decade_hit_rate
+
+      # # count all books that were found/used
+      # tc = "select count( *) as cnt  from shelf_listings l"
+      # tc << " inner join barcodes b on l.id = b.shelf_listing_id"
+      # tc << " where b.active=1"# and b.origin > 0"
+      # total = ShelfListing.connection.execute(tc).first
+      # puts "ALL #{total}"
+
+      # get all decades
+      dc = "select distinct FLOOR(publication_year/10)*10 AS decade from shelf_listings where publication_year > 1000 order by decade asc"
+      decades = ShelfListing.connection.execute(dc)
+
+      # setup the joins to get listings without and with interventions
+      j_all = "inner join barcodes b on shelf_listings.id = b.shelf_listing_id"
+      j_i = "#{j_all} inner join barcode_interventions i on b.id = i.barcode_id"
+
+      # first get the counts for listings with no or invalid pub year
+      all = 0
+      total = ShelfListing.joins(j_all)
+         .where("(publication_year is null or publication_year<1000) and active=? and origin>?", 1,0)
+         .pluck("shelf_listings.id").uniq.count
+      total_i = ShelfListing.joins(j_i)
+         .where("(publication_year is null or publication_year<1000)")
+         .pluck("shelf_listings.id").uniq.count
+      puts "No Year: #{total_i} / #{total}"
+      all += total
+
+      decades.each do |decade|
+         y0 = decade[0].to_i
+         y1 = y0+9
+         total = ShelfListing.joins(j_all)
+            .where("publication_year>=? and publication_year<=? and active=? and origin>?", y0,y1,1,0)
+            .pluck("shelf_listings.id").uniq.count
+         total_i = ShelfListing.joins(j_i)
+            .where("publication_year>=? and publication_year<=?", y0,y1)
+            .pluck("shelf_listings.id").uniq.count
+         all += total
+         puts "#{y0}-#{y1}: #{total_i} / #{total}"
+      end
+      puts "TOTAL #{all}"
+   end
 end
