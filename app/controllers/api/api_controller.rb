@@ -430,7 +430,7 @@ class Api::ApiController < ApplicationController
       tmp.puts(header)
       res.each do |r|
          line = "#{r.internal_id},\"#{r.active_barcodes.join(',')}\",\"#{r.call_number}\","
-         line << "\"#{r.title}\",\"#{r.bookplate_text}\",#{r.library},"
+         line << "\"#{clean_text(r.title)}\",\"#{clean_text(r.bookplate_text)}\",#{r.library},"
          line << "#{r.classification_system},#{r.classification},#{r.subclassification},"
          line << "#{r.listing_status.date_checked},"
          line << "#{r.listing_status.who_checked},"
@@ -446,8 +446,8 @@ class Api::ApiController < ApplicationController
                   details << "#{d.category} #{d.name}"
                end
                types << details.join(",")
-               interest << i.special_interest.gsub(/\"/,"'").gsub(/\n/, " ").gsub(/\s+/, " ") if !i.special_interest.blank?
-               problems << i.special_problems.gsub(/\"/,"'").gsub(/\n/, " ").gsub(/\s+/, " ") if !i.special_problems.blank?
+               interest << clean_text(i.special_interest)
+               problems << clean_text(i.special_problems)
             end
             if types.length > 0
                line << "\"#{types.join(',')}\","
@@ -478,5 +478,11 @@ class Api::ApiController < ApplicationController
       end
       tmp.close
       return tmp.path
+   end
+
+   private
+   def clean_text(text)
+      return text if text.blank?
+      return text.gsub(/\"/,"'").gsub(/\n/, " ").gsub(/\s+/, " ")
    end
 end
