@@ -149,7 +149,7 @@ $(function() {
          $("#system-rate").prop("disabled", false);
          $("#class-rate").prop("disabled", false);
       } else if ( val==="decade") {
-         $("#library-rate").prop("disabled", true);
+         $("#library-rate").prop("disabled", false);
          $("#system-rate").prop("disabled", true);
          $("#class-rate").prop("disabled", true);
       }

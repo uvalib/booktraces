@@ -416,7 +416,7 @@ class Api::ApiController < ApplicationController
       elsif params[:type] == "subclass-hit-rate"
          render json: Report.subclassification_hit_rate(params[:library], params[:system], params[:classification]) and return
       elsif params[:type] == "decade-hit-rate"
-         render json: Report.decade_hit_rate and return
+         render json: Report.decade_hit_rate(params[:library]) and return
       end
       render plain: "Invalid report type", status: :error
    end

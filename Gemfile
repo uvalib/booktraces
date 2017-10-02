@@ -16,6 +16,8 @@ gem 'figaro'
 gem 'passenger', '5.1.4'
 gem "chosen-rails"
 
+gem "roo", "~> 2.7.0"   # to parse excel sheets for importing Gannon project
+
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 2.5'
 

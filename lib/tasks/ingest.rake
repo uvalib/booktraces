@@ -2,7 +2,7 @@ require 'csv'
 
 namespace :ingest do
 
-   desc "Fix origin for catalog request"
+   desc "Test; get counts"
    task :test  => :environment do
       ShelfListing.all.find_each do |sl|
          if sl.interventions.count > 1
@@ -420,5 +420,49 @@ namespace :ingest do
          seq += 1
       end
       puts "DONE"
+   end
+
+   require 'roo'
+   desc "Ingest publication year from excel sheets"
+   task :pub_year  => :environment do
+      base = ENV['base']
+      abort("base is required") if base.nil?
+      src_dir = File.join(base, "CLIR_1923_Alderman")
+      Dir.glob("#{src_dir}/*.xlsx") do |xf|
+         next if xf.match "~"
+         puts "Processing #{xf}..."
+         excel = Roo::Spreadsheet.open(xf)
+         excel.each_with_pagename do |name, sheet|
+            puts "SHEET: #{name}"
+            headers = sheet.row(1)
+            id_idx = headers.index("Index")
+            year_idx = headers.index("Pub Year")
+            skip_header = true
+            sheet.each(id: 'Index', year: 'Pub Year') do |row|
+               if skip_header
+                  skip_header = false
+                  next
+               end
+               next if row[:year] == 0
+
+               # valid year included. Look list up by internal_id and update
+               yr = row[:year].to_s.ljust(4, '0')
+               idx = row[:id]
+               sl = ShelfListing.find_by(internal_id: idx)
+               if !sl.nil?
+                  if sl.publication_year.blank?
+                     puts "Setting #{idx} year to #{yr}"
+                     sl.update!(publication_year: yr)
+                  else
+                     if sl.publication_year != yr
+                        puts "WARN: Shelf Listing #{idx} already has year #{sl.publication_year}; not resetting to #{yr}"
+                     end
+                  end
+               else
+                  puts "ERROR: Shelf listing for #{idx} was not found"
+               end
+            end
+         end
+      end
    end
 end

@@ -178,7 +178,7 @@ class Report
       return data
    end
 
-   def self.decade_hit_rate
+   def self.decade_hit_rate(library)
       data = {labels:[], data:[]}
 
       # get all decades
@@ -190,30 +190,48 @@ class Report
       j_i = "#{j_all} inner join barcode_interventions i on b.id = i.barcode_id"
 
       # first get the counts for listings with no or invalid pub year
-      total = ShelfListing.joins(j_all)
-         .where("(publication_year is null or publication_year<1000) and active=? and origin>?", 1,0)
-         .pluck("shelf_listings.id").uniq.count
-      total_i = ShelfListing.joins(j_i)
-         .where("(publication_year is null or publication_year<1000)")
-         .pluck("shelf_listings.id").uniq.count
-      puts "No Year: #{total_i} / #{total}"
+      if library.downcase == "any"
+         total = ShelfListing.joins(j_all)
+            .where("(publication_year is null or publication_year<1000) and active=? and origin>?", 1,0)
+            .pluck("shelf_listings.id").uniq.count
+         total_i = ShelfListing.joins(j_i)
+            .where("(publication_year is null or publication_year<1000)")
+            .pluck("shelf_listings.id").uniq.count
+      else
+         total = ShelfListing.joins(j_all)
+            .where("(publication_year is null or publication_year<1000) and library=? and active=? and origin>?", library,1,0)
+            .pluck("shelf_listings.id").uniq.count
+         total_i = ShelfListing.joins(j_i)
+            .where("(publication_year is null or publication_year<1000) and library=?", library)
+            .pluck("shelf_listings.id").uniq.count
+      end
       pct = ((total_i.to_f/total.to_f)*100.0).round(2)
       data[:data] << pct
-      data[:labels] << "No Year|#{total_i}|#{total}"
+      data[:labels] << "No Year|#{total}|#{total_i}"
 
+      # Get counts for each decade
       decades.each do |decade|
          y0 = decade[0].to_i
          y1 = y0+9
-         total = ShelfListing.joins(j_all)
-            .where("publication_year>=? and publication_year<=? and active=? and origin>?", y0,y1,1,0)
-            .pluck("shelf_listings.id").uniq.count
-         total_i = ShelfListing.joins(j_i)
-            .where("publication_year>=? and publication_year<=?", y0,y1)
-            .pluck("shelf_listings.id").uniq.count
+         if library.downcase == "any"
+            total = ShelfListing.joins(j_all)
+               .where("publication_year>=? and publication_year<=? and active=? and origin>?", y0,y1,1,0)
+               .pluck("shelf_listings.id").uniq.count
+            total_i = ShelfListing.joins(j_i)
+               .where("publication_year>=? and publication_year<=?", y0,y1)
+               .pluck("shelf_listings.id").uniq.count
+         else
+            total = ShelfListing.joins(j_all)
+               .where("publication_year>=? and publication_year<=? and library=? and active=? and origin>?", y0,y1,library,1,0)
+               .pluck("shelf_listings.id").uniq.count
+            total_i = ShelfListing.joins(j_i)
+               .where("publication_year>=? and publication_year<=? and library=?", y0,y1,library)
+               .pluck("shelf_listings.id").uniq.count
+         end
          if total_i >= 20
             pct = ((total_i.to_f/total.to_f)*100.0).round(2)
             data[:data] << pct
-            data[:labels] << "#{y0}|#{total_i}|#{total}"
+            data[:labels] << "#{y0}|#{total}|#{total_i}"
          end
       end
       return data
