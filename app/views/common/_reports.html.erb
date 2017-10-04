@@ -24,6 +24,9 @@
          <%= select_tag "classification", options_for_select(ShelfListing.classifications), class: "rate-setting", id: "class-rate" %>
 
          <button class="pure-button generate">Generate Chart</button>
+         <a id="chart-link" target="_blank" href="<%= request.protocol %><%= request.host_with_port %>/charts?type=library">
+            <span class="report-link"/>
+         </a>
       </span>
    </div>
    <canvas id="library-hit-rate"></canvas>

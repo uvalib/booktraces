@@ -1,0 +1,29 @@
+<div class="rates-container library">
+   <h5>
+      <%= @chart_title %>
+      <% if @show_settings %>
+      <div class="chart-settings">
+         <% if @library != "any" %>
+            <span class="setting"><label>Library:</label><%= @library %></span>
+         <% end %>
+         <% if @sys != "any" %>
+            <span class="setting"><label>System:</label><%= @sys %></span>
+         <% end %>
+         <% if @class != "any" %>
+            <span class="setting"><label>Classification:</label><%= @class %></span>
+         <% end %>
+         <% if @subclass != "any" %>
+            <span class="setting"><label>Subclassification:</label><%= @subclass %></span>
+         <% end %>
+      </div>
+      <% end %>
+   </h5>
+   <% if @data.nil? %>
+      <div class="error">
+         <h4>Unable to generate report!</h4>
+         <p>Please ensure the parameters are correct and try again</p>
+      </div>
+   <% else %>
+      <canvas id="booktraces-chart" data-data="<%= @data.to_json %>"></canvas>
+   <% end %>
+</div>

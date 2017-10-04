@@ -103,7 +103,7 @@ class Report
 
          total = ShelfListing.joins(join_all).where(where_q).distinct.count
          cnt = ShelfListing.joins(join_i).where(where_q).distinct.count
-         
+
          if cnt > 0
             pct = ((cnt.to_f/total.to_f)*100.0).round(2)
             data[:data] << pct
@@ -150,7 +150,7 @@ class Report
       return data
    end
 
-   def self.decade_hit_rate(library, classification)
+   def self.decade_hit_rate(library, classification, subclass = nil)
       data = {labels:[], data:[]}
 
       # get all decades
@@ -166,8 +166,14 @@ class Report
       if library.downcase != "any"
          where_q << " and library=#{sanitize(library)}"
       end
-      if classification.downcase != "any"
-         where_q << " and classification=#{sanitize(classification)}"
+
+      # subclass overrides class
+      if !subclass.nil? && subclass.downcase != "any"
+         where_q << " and subclassification=#{sanitize(subclass)}"
+      else
+         if classification.downcase != "any"
+            where_q << " and classification=#{sanitize(classification)}"
+         end
       end
 
       total = ShelfListing.joins(j_all).where(where_q).distinct.count
@@ -186,8 +192,12 @@ class Report
          if library.downcase != "any"
             where_q << " and library=#{sanitize(library)}"
          end
-         if classification.downcase != "any"
-            where_q << " and classification=#{sanitize(classification)}"
+         if !subclass.nil? && subclass.downcase != "any"
+            where_q << " and subclassification=#{sanitize(subclass)}"
+         else
+            if classification.downcase != "any"
+               where_q << " and classification=#{sanitize(classification)}"
+            end
          end
 
          total = ShelfListing.joins(j_all).where(where_q).distinct.count

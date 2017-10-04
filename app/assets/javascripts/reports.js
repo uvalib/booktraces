@@ -132,6 +132,14 @@ $(function() {
          return;
       }
       createHitRateChart("library-hit-rate", hitsPer, lib, system, classification);
+      var link = $("#chart-link").attr("href").split("?")[0];
+      var params = [];
+      params.push("type="+hitsPer);
+      if (lib != "Any") params.push("library="+lib);
+      if (system != "Any") params.push("sys="+system);
+      if (classification != "Any") params.push("class="+classification);
+      link = link + "?" + params.join("&");
+      $("#chart-link").attr("href", link);
    });
 
    $("#x-axis-type").chosen().change( function() {

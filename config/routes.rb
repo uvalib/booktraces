@@ -3,6 +3,7 @@ Rails.application.routes.draw do
 
    resources :listings, only: [:index, :show]
    resources :reports, only: [:index]
+   resources :charts, only: [:index]
 
    namespace :admin do
       resources :listings, only: [:index, :show, :update, :create]
