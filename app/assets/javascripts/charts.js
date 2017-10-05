@@ -13,6 +13,21 @@ $(function() {
             labels: data.labels
          },
          options: {
+            plugins: {
+               datalabels: {
+                  anchor: "end",
+                  align: "start",
+                  offset: -20,
+                  color: "black",
+                  // backgroundColor: "white",
+                  formatter: function(value, context) {
+                     var lbl = data.labels[context.dataIndex];
+                     var total = lbl.split("|")[1];
+                     var hits = lbl.split("|")[2];
+                     return hits + " / " + total;
+                  }
+               }
+            },
             responsive: true,
             title: {
                display: false,
@@ -38,10 +53,6 @@ $(function() {
             },
             tooltips: {
                callbacks: {
-                  title: function(tooltipItem, data) {
-                     var v = data.labels[tooltipItem[0].index].split("|");
-                     return v[0]+" ("+v[2]+"/"+v[1]+")";
-                  },
                   label: function(tooltipItem, data) {
                      return Number(tooltipItem.yLabel) + "%";
                   }

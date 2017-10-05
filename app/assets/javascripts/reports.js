@@ -45,6 +45,13 @@ $(function() {
             labels: []
          },
          options: {
+            plugins: {
+               datalabels: {
+                  formatter: function(value, context) {
+                     return "";
+                  }
+               }
+            },
             responsive: true,
             title: {
                display: false,
@@ -72,7 +79,7 @@ $(function() {
                callbacks: {
                   title: function(tooltipItem, data) {
                      var v = data.labels[tooltipItem[0].index].split("|");
-                     return v[0]+" ("+v[2]+"/"+v[1]+")";
+                     return v[0]+" ( "+v[2]+" / "+v[1]+" )";
                   },
                   label: function(tooltipItem, data) {
                      return Number(tooltipItem.yLabel) + "%";
