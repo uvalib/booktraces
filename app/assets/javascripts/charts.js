@@ -19,7 +19,6 @@ $(function() {
                   align: "start",
                   offset: -20,
                   color: "black",
-                  // backgroundColor: "white",
                   formatter: function(value, context) {
                      var lbl = data.labels[context.dataIndex];
                      var total = lbl.split("|")[1];

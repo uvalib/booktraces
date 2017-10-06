@@ -48,6 +48,18 @@ span.report-link {
 
 }
 
+#no-matches {
+   height: 175px;
+   font-size: 1.4em;
+   color: #666;
+   text-align: center;
+   display: none;
+   span {
+      margin-top: 60px;
+      display: inline-block;
+   }
+}
+
 span.rate-settings-label {
    font-weight: bold;
    margin-left: 25px;
@@ -80,6 +92,18 @@ div.distribution-container, div.rates-container,div.extremes-container  {
 div.rates-container  {
    padding:10px 50px 50px 50px;
    margin: 20px;
+   position: relative;
+
+   div.total-container {
+      font-size: 0.8em;
+      color: #999;
+      position: absolute;
+      left: 25px;
+      bottom: 25px;
+      label {
+         margin-right: 5px;
+      }
+   }
    #generating {
       position: fixed;
       left: 0;

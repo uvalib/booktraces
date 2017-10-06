@@ -15,6 +15,9 @@ $(function() {
             labels: []
          },
          options: {
+            plugins: {
+               datalabels: false
+            },
             responsive: true,
             legend: {
                display: true,
@@ -47,9 +50,10 @@ $(function() {
          options: {
             plugins: {
                datalabels: {
-                  formatter: function(value, context) {
-                     return "";
-                  }
+                  anchor: "end",
+                  align: "start",
+                  offset: -20,
+                  color: "black"
                }
             },
             responsive: true,
@@ -89,6 +93,10 @@ $(function() {
          }
       };
 
+      if (chartType === "bottom25"  || chartType === "top25") {
+         config.options.plugins.datalabels = false;
+      }
+
       var url = "/api/report?type=";
       var preserveChart = false;
       if (chartType === "top25" || chartType === "bottom25") {
@@ -98,21 +106,40 @@ $(function() {
          preserveChart = true;
       }
 
+      $("#no-matches").hide();
       $.getJSON(url, function ( data, textStatus, jqXHR ){
          $("#generating").hide();
          if (textStatus == "success" ) {
+            $("#"+tgtElement).show();
             if ( preserveChart ) {
                if ( window.hitRateChart ) {
                   window.hitRateChart.destroy();
                }
             }
-            config.data.datasets[0].data = data.data;
-            config.data.labels = data.labels;
-            var ctx = document.getElementById(tgtElement).getContext("2d");
-            var newChart = new Chart(ctx, config);
-            if ( preserveChart ) {
-               window.hitRateChart = newChart;
+            if ( data.data.length === 0) {
+               $("#"+tgtElement).hide();
+               $("#no-matches").show();
+            } else {
+               if (chartType !== "bottom25"  && chartType !== "top25") {
+                  config.options.plugins.datalabels.formatter = function(value, context) {
+                     var lbl = data.labels[context.dataIndex];
+                     var total = lbl.split("|")[1];
+                     var hits = lbl.split("|")[2];
+                     return hits + " / " + total;
+                  };
+               }
+               config.data.datasets[0].data = data.data;
+               config.data.labels = data.labels;
+               var ctx = document.getElementById(tgtElement).getContext("2d");
+               var newChart = new Chart(ctx, config);
+               if ( preserveChart ) {
+                  window.hitRateChart = newChart;
+               }
             }
+            $("#total-books").text(data.total);
+         } else {
+            $("#"+tgtElement).hide();
+            $("#no-matches").show();
          }
       });
    };
@@ -149,6 +176,24 @@ $(function() {
       $("#chart-link").attr("href", link);
    });
 
+   var getClassifications = function(sys) {
+      $.ajax({
+         url: "/api/classifications/"+sys,
+         method: "GET",
+         complete: function( jqXHR, textStatus ) {
+            var vals = jqXHR.responseJSON;
+            $("#class-rate option").remove();
+            $.each(vals, function(idx, v) {
+               $("#class-rate").append( $('<option>', {
+                    value: v,
+                    text : v
+                }));
+            });
+            $("#class-rate").trigger("chosen:updated");
+         }
+      });
+   };
+
    $("#x-axis-type").chosen().change( function() {
       var val = $("#x-axis-type").val();
       if ( val==="library") {
@@ -168,6 +213,7 @@ $(function() {
          $("#system-rate").prop("disabled", true);
          $("#class-rate").prop("disabled", false);
       }
+      getClassifications( "any" );
       $("#library-rate").val("Any");
       $("#system-rate").val("Any");
       $("#class-rate").val("Any");
@@ -177,21 +223,6 @@ $(function() {
    });
 
    $("#system-rate").chosen().change( function() {
-      var val = $("#system-rate").val();
-      $.ajax({
-         url: "/api/classifications/"+val,
-         method: "GET",
-         complete: function( jqXHR, textStatus ) {
-            var vals = jqXHR.responseJSON;
-            $("#class-rate option").remove();
-            $.each(vals, function(idx, v) {
-               $("#class-rate").append( $('<option>', {
-                    value: v,
-                    text : v
-                }));
-            });
-            $("#class-rate").trigger("chosen:updated");
-         }
-      });
+      getClassifications( $("#system-rate").val() );
    });
 });

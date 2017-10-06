@@ -25,6 +25,7 @@ class Report
       join_all ="inner join barcodes b on shelf_listings.id = b.shelf_listing_id"
       join_i = "#{join_all} inner join barcode_interventions i on b.id = i.barcode_id"
 
+      gt = 0
       libraries.each do | lib |
          where_q = "library=#{sanitize(lib)} and active=1"
          if classification.downcase != "any"
@@ -33,13 +34,18 @@ class Report
 
          # get total listings matching criteria
          total = ShelfListing.joins(join_all).where(where_q).distinct.count
+         gt+= total
+         next if total < 20
 
          # get total listings matching criteria with interventions
          cnt = ShelfListing.joins(join_i).where(where_q).distinct.count
-         pct = ((cnt.to_f/total.to_f)*100.0).round(2)
-         data[:data] << pct
-         data[:labels] << "#{lib}|#{total}|#{cnt}"
+         if cnt > 0
+            pct = ((cnt.to_f/total.to_f)*100.0).round(2)
+            data[:data] << pct
+            data[:labels] << "#{lib}|#{total}|#{cnt}"
+         end
       end
+      data[:total] = gt
 
       return data
    end
@@ -59,6 +65,7 @@ class Report
       join_all ="inner join barcodes b on shelf_listings.id = b.shelf_listing_id"
       join_i = "#{join_all} inner join barcode_interventions i on b.id = i.barcode_id"
 
+      gt = 0
       classes.each do |clazz|
          where_q = "classification_system=#{sanitize(system)} and classification=#{sanitize(clazz)} and active=1"
          if library.downcase != "any"
@@ -66,14 +73,18 @@ class Report
          end
 
          total = ShelfListing.joins(join_all).where(where_q).distinct.count
-         cnt = ShelfListing.joins(join_i).where(where_q).distinct.count
+         gt+= total
+         next if total < 20
 
+         cnt = ShelfListing.joins(join_i).where(where_q).distinct.count
          if cnt > 0
             pct = ((cnt.to_f/total.to_f)*100.0).round(2)
             data[:data] << pct
             data[:labels] << "#{clazz}|#{total}|#{cnt}"
          end
       end
+      data[:total] = gt
+
       return data
    end
 
@@ -95,6 +106,7 @@ class Report
       join_all ="inner join barcodes b on shelf_listings.id = b.shelf_listing_id"
       join_i = "#{join_all} inner join barcode_interventions i on b.id = i.barcode_id"
 
+      gt = 0
       subclasses.each do | subclass |
          where_q = "classification_system=#{sanitize(system)} and subclassification=#{sanitize(subclass)} and active=1"
          if library.downcase != "any"
@@ -102,14 +114,18 @@ class Report
          end
 
          total = ShelfListing.joins(join_all).where(where_q).distinct.count
-         cnt = ShelfListing.joins(join_i).where(where_q).distinct.count
+         gt += total
+         next if total < 20
 
+         cnt = ShelfListing.joins(join_i).where(where_q).distinct.count
          if cnt > 0
             pct = ((cnt.to_f/total.to_f)*100.0).round(2)
             data[:data] << pct
             data[:labels] << "#{subclass}|#{total}|#{cnt}"
          end
       end
+      data[:total] = gt
+
       return data
    end
 
@@ -156,6 +172,7 @@ class Report
       # get all decades
       dc = "select distinct FLOOR(publication_year/10)*10 AS decade from shelf_listings where publication_year > 1000 order by decade asc"
       decades = ShelfListing.connection.execute(dc)
+      gt = 0
 
       # setup the joins to get listings without and with interventions
       j_all = "inner join barcodes b on shelf_listings.id = b.shelf_listing_id"
@@ -177,6 +194,7 @@ class Report
       end
 
       total = ShelfListing.joins(j_all).where(where_q).distinct.count
+      gt += total
       total_i = ShelfListing.joins(j_i).where(where_q).distinct.count
 
       pct = ((total_i.to_f/total.to_f)*100.0).round(2)
@@ -201,14 +219,17 @@ class Report
          end
 
          total = ShelfListing.joins(j_all).where(where_q).distinct.count
-         total_i = ShelfListing.joins(j_i).where(where_q).distinct.count
+         gt += total
+         next if total < 20
 
-         if total_i >= 20
+         total_i = ShelfListing.joins(j_i).where(where_q).distinct.count
+         if total_i > 0
             pct = ((total_i.to_f/total.to_f)*100.0).round(2)
             data[:data] << pct
             data[:labels] << "#{y0}|#{total}|#{total_i}"
          end
       end
+      data[:total] = gt
       return data
    end
 
