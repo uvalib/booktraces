@@ -25,5 +25,8 @@
       </div>
    <% else %>
       <canvas id="booktraces-chart" data-data="<%= @data.to_json %>"></canvas>
+      <div class="total-container">
+         <label>Total Books:</label><span id="total-books"><%= @data[:total] %></span>
+      </div>
    <% end %>
 </div>
