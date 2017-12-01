@@ -173,6 +173,7 @@ $(function() {
       if (lib != "Any") params.push("library="+lib);
       if (system != "Any") params.push("sys="+system);
       if (classification != "Any") params.push("class="+classification);
+      if (subclass != "Any") params.push("subclass="+subclass);
       link = link + "?" + params.join("&");
       $("#chart-link").attr("href", link);
    });
@@ -236,6 +237,7 @@ $(function() {
          $("#subclass-rate").prop("disabled", false);
       }
       getClassifications( "any" );
+      getSubclassifications( "any" );
       $("#library-rate").val("Any");
       $("#system-rate").val("Any");
       $("#class-rate").val("Any");
