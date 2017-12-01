@@ -8,11 +8,6 @@ body {
       font-weight: 400;
    }
 }
-.rate-title-bar span.rate-controls {
-   label {
-      margin-left:15px;
-   }
-}
 
 div.error {
    text-align: center;
@@ -138,11 +133,33 @@ div.rate-title-bar {
    }
    span.title {
       font-weight: bold;
+      width: 105px;
+      text-align: right;
+      display: inline-block;
+      color: #555;
    }
    label { margin-left: 5px;}
    input[type=radio] { margin: 0 10px; }
    select {
       margin-left: 5px;
+   }
+   span.rate-controls {
+      position: relative;
+      display: block;
+      .generate-buttons {
+         position: absolute;
+         right:0;
+         top:0;
+      }
+      .top-row {
+         margin-bottom:10px;
+      }
+      label {
+         margin-left:15px;
+      }
+      label.no-margin {
+         margin-left: 0;
+      }
    }
 }
 

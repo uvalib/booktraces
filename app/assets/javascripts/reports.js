@@ -35,7 +35,7 @@ $(function() {
       });
    };
 
-   var createHitRateChart = function(tgtElement, chartType, library, system, classification ) {
+   var createHitRateChart = function(tgtElement, chartType, library, system, classification, subclass ) {
       $("#generating").show();
       var config = {
          type: 'bar',
@@ -102,7 +102,7 @@ $(function() {
       if (chartType === "top25" || chartType === "bottom25") {
          url += chartType;
       } else {
-         url += chartType+"-hit-rate&library="+library+"&system="+system+"&classification="+classification;
+         url += chartType+"-hit-rate&library="+library+"&system="+system+"&class="+classification+"&subclass="+subclass;
          preserveChart = true;
       }
 
@@ -146,9 +146,9 @@ $(function() {
 
    if ( $("#distribution-chart").length > 0 ) {
       window.hitRateChart = null;
-      createHitRateChart("library-hit-rate", "library", "any", "any", "any");
-      createHitRateChart("top25-chart", "top25", "any", "any", "any");
-      createHitRateChart("bottom25-chart", "bottom25", "any", "any", "any");
+      createHitRateChart("library-hit-rate", "library", "any", "any", "any", "any");
+      createHitRateChart("top25-chart", "top25", "any", "any", "any", "any");
+      createHitRateChart("bottom25-chart", "bottom25", "any", "any", "any", "any");
       createDistributionChart();
    }
 
@@ -157,6 +157,7 @@ $(function() {
       var lib = $("#library-rate").val();
       var system = $("#system-rate").val();
       var classification = $("#class-rate").val();
+      var subclass = $("#subclass-rate").val();
       if ( hitsPer != "library" && system=="Any" && hitsPer != "decade") {
          alert("Please select a classification system other than Any");
          return;
@@ -165,7 +166,7 @@ $(function() {
          alert("Please select a classification other than Any");
          return;
       }
-      createHitRateChart("library-hit-rate", hitsPer, lib, system, classification);
+      createHitRateChart("library-hit-rate", hitsPer, lib, system, classification, subclass);
       var link = $("#chart-link").attr("href").split("?")[0];
       var params = [];
       params.push("type="+hitsPer);
@@ -193,6 +194,23 @@ $(function() {
          }
       });
    };
+   var getSubclassifications = function(sys) {
+      $.ajax({
+         url: "/api/subclassifications/"+sys,
+         method: "GET",
+         complete: function( jqXHR, textStatus ) {
+            var vals = jqXHR.responseJSON;
+            $("#subclass-rate option").remove();
+            $.each(vals, function(idx, v) {
+               $("#subclass-rate").append( $('<option>', {
+                    value: v,
+                    text : v
+                }));
+            });
+            $("#subclass-rate").trigger("chosen:updated");
+         }
+      });
+   };
 
    $("#x-axis-type").chosen().change( function() {
       var val = $("#x-axis-type").val();
@@ -200,29 +218,38 @@ $(function() {
          $("#library-rate").prop("disabled", true);
          $("#system-rate").prop("disabled", true);
          $("#class-rate").prop("disabled", false);
+         $("#subclass-rate").prop("disabled", true);
       } else if ( val==="class") {
          $("#library-rate").prop("disabled", false);
          $("#system-rate").prop("disabled", false);
          $("#class-rate").prop("disabled", true);
+         $("#subclass-rate").prop("disabled", true);
       } else if ( val==="subclass") {
          $("#library-rate").prop("disabled", false);
          $("#system-rate").prop("disabled", false);
          $("#class-rate").prop("disabled", false);
+         $("#subclass-rate").prop("disabled", true);
       } else if ( val==="decade") {
          $("#library-rate").prop("disabled", false);
          $("#system-rate").prop("disabled", true);
          $("#class-rate").prop("disabled", false);
+         $("#subclass-rate").prop("disabled", false);
       }
       getClassifications( "any" );
       $("#library-rate").val("Any");
       $("#system-rate").val("Any");
       $("#class-rate").val("Any");
+      $("#suclass-rate").val("Any");
       $("#library-rate").trigger("chosen:updated");
       $("#system-rate").trigger("chosen:updated");
       $("#class-rate").trigger("chosen:updated");
+      $("#subclass-rate").trigger("chosen:updated");
    });
 
    $("#system-rate").chosen().change( function() {
       getClassifications( $("#system-rate").val() );
+   });
+   $("#class-rate").chosen().change( function() {
+      getSubclassifications( $("#class-rate").val() );
    });
 });

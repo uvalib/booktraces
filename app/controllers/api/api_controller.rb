@@ -410,13 +410,13 @@ class Api::ApiController < ApplicationController
       elsif params[:type] == "bottom25"
          render json: Report.hit_rate_extremes(:bottom) and return
       elsif params[:type] == "library-hit-rate"
-         render json: Report.lib_hit_rate(params[:classification]) and return
+         render json: Report.lib_hit_rate(params[:class]) and return
       elsif params[:type] == "class-hit-rate"
          render json: Report.classification_hit_rate(params[:library], params[:system]) and return
       elsif params[:type] == "subclass-hit-rate"
-         render json: Report.subclassification_hit_rate(params[:library], params[:system], params[:classification]) and return
+         render json: Report.subclassification_hit_rate(params[:library], params[:system], params[:class]) and return
       elsif params[:type] == "decade-hit-rate"
-         render json: Report.decade_hit_rate(params[:library],params[:classification]) and return
+         render json: Report.decade_hit_rate(params[:library],params[:class],params[:subclass]) and return
       end
       render plain: "Invalid report type", status: :error
    end
