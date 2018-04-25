@@ -26,6 +26,11 @@ yarn.lock
 config/database.yml
 config/application.yml
 .DS_Store
+.idea
 
-# Ignore application configuration
+# Ignore configuration
 /config/application.yml
+/config/database.yml
+
+# ignore DB backups
+/data/backup/*

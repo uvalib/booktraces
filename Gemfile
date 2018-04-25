@@ -12,8 +12,11 @@ gem 'sass-rails', '~> 5.0'
 gem 'uglifier', '>= 1.3.0'
 gem 'jquery-rails'
 gem 'figaro'
-gem 'passenger', '5.1.4'
 gem "chosen-rails"
+gem "rake"
+
+# Use Puma as the app server
+gem 'puma', '~> 3.0'
 
 gem "roo", "~> 2.7.0"   # to parse excel sheets for importing Gannon project
 
@@ -36,3 +39,7 @@ group :development do
 #  gem 'spring'
 #  gem 'spring-watcher-listen', '~> 2.0.0'
 end
+
+# for alpine Linux
+gem 'json'
+gem 'bigdecimal'
