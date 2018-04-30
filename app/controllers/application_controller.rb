@@ -5,7 +5,7 @@ class ApplicationController < ActionController::Base
    before_action :authorize, :set_page
 
    # Shibboleth auth requires all to be https
-   force_ssl unless Rails.env.development?
+   #force_ssl unless Rails.env.development?
 
    def set_page
       @page = :listing
