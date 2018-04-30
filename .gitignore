@@ -34,3 +34,6 @@ config/application.yml
 
 # ignore DB backups
 /data/backup/*
+
+# ignore environment setup scripts
+env.*
