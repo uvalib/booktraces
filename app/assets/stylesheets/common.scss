@@ -2,7 +2,11 @@ body {
     background: #e2e2e2;
     padding: 0;
     margin: 0;
-    font-family:  "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: 'Avenir', Helvetica, Arial, sans-serif;
+    color: #333;
+    font-weight: 500;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     .chosen-container-single .chosen-single span {
       color: #666;
       font-weight: 400;
@@ -254,7 +258,6 @@ div.rate-title-bar {
       color: #d2e5f7;
       padding:20px;
       position:relative;
-      font-size: 0.9em;
 
       .external_links {
          float:right;
@@ -265,11 +268,8 @@ div.rate-title-bar {
       }
       a {
          color: #d2e5f7;
-         border-bottom: 1px dotted #839dbf;
          &:hover {
             color: white;
-            text-decoration: none;
-            border-bottom: 1px solid #839dbf;
          }
       }
       a.fdlp {

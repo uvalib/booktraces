@@ -11,7 +11,9 @@
       undocumented and therefore undiscoverable, hidden in plain sight in our stacks. We have created a
       protocol for surveying large swaths of the collection and describing the interventions we find
       using a controlled vocabulary. These descriptions are being added to the UVA Library catalog,
-      <a href="http://www.library.virginia.edu/" target="_blank">Virgo</a>.
+      <a href="http://www.library.virginia.edu/" target="_blank">Virgo</a>. A white paper with more detail
+      on our protocol and findings is
+      <a href="https://libraopen.lib.virginia.edu/public_view/cv43nw88q" target="_blank">available for download</a> from LibraOpen.
    </p>
    <h4 class="top-pad">What is this database?</h4>
    <p>
@@ -32,6 +34,50 @@
       please consult the project manager, Kristin Jensen
       (<a href="mailto:khj5c@virginia.edu">khj5c@virginia.edu</a>).
    </p>
+   <p>
+      We have provided a user interface for searching, sorting, and filtering the data. The results of
+      any search can be downloaded as comma-separated values using the “Download CSV” button. The "Index"
+      field refers to internal tracking codes used by the project. The “Barcode(s)” field refers to the
+      item ID numbers used by the UVA Library and visible in the staff view of Virgo catalog records.
+      The "Bookplate" field gives only the name(s) mentioned on a book’s bookplate, not the complete text of the bookplate.
+   </p>
+   <p>
+      In addition to the web interface and CSV download, we have made our data available for retrieval via a public API.
+      It has 2 calls, search and detail.
+   </p>
+   <p>
+      <b>search</b> takes a few parameters:
+      <ul>
+         <li>
+            <b>q</b> = [query string; searches in title, barcode, call number, special problems, special interest, index, bookplate]
+         </l1>
+         <li>
+            <b>l</b> = [library filter]
+         </li>
+         <l1>
+            <b>c</b> = [class filter]
+         </l1>
+         <l1>
+            <b>s</b> = [subclass filter]
+         </l1>
+         <l1>
+            <b>i</b> = true/false. True will return only listings with interventions. False returns all.
+         </li>
+         <li>
+            <b>start</b> = start offset
+         </l1>
+         <li>
+            <b>length</b> = max records to return (currently limited to 1000)
+         </l1>
+      </ul>
+   </p>
+   <p>API example search query:</p>
+   <p><a href="https://booktraces.lib.virginia.edu/api/search?q=bach&l=Music&i=true" target="_blank">https://booktraces.lib.virginia.edu/api/search?q=bach&l=Music&i=true</a></p>
+   <p>
+      <b>detail</b> can be used to retrieve full details on a book by referring to its "Index" (internal project tracking code).
+   </p>
+   <p>API example detail query:</p>
+   <p><a href="https://booktraces.lib.virginia.edu/api/detail/E-03078" target="_blank">https://booktraces.lib.virginia.edu/api/detail/E-03078</a></p>
    <h4 class="top-pad">Looking for booktraces.org?</h4>
    <p>
       Book Traces @ UVA grew out of Andrew Stauffer’s <a href="http://www.booktraces.org" target="_blank">Book Traces</a>,
