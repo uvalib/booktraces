@@ -9,22 +9,16 @@ fi
 
 # set the definitions
 INSTANCE=booktraces
+REGISTRY=git.lib.virginia.edu:4567/dpg3k/service-containers
 
-OUTFILE=$INSTANCE-container.$$
-
-# get the image ID if we can find it
-IMAGE_ID=$(docker images | grep $INSTANCE | grep latest | awk '{print $3}')
-
-if [ -z "$IMAGE_ID" ]; then
-   echo "ERROR: cannot find latest image for $INSTANCE"
-   exit 1
-fi
+IMAGE=$REGISTRY/$INSTANCE:latest
+OUTFILE=$INSTANCE-image.$$
 
 rm -fr $OUTFILE > /dev/null 2>&1
-docker save -o $OUTFILE $IMAGE_ID
+docker save -o $OUTFILE $IMAGE
 res=$?
 if [ $res -ne 0 ]; then
-   echo "ERROR: saving image ID $IMAGE_ID"
+   echo "ERROR: saving image $IMAGE"
    exit 1
 fi
 
