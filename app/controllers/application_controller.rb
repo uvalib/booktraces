@@ -31,7 +31,7 @@ class ApplicationController < ActionController::Base
          # is not present or does not match up with a registered book traces
          # staff member, redirect to unauthorized. Exception; dev has a configured
          # fake user to work arond shibboleth auth
-         computing_id = request.env['REMOTE_USER'].to_s
+         computing_id = request.env['HTTP_REMOTE_USER'].to_s
          if computing_id.blank? && Rails.env != "production"
             computing_id = Figaro.env.dev_test_user
          end
