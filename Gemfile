@@ -41,5 +41,6 @@ group :development do
 end
 
 # for alpine Linux
+gem 'etc'
 gem 'json'
 gem 'bigdecimal'

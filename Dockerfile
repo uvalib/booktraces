@@ -1,10 +1,10 @@
-FROM alpine:3.7
+FROM alpine:3.8
 
 # Add necessary packages
 RUN apk --update add bash tzdata ruby ruby-dev build-base nodejs zlib-dev libxml2-dev libxslt-dev libffi-dev ca-certificates mysql-dev
 
 # Create the run user and group
-RUN addgroup webservice && adduser webservice -G webservice -D
+RUN addgroup --gid 18570 sse && adduser --uid 1984 docker -G sse -D
 
 # set the timezone appropriatly
 ENV TZ=UTC
@@ -27,14 +27,14 @@ COPY . $APP_HOME
 RUN rm $APP_HOME/Gemfile.lock && rake assets:precompile
 
 # Update permissions
-RUN chown -R webservice $APP_HOME && chgrp -R webservice $APP_HOME
+RUN chown -R docker $APP_HOME && chgrp -R sse $APP_HOME
 
 # Specify the user
-USER webservice
+USER docker
 
 # define port and startup script
 EXPOSE 3000
 CMD scripts/entry.sh
 
 # move in the profile
-COPY data/container_bash_profile /home/webservice/.profile
+COPY data/container_bash_profile /home/docker/.profile
