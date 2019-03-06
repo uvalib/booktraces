@@ -37,4 +37,18 @@ namespace :report do
          puts out
       end
    end
+
+   desc "lookup catalog key"
+   task :lookup  => :environment do
+      wsls_csv = File.join(Rails.root, "booktraces_lookups.csv")
+      puts "internal_id, call_number"
+      cnt =0
+      CSV.foreach(wsls_csv, headers: true) do |row|
+         cnt += 1
+         internal_id = row[7]
+         sl = ShelfListing.find_by(internal_id: internal_id)
+         puts "#{internal_id}, #{sl.call_number}"
+      end
+      puts "DONE... got #{cnt} items"
+   end
 end
