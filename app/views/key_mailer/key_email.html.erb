@@ -1,0 +1,20 @@
+
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+   </head>
+   <body>
+      <h3>Welcome to Book Traces</h3>
+      <p>You have successfully registered for Book Traces API usage.</p>
+      <p>Account Information:</p>
+      <ul>
+         <li><b>Email:</b> <%= @key.email %></li>
+         <li><b>Name:</b> <%= @key.first_name %> <%= @key.last_name %></li>
+         <li><b>Institution:</b> <%= @key.institution %></li>
+         <li><b>Key:</b> <%=  @key.key %></li>
+      </ul>
+      <p>Use the above key in the BOOKTRACES_API_KEY header for all API requests. For Example:</p>
+      <p style="font-family: monospace;">curl -H "BOOKTRACES_API_KEY: <%= @key.key %>" https://booktraces.lib.virginia.edu/api/detail/E-03078</p>
+   </body>
+</html>

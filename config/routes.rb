@@ -4,6 +4,7 @@ Rails.application.routes.draw do
    resources :listings, only: [:index, :show]
    resources :reports, only: [:index]
    resources :charts, only: [:index]
+   resources :api_access, only: [:index, :create]
 
    namespace :admin do
       resources :listings, only: [:index, :show, :update, :create]

@@ -169,13 +169,14 @@ div.rate-title-bar {
 
 .main.home {
    max-width: 1000px;
+   background-color: #eee;
 }
 .main {
    margin: 0em auto;
    min-width: 750px;
    padding: 0px;
    z-index: 0;
-   background-color: #eee;
+   background-color: white;
 
    .pure-menu.pure-menu-horizontal.booktraces{
       border-top: 1px solid #AAC1E5;
