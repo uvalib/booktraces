@@ -10,8 +10,12 @@
          url = "/reports"
          url = "/admin/reports" if logged_in?  %>
       <li class="<%= cn %>"><a href="<%= url %>" class="pure-menu-link">Reports</a></li>
+      <% cn = "pure-menu-item"
+         cn << " pure-menu-selected" if @page == :api_request
+         url = "/api_access" %>
+      <li class="<%= cn %>"><a href="<%= url %>" class="pure-menu-link">Request API Access</a></li>
    </ul>
    <% if logged_in? %>
-      <span class="user"><%= current_user.full_name %></span></h4>
+      <span class="user"><%= current_user.full_name %></span>
    <% end %>
 </div>

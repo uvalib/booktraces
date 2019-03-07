@@ -10,23 +10,35 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170921150555) do
+ActiveRecord::Schema.define(version: 2019_03_06_190107) do
 
-  create_table "barcode_destinations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "api_keys", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.string "email", null: false
+    t.string "first_name"
+    t.string "last_name"
+    t.string "institution"
+    t.string "key", null: false
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["key"], name: "index_api_keys_on_key", unique: true
+  end
+
+  create_table "barcode_destinations", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "destination_id"
     t.bigint "barcode_id"
     t.index ["barcode_id"], name: "index_barcode_destinations_on_barcode_id"
     t.index ["destination_id"], name: "index_barcode_destinations_on_destination_id"
   end
 
-  create_table "barcode_interventions", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "barcode_interventions", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "intervention_id"
     t.bigint "barcode_id"
     t.index ["barcode_id"], name: "index_barcode_interventions_on_barcode_id"
     t.index ["intervention_id"], name: "index_barcode_interventions_on_intervention_id"
   end
 
-  create_table "barcodes", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "barcodes", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "barcode"
     t.boolean "active", default: true
     t.bigint "shelf_listing_id"
@@ -38,7 +50,7 @@ ActiveRecord::Schema.define(version: 20170921150555) do
     t.index ["shelf_listing_id"], name: "index_barcodes_on_shelf_listing_id"
   end
 
-  create_table "cataloging_requests", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "cataloging_requests", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "shelf_listing_id"
     t.date "sent_out_on"
     t.date "returned_on"
@@ -49,11 +61,11 @@ ActiveRecord::Schema.define(version: 20170921150555) do
     t.index ["shelf_listing_id"], name: "index_cataloging_requests_on_shelf_listing_id"
   end
 
-  create_table "destination_names", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "destination_names", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
   end
 
-  create_table "destinations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "destinations", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "destination_name_id"
     t.string "date_sent_out"
     t.string "bookplate"
@@ -62,19 +74,19 @@ ActiveRecord::Schema.define(version: 20170921150555) do
     t.index ["destination_name_id"], name: "index_destinations_on_destination_name_id"
   end
 
-  create_table "intervention_details", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "intervention_details", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "intervention_id"
     t.bigint "intervention_type_id"
     t.index ["intervention_id"], name: "index_intervention_details_on_intervention_id"
     t.index ["intervention_type_id"], name: "index_intervention_details_on_intervention_type_id"
   end
 
-  create_table "intervention_types", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "intervention_types", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.integer "category"
     t.string "name"
   end
 
-  create_table "interventions", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "interventions", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.text "special_interest"
     t.text "special_problems"
     t.string "who_found"
@@ -83,7 +95,7 @@ ActiveRecord::Schema.define(version: 20170921150555) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "listing_statuses", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "listing_statuses", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.date "date_checked"
     t.string "who_checked"
     t.string "actions"
@@ -92,7 +104,7 @@ ActiveRecord::Schema.define(version: 20170921150555) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "shelf_listings", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "shelf_listings", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "internal_id", null: false
     t.text "title"
     t.string "author"
@@ -111,7 +123,7 @@ ActiveRecord::Schema.define(version: 20170921150555) do
     t.index ["listing_status_id"], name: "index_shelf_listings_on_listing_status_id"
   end
 
-  create_table "users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "users", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "computing_id"
     t.string "last_name"
     t.string "first_name"

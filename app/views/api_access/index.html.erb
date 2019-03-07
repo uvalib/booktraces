@@ -1,0 +1,39 @@
+<div class="content api-access">
+   <%= render "/common/menu" %>
+   <div class="access-request-container">
+      <p>Access to the Book Traces API requires a secret token. Fill out this form and one will be
+         emailed to the address you provide. Include this token an the BOOKTRACES_API_KEY header
+         of all API requests. For Example:
+      </p>
+      <div>
+         <span style="font-family: monospace;">curl -H "BOOKTRACES_API_KEY: YOUR_KEY" https://booktraces.lib.virginia.edu/api/detail/E-03078</span>
+      </div>
+      <p><b>NOTE:</b> Each subsequent request will regenerate the secret token. The result will be emailed to the supplied address.<p>
+
+      <%= form_tag({}, {class: "pure-form pure-form-aligned"})  do %>
+         <fieldset>
+            <div class="pure-control-group">
+               <%= label_tag(:email, "Email") %>
+               <%= email_field_tag(:email) %>
+               <span style="font-size: 0.8em; color: #aaa">This is a required field.</span>
+            </div>
+            <div class="pure-control-group">
+               <%= label_tag(:first_name, "First Name") %>
+               <%= text_field_tag(:first_name) %>
+            </div>
+            <div class="pure-control-group">
+               <%= label_tag(:last_name, "Last Name") %>
+               <%= text_field_tag(:last_name) %>
+            </div>
+            <div class="pure-control-group">
+               <%= label_tag(:institution, "Institution") %>
+               <%= text_field_tag(:institution) %>
+            </div>
+            <div class="pure-controls">
+               <p class="errors"><%= flash[:error] %></p>
+               <%= submit_tag("Submit") %>
+            </div>
+         </<fieldset>
+      <% end %>
+   </div>
+</div>
