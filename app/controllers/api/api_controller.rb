@@ -1,27 +1,19 @@
 class Api::ApiController < ApplicationController
    skip_before_action :authorize
-   before_action :validate_key, except: [:search_state, :query]
+   before_action :validate_key, except: [:search_state, :query, :report]
 
    def validate_key
-      # any requests that are determined to come from localhost are clear to
-      # go without API key
-      if is_local?(request) == false
-         key = request.env['HTTP_BOOKTRACES_API_KEY']
-         key = request.env['BOOKTRACES_API_KEY'] if key.nil?
-         if key.nil?
+      logger.info "API Request from HOST[#{req.host}], IP[#{req.ip}]"
+      key = request.env['HTTP_BOOKTRACES_API_KEY']
+      key = request.env['BOOKTRACES_API_KEY'] if key.nil?
+      if key.nil?
+         render plain: "you are not authorized", status: :unauthorized
+      else
+         api_key = ApiKey.find_by(key: key)
+         if api_key.nil? || !api_key.nil? && !api_key.active
             render plain: "you are not authorized", status: :unauthorized
-         else
-            api_key = ApiKey.find_by(key: key)
-            if api_key.nil? || !api_key.nil? && !api_key.active
-               render plain: "you are not authorized", status: :unauthorized
-            end
          end
       end
-   end
-
-   def is_local?(req)
-      logger.info "API Request from HOST[#{req.host}], IP[#{req.ip}]"
-      return req.host == ENV['BT_HOST'] || '127.0.0.1' == req.ip || '::1' == req.ip
    end
 
    # Get a json list of possible classifications
