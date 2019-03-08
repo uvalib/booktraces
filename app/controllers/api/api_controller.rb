@@ -3,7 +3,7 @@ class Api::ApiController < ApplicationController
    before_action :validate_key, except: [:search_state, :query, :report]
 
    def validate_key
-      logger.info "API Request from HOST[#{req.host}], IP[#{req.ip}]"
+      logger.info "API Request from HOST[#{request.host}], IP[#{request.ip}]"
       key = request.env['HTTP_BOOKTRACES_API_KEY']
       key = request.env['BOOKTRACES_API_KEY'] if key.nil?
       if key.nil?
