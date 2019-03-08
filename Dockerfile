@@ -32,7 +32,7 @@ RUN chown -R docker $APP_HOME && chgrp -R sse $APP_HOME
 USER docker
 
 # define port and startup script
-EXPOSE 3000
+EXPOSE 8080
 CMD scripts/entry.sh
 
 # move in the profile
