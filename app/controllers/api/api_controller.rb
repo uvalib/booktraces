@@ -1,6 +1,6 @@
 class Api::ApiController < ApplicationController
    skip_before_action :authorize
-   before_action :validate_key, except: [:search_state, :query, :report]
+   before_action :validate_key, except: [:report]
 
    def validate_key
       logger.info "API Request from HOST[#{request.host}], IP[#{request.ip}]"

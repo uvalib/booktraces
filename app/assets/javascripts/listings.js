@@ -1,7 +1,12 @@
 // Place all the behaviors and hooks related to the matching controller here.
 // All this logic will automatically be available in application.js.
 $(function() {
-
+  var getCookie = function() {
+    var name = "bt_api";
+      var value = "; " + document.cookie;
+      var parts = value.split("; " + name + "=");
+      if (parts.length == 2) return parts.pop().split(";").shift();
+    }
    var formatDetails = function(data) {
       var out = "<p class='detail'>Intervention Details</p><table class='intervention-detail'>";
       $.each(data[12], function(idx, val) {
@@ -77,6 +82,9 @@ $(function() {
          $.ajax({
             url: '/api/search_state',
             dataType: 'json',
+             headers: {
+               'BOOKTRACES_API_KEY': getCookie()
+             },
             success: function (json) {
                if (json) {
                   var q = json.search.search;
@@ -127,7 +135,10 @@ $(function() {
       },
       ajax: {
         url:  '/api/query',
-        type: 'POST'
+        type: 'POST',
+         headers: {
+           'BOOKTRACES_API_KEY': getCookie()
+         }
      }
    });
 
@@ -136,6 +147,9 @@ $(function() {
       $.ajax({
          url: "/api/classifications/"+val,
          method: "GET",
+          headers: {
+            'BOOKTRACES_API_KEY':  getCookie()
+          },
          complete: function( jqXHR, textStatus ) {
             var vals = jqXHR.responseJSON;
             $("#class-filter option").remove();
@@ -164,6 +178,9 @@ $(function() {
       $.ajax({
          url: "/api/subclassifications/"+val,
          method: "GET",
+          headers: {
+            'BOOKTRACES_API_KEY':  getCookie()
+          },
          complete: function( jqXHR, textStatus ) {
             var vals = jqXHR.responseJSON;
             $("#subclass-filter option").remove();
@@ -246,7 +263,27 @@ $(function() {
       var origUrl = window.location.href;
       var bits = origUrl.split("/");
       var searchUrl = bits[0] + "//" + bits[2] + "/api/search?"+params.join("&");
-      window.open( searchUrl);
+      $.ajax({
+         url: searchUrl,
+         method: "GET",
+          headers: {
+            'BOOKTRACES_API_KEY':  getCookie()
+          },
+          success: function( result, textStatus, jqXHR ) {
+            var a = document.createElement("a");
+            document.body.appendChild(a);
+            a.style = "display: none";
+            var blob = new Blob([result], {type: "octet/stream"}),
+            url = window.URL.createObjectURL(blob);
+            a.href = url;
+            a.download = "booktraces.csv";
+            a.click();
+            window.URL.revokeObjectURL(url);
+          },
+          error: function( jqXHR, textStatus,  errorThrown ) {
+            alert("Unable to retrieve CSV data: "+jqXHR.responseText);
+          }
+      });
    });
 
    var doFilter = function() {

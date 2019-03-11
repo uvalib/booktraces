@@ -9,6 +9,8 @@ class ApplicationController < ActionController::Base
 
    def set_page
       @page = :listing
+      booktraces = ApiKey.find_by(email: "booktraces")
+      cookies[:bt_api] = booktraces.key
    end
 
    def current_user

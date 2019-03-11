@@ -8,6 +8,11 @@ namespace :users do
       ])
    end
 
+   desc "Add BT API Key"
+   task :api  => :environment do
+      ApiKey.create(email:"booktraces",first_name:"book", last_name: "traces")
+   end
+
    desc "Add staff members"
    task :add  => :environment do
       id = ENV['id']
