@@ -1,3 +1,12 @@
+class Request < ::Rack::Request
+
+  # You many need to specify a method to fetch the correct remote IP address
+  # if the web server is behind a load balancer.
+  def remote_ip
+    @remote_ip ||= (env['action_dispatch.remote_ip'] || ip).to_s
+  end
+end
+
 # Always allow requests from localhost
 # (blocklist & throttles are skipped)
 Rack::Attack.safelist('allow ALL from localhost') do |req|
@@ -12,6 +21,6 @@ end
 
 ActiveSupport::Notifications.subscribe('rack.attack') do |name, start, finish, request_id, req|
   if req.env["rack.attack.match_type"] == :throttle
-    Rails.logger.info "[Rack::Attack][Blocked] remote_ip: \"#{req.remote_ip}\", path: \"#{req.path}\", headers: #{request_headers.inspect}"
+    Rails.logger.info "[Rack::Attack][Blocked] remote_ip: \"#{req.remote_ip}\", path: \"#{req.path}\", headers: #{req.env}"
   end
 end
