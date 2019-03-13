@@ -21,7 +21,7 @@ def from_frontend?(request)
    return !request.cookies['bt_api'].nil?
 end
 
-def remote_ip(req) do
+def remote_ip(req) 
    ip = req.env['action_dispatch.remote_ip']
    ip = req.ip if ip.nil?
    return ip.to_s
