@@ -182,6 +182,9 @@ $(function() {
       $.ajax({
          url: "/api/classifications/"+sys,
          method: "GET",
+         headers: {
+           'BOOKTRACES_API_KEY': getCookie()
+         },
          complete: function( jqXHR, textStatus ) {
             var vals = jqXHR.responseJSON;
             $("#class-rate option").remove();
@@ -199,6 +202,9 @@ $(function() {
       $.ajax({
          url: "/api/subclassifications/"+sys,
          method: "GET",
+         headers: {
+           'BOOKTRACES_API_KEY': getCookie()
+         },
          complete: function( jqXHR, textStatus ) {
             var vals = jqXHR.responseJSON;
             $("#subclass-rate option").remove();
