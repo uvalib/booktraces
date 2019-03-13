@@ -1,4 +1,10 @@
 $(function() {
+  var getCookie = function() {
+    var name = "bt_api";
+      var value = "; " + document.cookie;
+      var parts = value.split("; " + name + "=");
+      if (parts.length == 2) return parts.pop().split(";").shift();
+    }
    var createDistributionChart = function() {
       var config = {
          type: 'pie',
