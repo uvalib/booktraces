@@ -11,11 +11,8 @@ echo "*****************************************"
 INSTANCE=booktraces
 NAMESPACE=uvadave
 
-# pull base image to ensure we have the latest
-docker pull alpine:3.9
-
 # build the image
-docker build -t $NAMESPACE/$INSTANCE .
+docker build -f package/Dockerfile -t $NAMESPACE/$INSTANCE .
 
 # return status
 exit $?
